@@ -89,7 +89,7 @@ switch (for example to `gemini-3.8-flash` or `gemini-3.5-flash-lite`).
 
 | Setting | Where | Default |
 |---|---|---|
-| Theme colors and font | `.streamlit/config.toml` | Teal on white, Inter |
+| Theme colors and font | `.streamlit/config.toml` (`[theme.light]`, `[theme.dark]`) and `ui/theme.py` | Teal accent, Inter, light and dark |
 | Upload size limit | `.streamlit/config.toml` (`maxUploadSize`) and `core/settings.py` (`MAX_FILE_MB`) | 50 MB |
 | Row and column limits, sampling threshold, query timeout | `core/settings.py` | 1,000,000 rows, 300 columns, 200,000 rows, 10 s |
 | AI calls per session | `core/settings.py` (`MAX_AI_CALLS_PER_SESSION`) | 10 |

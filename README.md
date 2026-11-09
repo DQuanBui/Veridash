@@ -69,6 +69,7 @@ exports for Excel, PDF and Power BI. It is built on three pillars:
 - **One-sentence insights:** each chart states what it shows, using numbers from its own query.
 - **"How this was calculated":** every chart and KPI shows the exact SQL that ran and the table it returned.
 - **Adjustable:** the primary metric, date column and date grain can be changed at any time.
+- **Light and dark mode:** the app follows the visitor's system setting, with color-blind-safe chart palettes validated for both.
 
 ### AI insights with fact-checking
 - **Structured output:** an executive summary, key findings, recommendations framed as hypotheses with evidence
@@ -196,7 +197,7 @@ flowchart LR
 | Exports | The Excel file opens with all sheets, the PDF has two to four pages, the Power BI kit has every file |
 | App | Every page renders, all three examples run end to end without a key, and edge-case files do not break |
 
-All 197 automated tests pass, and the codebase is lint-clean under Ruff.
+All 201 automated tests pass, and the codebase is lint-clean under Ruff.
 
 ## Roadmap
 

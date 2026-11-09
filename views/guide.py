@@ -178,6 +178,9 @@ faqs = [
      "Fewer than 90% of its values could be read as numbers. Clean the stray values or check for unusual formats."),
     ("Can I change the metric or date grain?",
      "Yes. Use the sidebar on the Analyze page. Charts, KPIs, insights and exports update together."),
+    ("Is there a dark mode?",
+     "Yes. Veridash follows your device's light or dark setting automatically. To switch, open the menu "
+     "in the top-right corner, choose Settings and pick a theme."),
     ("Where does my file go after I close the tab?",
      "Your session's memory is released, and cached results expire from server memory within an hour."),
 ]
