@@ -22,8 +22,8 @@ Everything you need to run, test, configure and deploy Veridash.
 ### Windows (PowerShell)
 
 ```powershell
-git clone https://github.com/DQuanBui/veridash.git
-cd veridash
+git clone https://github.com/DQuanBui/Veridash.git
+cd Veridash
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
@@ -40,8 +40,8 @@ Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
 ### macOS (Terminal)
 
 ```bash
-git clone https://github.com/DQuanBui/veridash.git
-cd veridash
+git clone https://github.com/DQuanBui/Veridash.git
+cd Veridash
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
@@ -116,7 +116,7 @@ python -m data.samples.generate_samples
 2. **Sign in** at <https://share.streamlit.io> with your GitHub account and authorise access to the repository.
 3. Click **Create app**, then choose **Deploy a public app from GitHub**.
 4. Fill in the form:
-   - **Repository:** `DQuanBui/veridash`
+   - **Repository:** `DQuanBui/Veridash`
    - **Branch:** `main`
    - **Main file path:** `app.py`
    - **App URL (optional):** choose a subdomain such as `veridash`, which gives `https://veridash.streamlit.app`.

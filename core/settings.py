@@ -20,7 +20,7 @@ AUTHOR_NAME = "Quan Bui"
 AUTHOR_ROLE = "Information Systems @ Fordham University"
 AUTHOR_EMAIL = "dbui10@fordham.edu"
 LINKEDIN_URL = "https://www.linkedin.com/in/your-profile"
-GITHUB_URL = "https://github.com/DQuanBui/veridash"
+GITHUB_URL = "https://github.com/DQuanBui/Veridash"
 
 # Paths
 ROOT_DIR = Path(__file__).resolve().parent.parent
