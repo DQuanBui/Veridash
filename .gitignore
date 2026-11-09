@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Environments
+.venv/
+venv/
+.env
+.env.*
+
+# Streamlit secrets (never commit real keys)
+.streamlit/secrets.toml
+
+# Exported outputs
+exports_out/
+*.xlsx
+*.pdf
+*.zip
+!data/samples/*.xlsx
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
