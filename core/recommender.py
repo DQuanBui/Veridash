@@ -582,7 +582,8 @@ def _box(engine: QueryEngine, sel: Selection, cat: str) -> ChartSpec | None:
     return spec
 
 
-def _strength(r: float) -> str:
+def strength(r: float) -> str:
+    """Describe a correlation as strong, moderate or weak."""
     a = abs(r)
     return "strong" if a >= 0.7 else "moderate" if a >= 0.4 else "weak"
 
@@ -608,7 +609,7 @@ def _correlation(engine: QueryEngine, sel: Selection) -> ChartSpec | None:
     spec.meta["strongest"] = (best["col_a"], best["col_b"], float(best["r"]))
     spec.insight = (
         f"The strongest relationship is between {pretty(best['col_a']).lower()} and {pretty(best['col_b']).lower()} "
-        f"(r = {fmt_value(best['r'], 'ratio')}, {_strength(best['r'])} {'positive' if best['r'] > 0 else 'negative'})."
+        f"(r = {fmt_value(best['r'], 'ratio')}, {strength(best['r'])} {'positive' if best['r'] > 0 else 'negative'})."
     )
     spec.notes.append("Pearson correlation; it measures association, not causation")
     if abs(best["r"]) >= 0.95:
@@ -633,7 +634,7 @@ def _scatter(engine: QueryEngine, profile: Profile, pair: tuple[str, str, float]
     direction = "rises" if r > 0 else "falls"
     spec.insight = (
         f"As {pretty(a).lower()} increases, {pretty(b).lower()} generally {direction} "
-        f"(r = {fmt_value(r, 'ratio')}, a {_strength(r)} relationship)."
+        f"(r = {fmt_value(r, 'ratio')}, a {strength(r)} relationship)."
     )
     return spec
 
