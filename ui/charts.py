@@ -1,7 +1,8 @@
 """Plotly figures built from :class:`~core.recommender.ChartSpec` results.
 
 Figures only *draw* query results; they never compute new numbers (the one
-exception is laying a correlation list out as a symmetric matrix).
+exception is laying a correlation list out as a symmetric matrix). Colors come
+from :func:`ui.theme.chart_tokens`, so every chart matches light or dark mode.
 """
 
 from __future__ import annotations
@@ -13,12 +14,10 @@ import streamlit as st
 from core.formatting import fmt_value, pretty
 from core.recommender import ChartSpec
 from ui.components import chart_card
-from ui.theme import BORDER, DIVERGING, MUTED, PALETTE, PRIMARY
+from ui.theme import ChartTokens, chart_tokens
 
 HEIGHT = 340
 PLOTLY_CONFIG = {"displayModeBar": False, "responsive": True}
-_TEAL_FILL = "rgba(13,148,136,0.08)"
-_TEAL_BOX = "rgba(13,148,136,0.18)"
 
 
 def _axis_format(kind: str) -> dict:
@@ -26,8 +25,6 @@ def _axis_format(kind: str) -> dict:
         return {"tickprefix": "$", "tickformat": "~s"}
     if kind == "percent":
         return {"ticksuffix": "%", "tickformat": ".0f"}
-    if kind == "int":
-        return {"tickformat": "~s"}
     return {"tickformat": "~s"}
 
 
@@ -35,32 +32,37 @@ def _labels(values: pd.Series, kind: str) -> list[str]:
     return [fmt_value(float(v), kind) if pd.notna(v) else "n/a" for v in values]
 
 
-def _base(fig: go.Figure, height: int = HEIGHT) -> go.Figure:
-    fig.update_layout(template="veridash", height=height, showlegend=False)
+def _base(fig: go.Figure, tk: ChartTokens, height: int = HEIGHT) -> go.Figure:
+    fig.update_layout(template=tk.template, height=height, showlegend=False)
     return fig
 
 
-def _line(spec: ChartSpec) -> go.Figure:
+def _reference_line(fig: go.Figure, tk: ChartTokens, x: float, text: str) -> None:
+    fig.add_vline(x=x, line={"color": tk.muted, "dash": "dot", "width": 1.5})
+    fig.add_annotation(x=x, y=1.04, yref="paper", text=text, showarrow=False, font={"color": tk.muted, "size": 12})
+
+
+def _line(spec: ChartSpec, tk: ChartTokens) -> go.Figure:
     df = spec.data
     fig = go.Figure(
         go.Scatter(
             x=df[spec.x],
             y=df[spec.y],
             mode="lines+markers" if len(df) <= 36 else "lines",
-            line={"color": PRIMARY, "width": 2},
-            marker={"size": 6, "color": PRIMARY, "line": {"color": "#fff", "width": 1.5}},
+            line={"color": tk.primary, "width": 2},
+            marker={"size": 6, "color": tk.primary, "line": {"color": tk.surface, "width": 1.5}},
             fill="tozeroy",
-            fillcolor=_TEAL_FILL,
+            fillcolor=tk.fill,
             customdata=_labels(df[spec.y], spec.value_kind),
             hovertemplate="%{x|%b %d, %Y}<br><b>%{customdata}</b><extra></extra>",
         )
     )
     fig.update_yaxes(rangemode="tozero", **_axis_format(spec.value_kind))
     fig.update_layout(hovermode="x unified")
-    return _base(fig)
+    return _base(fig, tk)
 
 
-def _hbar(spec: ChartSpec) -> go.Figure:
+def _hbar(spec: ChartSpec, tk: ChartTokens) -> go.Figure:
     df = spec.data.iloc[::-1]  # largest at the top
     labels = [str(v) for v in df[spec.x]]
     text = _labels(df[spec.y], spec.value_kind)
@@ -69,11 +71,11 @@ def _hbar(spec: ChartSpec) -> go.Figure:
             x=df[spec.y],
             y=labels,
             orientation="h",
-            marker={"color": PRIMARY, "cornerradius": 4},
+            marker={"color": tk.primary, "cornerradius": 4},
             text=text,
             textposition="outside",
             cliponaxis=False,
-            textfont={"color": MUTED, "size": 12},
+            textfont={"color": tk.muted, "size": 12},
             customdata=text,
             hovertemplate="%{y}<br><b>%{customdata}</b><extra></extra>",
         )
@@ -81,62 +83,53 @@ def _hbar(spec: ChartSpec) -> go.Figure:
     ref = spec.meta.get("reference")
     if ref and ref in df:
         overall = float(df[ref].iloc[0])
-        fig.add_vline(x=overall, line={"color": MUTED, "dash": "dot", "width": 1.5})
-        fig.add_annotation(
-            x=overall, y=1.04, yref="paper", text=f"Overall {fmt_value(overall, 'percent')}",
-            showarrow=False, font={"color": MUTED, "size": 12},
-        )
-    fig.update_xaxes(showgrid=True, gridcolor="#F1F5F9", **_axis_format(spec.value_kind))
+        _reference_line(fig, tk, overall, f"Overall {fmt_value(overall, 'percent')}")
+    fig.update_xaxes(showgrid=True, gridcolor=tk.grid, **_axis_format(spec.value_kind))
     fig.update_yaxes(showgrid=False, automargin=True, ticklabelstandoff=8)
-    height = max(260, min(HEIGHT + 60, 36 * len(df) + 80))
     fig.update_layout(margin={"r": 56})
-    return _base(fig, height)
+    return _base(fig, tk, max(260, min(HEIGHT + 60, 36 * len(df) + 80)))
 
 
-def _discrete(spec: ChartSpec) -> go.Figure:
+def _discrete(spec: ChartSpec, tk: ChartTokens) -> go.Figure:
     df = spec.data
     kind = spec.meta.get("x_kind", "number")
     fig = go.Figure(
         go.Bar(
             x=[fmt_value(float(v), kind) for v in df[spec.x]],
             y=df["records"],
-            marker={"color": PRIMARY, "cornerradius": 4},
+            marker={"color": tk.primary, "cornerradius": 4},
             customdata=_labels(df["share_pct"], "percent"),
             hovertemplate="%{x}<br><b>%{y:,} records</b> (%{customdata})<extra></extra>",
         )
     )
     fig.update_xaxes(type="category", title={"text": pretty(spec.x)})
-    return _base(fig)
+    return _base(fig, tk)
 
 
-def _histogram(spec: ChartSpec) -> go.Figure:
+def _histogram(spec: ChartSpec, tk: ChartTokens) -> go.Figure:
     df = spec.data
     kind = spec.meta.get("x_kind", "number")
-    mids = (df["bin_start"] + df["bin_end"]) / 2
-    widths = (df["bin_end"] - df["bin_start"]) * 0.92
     ranges = [f"{fmt_value(a, kind)} to {fmt_value(b, kind)}" for a, b in zip(df["bin_start"], df["bin_end"], strict=True)]
     fig = go.Figure(
         go.Bar(
-            x=mids,
+            x=(df["bin_start"] + df["bin_end"]) / 2,
             y=df["records"],
-            width=widths,
-            marker={"color": PRIMARY, "cornerradius": 3},
+            width=(df["bin_end"] - df["bin_start"]) * 0.92,
+            marker={"color": tk.primary, "cornerradius": 3},
             customdata=list(zip(ranges, _labels(df["share_pct"], "percent"), strict=True)),
             hovertemplate="%{customdata[0]}<br><b>%{y:,} records</b> (%{customdata[1]})<extra></extra>",
         )
     )
     median = float(df["median"].iloc[0])
-    fig.add_vline(x=median, line={"color": "#0F172A", "dash": "dot", "width": 1.5})
-    fig.add_annotation(x=median, y=1.04, yref="paper", text=f"Median {fmt_value(median, kind)}",
-                       showarrow=False, font={"color": MUTED, "size": 12})
+    _reference_line(fig, tk, median, f"Median {fmt_value(median, kind)}")
     fig.update_xaxes(**_axis_format(kind))
-    return _base(fig)
+    return _base(fig, tk)
 
 
-def _donut(spec: ChartSpec) -> go.Figure:
+def _donut(spec: ChartSpec, tk: ChartTokens) -> go.Figure:
     df = spec.data
     labels = [str(v) for v in df[spec.x]]
-    colors = PALETTE[: len(labels)] if len(labels) <= len(PALETTE) else None
+    colors = list(tk.palette[: len(labels)]) if len(labels) <= len(tk.palette) else None
     fig = go.Figure(
         go.Pie(
             labels=labels,
@@ -144,41 +137,37 @@ def _donut(spec: ChartSpec) -> go.Figure:
             hole=0.62,
             sort=False,
             direction="clockwise",
-            marker={"colors": colors, "line": {"color": "#fff", "width": 2}},
+            marker={"colors": colors, "line": {"color": tk.surface, "width": 2}},
             textinfo="percent",
-            textfont={"color": "#fff", "size": 12},
+            textfont={"color": "#FFFFFF", "size": 12},
             customdata=_labels(df[spec.y], spec.value_kind),
             hovertemplate="%{label}<br><b>%{customdata}</b> (%{percent})<extra></extra>",
         )
     )
-    fig.update_layout(
-        showlegend=True,
-        legend={"orientation": "v", "x": 1.02, "y": 0.5, "yanchor": "middle", "font": {"color": "#0F172A"}},
-    )
-    fig.update_layout(template="veridash", height=HEIGHT)
+    fig.update_layout(template=tk.template, height=HEIGHT, showlegend=True,
+                      legend={"orientation": "v", "x": 1.02, "y": 0.5, "yanchor": "middle"})
     return fig
 
 
-def _box(spec: ChartSpec) -> go.Figure:
+def _box(spec: ChartSpec, tk: ChartTokens) -> go.Figure:
     df = spec.data
-    cats = [str(v) for v in df[spec.x]]
     fig = go.Figure(
         go.Box(
-            x=cats,
+            x=[str(v) for v in df[spec.x]],
             q1=df["q1"],
             median=df["median"],
             q3=df["q3"],
             lowerfence=df["lower_fence"],
             upperfence=df["upper_fence"],
-            marker={"color": PRIMARY},
-            line={"color": PRIMARY, "width": 1.5},
-            fillcolor=_TEAL_BOX,
+            marker={"color": tk.primary},
+            line={"color": tk.primary, "width": 1.5},
+            fillcolor=tk.box_fill,
             hoverinfo="x+y",
         )
     )
     fig.update_yaxes(**_axis_format(spec.value_kind))
     fig.update_xaxes(type="category")
-    return _base(fig)
+    return _base(fig, tk)
 
 
 def correlation_matrix(spec: ChartSpec) -> pd.DataFrame:
@@ -193,7 +182,7 @@ def correlation_matrix(spec: ChartSpec) -> pd.DataFrame:
     return matrix
 
 
-def _heatmap(spec: ChartSpec) -> go.Figure:
+def _heatmap(spec: ChartSpec, tk: ChartTokens) -> go.Figure:
     matrix = correlation_matrix(spec)
     names = [pretty(c) for c in matrix.columns]
     fig = go.Figure(
@@ -204,21 +193,21 @@ def _heatmap(spec: ChartSpec) -> go.Figure:
             zmin=-1,
             zmax=1,
             zmid=0,
-            colorscale=DIVERGING,
+            colorscale=[list(s) for s in tk.diverging],
             xgap=2,
             ygap=2,
             texttemplate="%{z:.2f}",
             textfont={"size": 12},
             hovertemplate="%{y} and %{x}<br><b>r = %{z:.2f}</b><extra></extra>",
-            colorbar={"thickness": 10, "outlinewidth": 0, "tickfont": {"color": MUTED}},
+            colorbar={"thickness": 10, "outlinewidth": 0, "tickfont": {"color": tk.muted}},
         )
     )
     fig.update_yaxes(autorange="reversed", showgrid=False)
     fig.update_xaxes(showgrid=False, tickangle=0)
-    return _base(fig, max(HEIGHT, 46 * len(names) + 80))
+    return _base(fig, tk, max(HEIGHT, 46 * len(names) + 80))
 
 
-def _scatter(spec: ChartSpec) -> go.Figure:
+def _scatter(spec: ChartSpec, tk: ChartTokens) -> go.Figure:
     df = spec.data
     x_kind = spec.meta.get("x_kind", "number")
     fig = go.Figure(
@@ -226,13 +215,13 @@ def _scatter(spec: ChartSpec) -> go.Figure:
             x=df[spec.x],
             y=df[spec.y],
             mode="markers",
-            marker={"color": PRIMARY, "size": 7, "opacity": 0.5, "line": {"color": "#fff", "width": 0.5}},
+            marker={"color": tk.primary, "size": 7, "opacity": 0.5, "line": {"color": tk.surface, "width": 0.5}},
             hovertemplate=f"{pretty(spec.x)}: %{{x:,.2f}}<br>{pretty(spec.y)}: %{{y:,.2f}}<extra></extra>",
         )
     )
-    fig.update_xaxes(title={"text": pretty(spec.x)}, showgrid=True, gridcolor="#F1F5F9", **_axis_format(x_kind))
+    fig.update_xaxes(title={"text": pretty(spec.x)}, showgrid=True, gridcolor=tk.grid, **_axis_format(x_kind))
     fig.update_yaxes(title={"text": pretty(spec.y)}, **_axis_format(spec.value_kind))
-    return _base(fig)
+    return _base(fig, tk)
 
 
 _BUILDERS = {
@@ -246,20 +235,31 @@ _BUILDERS = {
 }
 
 
-def figure_for(spec: ChartSpec) -> go.Figure:
-    """Return the Plotly figure for a chart spec."""
+def figure_for(spec: ChartSpec, tk: ChartTokens | None = None) -> go.Figure:
+    """Return the Plotly figure for a chart spec in the current (or given) mode."""
+    tk = tk or chart_tokens()
     if spec.kind == "bar" and spec.meta.get("discrete"):
-        return _discrete(spec)
-    return _BUILDERS[spec.kind](spec)
+        return _discrete(spec, tk)
+    return _BUILDERS[spec.kind](spec, tk)
+
+
+def number_columns(df: pd.DataFrame) -> dict:
+    """Column config that shows floats with thousands separators and 2 decimals."""
+    return {
+        str(c): st.column_config.NumberColumn(format="%,.2f")
+        for c in df.columns
+        if pd.api.types.is_float_dtype(df[c])
+    }
 
 
 def sql_expander(sql: str, data: pd.DataFrame | None = None, label: str = "How this was calculated") -> None:
     """Show the exact SQL that ran, plus the result table it returned."""
     with st.expander(label):
-        st.caption("This is the exact DuckDB SQL that produced the numbers above. The table is named data.")
+        st.caption("The exact DuckDB SQL that produced the numbers above. The table is named data.")
         st.code(sql, language="sql")
         if data is not None:
-            st.dataframe(data, hide_index=True, height=min(320, 36 * (len(data) + 1) + 2))
+            st.dataframe(data, hide_index=True, height=min(320, 36 * (len(data) + 1) + 2),
+                         column_config=number_columns(data))
 
 
 def render_chart_card(spec: ChartSpec, key_prefix: str = "chart") -> None:
@@ -272,8 +272,9 @@ def render_chart_card(spec: ChartSpec, key_prefix: str = "chart") -> None:
     chart_card(spec.title, spec.insight, body, key=f"{key_prefix}_{spec.key}", notes=[(n, "slate") for n in spec.notes])
 
 
-def auto_figure(df: pd.DataFrame) -> go.Figure | None:
+def auto_figure(df: pd.DataFrame, tk: ChartTokens | None = None) -> go.Figure | None:
     """Pick a simple chart for an arbitrary query result, or ``None`` if none fits."""
+    tk = tk or chart_tokens()
     if df.empty or df.shape[1] < 2 or len(df) < 2:
         return None
     first, numeric = df.columns[0], [c for c in df.columns[1:] if pd.api.types.is_numeric_dtype(df[c])]
@@ -281,17 +282,17 @@ def auto_figure(df: pd.DataFrame) -> go.Figure | None:
         return None
     y = numeric[0]
     if pd.api.types.is_datetime64_any_dtype(df[first]):
-        fig = go.Figure(go.Scatter(x=df[first], y=df[y], mode="lines+markers", line={"color": PRIMARY, "width": 2},
+        fig = go.Figure(go.Scatter(x=df[first], y=df[y], mode="lines+markers", line={"color": tk.primary, "width": 2},
                                    marker={"size": 6}))
     elif len(df) <= 30 and not pd.api.types.is_numeric_dtype(df[first]):
-        fig = go.Figure(go.Bar(x=[str(v) for v in df[first]], y=df[y], marker={"color": PRIMARY, "cornerradius": 4}))
+        fig = go.Figure(go.Bar(x=[str(v) for v in df[first]], y=df[y], marker={"color": tk.primary, "cornerradius": 4}))
         fig.update_xaxes(type="category")
     elif pd.api.types.is_numeric_dtype(df[first]):
         fig = go.Figure(go.Scattergl(x=df[first], y=df[y], mode="markers",
-                                     marker={"color": PRIMARY, "size": 7, "opacity": 0.6}))
-        fig.update_xaxes(title={"text": pretty(str(first))}, showgrid=True, gridcolor="#F1F5F9")
+                                     marker={"color": tk.primary, "size": 7, "opacity": 0.6}))
+        fig.update_xaxes(title={"text": pretty(str(first))}, showgrid=True, gridcolor=tk.grid)
     else:
         return None
     fig.update_yaxes(title={"text": pretty(str(y))})
-    fig.update_layout(template="veridash", height=HEIGHT, showlegend=False, xaxis={"linecolor": BORDER})
+    fig.update_layout(template=tk.template, height=HEIGHT, showlegend=False)
     return fig

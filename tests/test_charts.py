@@ -12,18 +12,20 @@ from core.profiler import profile_dataframe
 from core.recommender import make_selection, recommend_charts
 from core.samples import EXAMPLES
 from ui.charts import auto_figure, correlation_matrix, figure_for
+from ui.theme import DARK, LIGHT
 
 
+@pytest.mark.parametrize("tokens", [LIGHT, DARK], ids=["light", "dark"])
 @pytest.mark.parametrize("key", list(EXAMPLES))
-def test_figures_build_for_every_chart(key):
-
+def test_figures_build_for_every_chart(key, tokens):
     ex = EXAMPLES[key]
     profile = profile_dataframe(load_file(ex.read_bytes(), ex.filename).df)
     with QueryEngine(profile.df) as engine:
         charts = recommend_charts(engine, profile, make_selection(profile))
     for chart in charts:
-        fig = figure_for(chart)
+        fig = figure_for(chart, tokens)
         assert isinstance(fig, go.Figure)
+        assert fig.layout.template is not None
         assert fig.data, chart.key
         if chart.kind == "heatmap":
             matrix = correlation_matrix(chart)

@@ -15,6 +15,7 @@ section_header(
     "Three realistic, synthetic datasets with fictional names. Each has a few planted data issues "
     "so you can see the health check at work. The findings below are computed live.",
     kicker="Examples",
+    top=True,
 )
 
 cols = st.columns(3, gap="medium")
@@ -24,18 +25,19 @@ for col, ex in zip(cols, EXAMPLES.values(), strict=True):
     health = analysis.health
     issues = [i for i in health.issues if i.severity != "info"][:3]
     findings = "".join(
-        f"<li>{badge_html(i.severity, SEVERITY_VARIANT[i.severity])} <span style='margin-left:6px'>{esc(i.title)}</span></li>"
+        f"<li style='display:flex;gap:10px;align-items:baseline;margin:4px 0'>"
+        f"{badge_html(i.severity, SEVERITY_VARIANT[i.severity])}<span>{esc(i.title)}</span></li>"
         for i in issues
     )
     metric = pretty(analysis.selection.metric) if analysis.selection.metric else "Records"
-    with col, st.container(key=f"card_example_{ex.key}"):
+    with col, st.container(key=f"card-eqb_example_{ex.key}"):
         st.markdown(
             f"<p class='vd-chart-title' style='font-size:18px'>{esc(ex.title)}</p>"
             f"<div class='vd-badges'>{badge_html(ex.rows_hint, 'slate')}"
             f"{badge_html(f'Health {health.score}/100 · {health.grade}', 'teal')}</div>"
             f"<p class='vd-chart-insight'>{esc(ex.summary)}</p>"
             "<p style='font-weight:600;font-size:14px;margin:14px 0 6px 0'>What Veridash finds</p>"
-            f"<ul style='list-style:none;padding:0;margin:0;font-size:14px;line-height:2'>{findings}</ul>"
+            f"<ul style='list-style:none;padding:0;margin:0;font-size:14px;line-height:1.5'>{findings}</ul>"
             f"<p class='vd-chart-insight' style='margin-top:10px'>Primary metric: <b>{esc(metric)}</b> · "
             f"{len(analysis.charts)} recommended charts · {len(analysis.kpis)} KPIs</p>",
             unsafe_allow_html=True,

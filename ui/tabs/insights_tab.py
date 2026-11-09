@@ -30,23 +30,27 @@ def _text(text: str, report: FactCheckReport) -> str:
     return highlight_html(text, report.by_text.get(text, []))
 
 
-def _item(text: str, ids: list[str], pack: FactPack, report: FactCheckReport) -> str:
-    return (
-        f"<div class='vd-insight'><div class='txt'>{_text(text, report)}</div>"
-        f"<div class='meta'>{_cites(ids, pack)}</div></div>"
-    )
+def _item(text: str, ids: list[str], pack: FactPack, report: FactCheckReport, show: bool) -> str:
+    meta = f"<div class='meta'>{_cites(ids, pack)}</div>" if show and ids else ""
+    return f"<div class='vd-insight'><div class='txt'>{_text(text, report)}</div>{meta}</div>"
 
 
 def render_insights(insights: Insights, pack: FactPack) -> FactCheckReport:
     """Render insights with highlighted, fact-checked numbers. Returns the report."""
     report = fact_check(insights.texts(), pack)
-    st.markdown(
-        "<div class='vd-badges'>"
-        + source_badge_html(insights.source, insights.model)
-        + verified_badge_html(report.verified, report.total)
-        + "</div>",
-        unsafe_allow_html=True,
-    )
+    left, right = st.columns([3, 1], vertical_alignment="center")
+    with left:
+        st.markdown(
+            "<div class='vd-badges' style='margin:0'>"
+            + source_badge_html(insights.source, insights.model)
+            + verified_badge_html(report.verified, report.total)
+            + "</div>",
+            unsafe_allow_html=True,
+        )
+    with right:
+        show = st.toggle("Show fact sources", key="vd_show_sources",
+                         help="Show the ID of each computed fact a sentence relies on. "
+                              "Hover a dotted number to see where it came from.")
     if insights.notice:
         callout(insights.notice, kind="warn")
     if report.unverified:
@@ -60,12 +64,14 @@ def render_insights(insights: Insights, pack: FactPack) -> FactCheckReport:
 
     with st.container(key="card_summary"):
         st.markdown("<p class='vd-chart-title'>Executive summary</p>", unsafe_allow_html=True)
-        st.markdown("".join(_item(s.text, s.fact_ids, pack, report) for s in insights.summary), unsafe_allow_html=True)
+        st.markdown("".join(_item(s.text, s.fact_ids, pack, report, show) for s in insights.summary),
+                    unsafe_allow_html=True)
     st.write("")
     left, right = st.columns(2, gap="medium")
     with left, st.container(key="card_findings"):
         st.markdown("<p class='vd-chart-title'>Key findings</p>", unsafe_allow_html=True)
-        st.markdown("".join(_item(s.text, s.fact_ids, pack, report) for s in insights.findings), unsafe_allow_html=True)
+        st.markdown("".join(_item(s.text, s.fact_ids, pack, report, show) for s in insights.findings),
+                    unsafe_allow_html=True)
     with right, st.container(key="card_caveats"):
         st.markdown("<p class='vd-chart-title'>Data caveats</p>", unsafe_allow_html=True)
         st.markdown(
@@ -74,17 +80,20 @@ def render_insights(insights: Insights, pack: FactPack) -> FactCheckReport:
         )
     st.write("")
     st.markdown("<p class='vd-chart-title'>Recommendations to test</p>", unsafe_allow_html=True)
-    st.caption("Framed as hypotheses: each one says what supports it and how you could confirm it.")
-    cols = st.columns(2, gap="medium")
-    for i, rec in enumerate(insights.recommendations):
-        with cols[i % 2], st.container(key=f"card_rec_{i}"):
-            st.markdown(
-                f"<div style='font-weight:600;font-size:15px'>{_text(rec.hypothesis, report)}</div>"
-                f"<div class='vd-chart-insight' style='margin-top:8px'><b>Evidence:</b> {_text(rec.evidence, report)}</div>"
-                f"<div class='vd-chart-insight'><b>How to validate:</b> {_text(rec.how_to_validate, report)}</div>"
-                f"<div class='meta' style='margin-top:8px'>{_cites(rec.fact_ids, pack)}</div>",
-                unsafe_allow_html=True,
-            )
+    st.caption("Each one is a hypothesis: what supports it, and how you could confirm it.")
+    recs = insights.recommendations
+    for start in range(0, len(recs), 2):
+        cols = st.columns(2, gap="medium")
+        for offset, rec in enumerate(recs[start : start + 2]):
+            with cols[offset], st.container(key=f"card-eq_rec_{start + offset}"):
+                cites = f"<div class='meta' style='margin-top:10px'>{_cites(rec.fact_ids, pack)}</div>" if show else ""
+                st.markdown(
+                    f"<div class='vd-rec-h'>{_text(rec.hypothesis, report)}</div>"
+                    f"<div class='vd-rec-l'><b>Evidence</b> {_text(rec.evidence, report)}</div>"
+                    f"<div class='vd-rec-l'><b>How to validate</b> {_text(rec.how_to_validate, report)}</div>"
+                    f"{cites}",
+                    unsafe_allow_html=True,
+                )
 
     with st.expander("Fact-check details"):
         st.caption(
@@ -137,10 +146,9 @@ def render(analysis: Analysis, cache_key: str) -> None:
                 cache[cache_key] = generate_ai_insights(client, analysis.facts, analysis.rule_insights)
             st.rerun()
     elif not api_key:
-        callout(
-            "Add a Gemini key in the sidebar to get AI-written insights. The rule-based insights below use "
-            "the same structure and are built directly from computed facts.",
-            title="Rule-based mode",
+        st.caption(
+            "Rule-based insights, written directly from computed facts. Add a Gemini key in the sidebar "
+            "for AI-written insights with the same structure and the same fact-check."
         )
 
     insights = cached or analysis.rule_insights

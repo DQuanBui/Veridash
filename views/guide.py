@@ -20,7 +20,7 @@ from core.settings import (
 )
 from ui.components import callout, footer, section_header
 
-section_header("Guide", "Everything Veridash does, and exactly how it does it.", kicker="Guide")
+section_header("Guide", "Everything Veridash does, and exactly how it does it.", kicker="Guide", top=True)
 
 st.markdown("### Prepare your file")
 left, right = st.columns([3, 2], gap="large")

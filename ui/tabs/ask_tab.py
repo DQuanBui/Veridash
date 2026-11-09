@@ -10,7 +10,7 @@ from core.engine import QueryEngine
 from core.pipeline import Analysis
 from core.settings import ASK_MAX_ROWS, CATEGORY_LABELS_FOR_AI
 from ui.branding import icon
-from ui.charts import PLOTLY_CONFIG, auto_figure
+from ui.charts import PLOTLY_CONFIG, auto_figure, number_columns
 from ui.components import badge_html, callout, esc
 from ui.state import session_api_key
 
@@ -36,7 +36,8 @@ def _render_result(res: AskResult, key: str) -> None:
         fig = auto_figure(res.data)
         if fig is not None:
             st.plotly_chart(fig, theme=None, config=PLOTLY_CONFIG, key=f"ask_fig_{key}")
-        st.dataframe(res.data, hide_index=True, height=min(360, 36 * (len(res.data) + 1) + 2))
+        st.dataframe(res.data, hide_index=True, height=min(360, 36 * (len(res.data) + 1) + 2),
+                     column_config=number_columns(res.data))
 
 
 def _locked(examples: list[str]) -> None:

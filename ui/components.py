@@ -11,7 +11,7 @@ from collections.abc import Callable, Iterable
 
 import streamlit as st
 
-from core.settings import AUTHOR_EMAIL, AUTHOR_NAME, LINKEDIN_URL
+from core.settings import AUTHOR_EMAIL, AUTHOR_NAME, GITHUB_URL, LINKEDIN_URL
 from ui.branding import icon, wordmark
 
 TYPE_BADGE_VARIANT = {
@@ -71,9 +71,9 @@ def hero(eyebrow: str, title_html: str, subtitle: str) -> None:
     )
 
 
-def section_header(title: str, subtitle: str = "", kicker: str = "", center: bool = False) -> None:
-    """Section heading with optional kicker line and subtitle."""
-    cls = "vd-section center" if center else "vd-section"
+def section_header(title: str, subtitle: str = "", kicker: str = "", center: bool = False, top: bool = False) -> None:
+    """Section heading with optional kicker line and subtitle. ``top`` removes the top margin."""
+    cls = "vd-section" + (" center" if center else "") + (" top" if top else "")
     k = f'<div class="vd-kicker">{esc(kicker)}</div>' if kicker else ""
     s = f"<p>{esc(subtitle)}</p>" if subtitle else ""
     _md(f'<div class="{cls}">{k}<h2>{esc(title)}</h2>{s}</div>')
@@ -135,5 +135,6 @@ def footer() -> None:
         f"Built by {esc(AUTHOR_NAME)}</span></div><div>"
         f'<a href="mailto:{esc(AUTHOR_EMAIL)}">{esc(AUTHOR_EMAIL)}</a>'
         f'<a href="{esc(LINKEDIN_URL)}" target="_blank" rel="noopener">LinkedIn</a>'
+        f'<a href="{esc(GITHUB_URL)}" target="_blank" rel="noopener">GitHub</a>'
         "</div></div>"
     )

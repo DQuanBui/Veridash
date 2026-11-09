@@ -7,8 +7,9 @@ import streamlit as st
 from core.settings import AUTHOR_EMAIL, AUTHOR_NAME, AUTHOR_ROLE, GITHUB_URL, LINKEDIN_URL
 from ui.branding import mark
 from ui.components import esc, footer, section_header
+from ui.theme import theme_mode
 
-section_header("About Veridash", "Why it exists and how it is built.", kicker="About")
+section_header("About Veridash", "Why it exists and how it is built.", kicker="About", top=True)
 
 st.markdown("### The problem")
 st.markdown(
@@ -25,21 +26,26 @@ against those facts. The result is a fast first analysis you can actually trust.
 )
 
 st.markdown("### Architecture")
+dark = theme_mode() == "dark"
+node_fill, node_line, ink = ("#131C2E", "#334155", "#E2E8F0") if dark else ("#F8FAFC", "#CBD5E1", "#0F172A")
+accent_fill, accent_line = ("#0F2E2C", "#14B8A6") if dark else ("#F0FDFA", "#5EEAD4")
+ai_fill, ai_line = ("#1E1B4B", "#6366F1") if dark else ("#EEF2FF", "#A5B4FC")
+edge = "#14B8A6" if dark else "#0D9488"
 st.graphviz_chart(
-    """
-digraph G {
+    f"""
+digraph G {{
   rankdir=LR; bgcolor="transparent"; nodesep=0.5; ranksep=0.55; pad=0.2;
-  node [shape=box, style="rounded,filled", fillcolor="#F8FAFC", color="#CBD5E1", fontname="Helvetica",
-        fontsize=13, fontcolor="#0F172A", margin="0.18,0.1"];
-  edge [color="#0D9488", arrowsize=0.8, penwidth=1.3];
-  upload [label="CSV or Excel\nin memory", fillcolor="#F0FDFA", color="#5EEAD4"];
+  node [shape=box, style="rounded,filled", fillcolor="{node_fill}", color="{node_line}", fontname="Helvetica",
+        fontsize=13, fontcolor="{ink}", margin="0.18,0.1"];
+  edge [color="{edge}", arrowsize=0.8, penwidth=1.3];
+  upload [label="CSV or Excel\nin memory", fillcolor="{accent_fill}", color="{accent_line}"];
   prep [label="Load, type and\nhealth-check"];
   duckdb [label="DuckDB SQL\nKPIs and charts"];
   facts [label="Fact pack\nan ID per number"];
   rules [label="Rule-based\ninsights"];
-  gemini [label="Gemini\n(optional)", fillcolor="#EEF2FF", color="#A5B4FC"];
+  gemini [label="Gemini\n(optional)", fillcolor="{ai_fill}", color="{ai_line}"];
   check [label="Fact-check\nevery number"];
-  ui [label="Streamlit UI", fillcolor="#F0FDFA", color="#5EEAD4"];
+  ui [label="Streamlit UI", fillcolor="{accent_fill}", color="{accent_line}"];
   exports [label="Excel, PDF,\nPower BI kit"];
   ask [label="Ask your data\nvalidated SELECT"];
   upload -> prep -> duckdb -> facts;
@@ -48,7 +54,7 @@ digraph G {
   check -> ui -> exports;
   ui -> ask;
   ask -> duckdb [style=dashed, constraint=false, color="#94A3B8"];
-}
+}}
 """,
     width="stretch",
 )
@@ -95,9 +101,9 @@ st.markdown(
 st.markdown("### Author")
 with st.container(key="card_author"):
     st.markdown(
-        f"<div style='display:flex;gap:16px;align-items:center'>{mark(48)}<div>"
-        f"<div style='font-weight:700;font-size:18px'>{esc(AUTHOR_NAME)}</div>"
-        f"<div style='color:#64748B'>{esc(AUTHOR_ROLE)}</div>"
+        f"<div class='vd-author'>{mark(48)}<div>"
+        f"<div class='n'>{esc(AUTHOR_NAME)}</div>"
+        f"<div class='r'>{esc(AUTHOR_ROLE)}</div>"
         f"<div style='margin-top:6px'><a href='mailto:{esc(AUTHOR_EMAIL)}'>{esc(AUTHOR_EMAIL)}</a>"
         f" · <a href='{esc(LINKEDIN_URL)}' target='_blank' rel='noopener'>LinkedIn</a></div></div></div>",
         unsafe_allow_html=True,

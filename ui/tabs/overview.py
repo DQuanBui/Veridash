@@ -17,15 +17,14 @@ _GRADE_COLOR = {"A": "#0D9488", "B": "#0D9488", "C": "#D97706", "D": "#DC2626", 
 
 def _score_ring(health: HealthReport) -> str:
     color = _GRADE_COLOR[health.grade]
+    issues = len([i for i in health.issues if i.severity != "info"])
     return (
         '<div class="vd-score">'
-        f'<div class="ring" style="background: conic-gradient({color} {health.score * 3.6}deg, #E2E8F0 0);">'
-        '<div style="width:76px;height:76px;border-radius:50%;background:#fff;display:flex;flex-direction:column;'
-        'align-items:center;justify-content:center;">'
-        f'<div class="n" style="color:{color}">{health.score}</div><div class="g">GRADE {health.grade}</div></div></div>'
-        "<div><div style='font-weight:700;font-size:18px'>Data health</div>"
-        f"<div style='color:#64748B;font-size:14px'>{len([i for i in health.issues if i.severity != 'info'])} issue(s) found · "
-        "score starts at 100 and loses capped points per check</div></div></div>"
+        f'<div class="ring" style="background: conic-gradient({color} {health.score * 3.6}deg, var(--vd-border) 0);">'
+        f'<div class="inner"><div class="n" style="color:{color}">{health.score}</div>'
+        f'<div class="g">GRADE {health.grade}</div></div></div>'
+        f'<div><div class="title">Data health</div><div class="meta">{issues} issue(s) found. '
+        "The score starts at 100 and loses capped points per check.</div></div></div>"
     )
 
 
@@ -33,7 +32,7 @@ def _checks_table(health: HealthReport) -> str:
     rows = "".join(
         f"<tr><td>{esc(c.label)}</td><td class='num'>{c.measure:,.1f}</td>"
         f"<td class='num'>x{c.points_per_unit:g}, cap {c.cap:g}</td>"
-        f"<td class='num'><b>-{c.penalty:g}</b></td></tr>"
+        f"<td class='num'><b>{f'-{c.penalty:g}' if c.penalty else '0'}</b></td></tr>"
         for c in health.checks
     )
     return (
@@ -106,6 +105,3 @@ def render(analysis: Analysis) -> None:
             + "</div>",
             unsafe_allow_html=True,
         )
-        loaded = analysis.prepared.loaded
-        for note in loaded.notes:
-            st.caption(note)

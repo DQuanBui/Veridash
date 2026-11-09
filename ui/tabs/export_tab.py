@@ -34,7 +34,7 @@ def render(analysis: Analysis, cache_key: str) -> None:
         unsafe_allow_html=True,
     )
     cols = st.columns(3, gap="medium")
-    with cols[0], st.container(key="card_export_excel"):
+    with cols[0], st.container(key="card-eqb_export_excel"):
         _export_card("Excel report",
                      "Summary, column profile, native Excel charts and the full data as a filterable table.")
         st.download_button(
@@ -47,7 +47,7 @@ def render(analysis: Analysis, cache_key: str) -> None:
             on_click="ignore",
             key="dl_excel",
         )
-    with cols[1], st.container(key="card_export_pdf"):
+    with cols[1], st.container(key="card-eqb_export_pdf"):
         _export_card("PDF summary", "A short report: health, KPIs, top charts, insights and methodology.")
         st.download_button(
             "Download PDF",
@@ -59,7 +59,7 @@ def render(analysis: Analysis, cache_key: str) -> None:
             on_click="ignore",
             key="dl_pdf",
         )
-    with cols[2], st.container(key="card_export_pbi"):
+    with cols[2], st.container(key="card-eqb_export_pbi"):
         _export_card("Power BI Starter Kit", "Cleaned CSV, Power Query script, DAX measures, a date table and a quickstart.")
         st.download_button(
             "Download Power BI kit",

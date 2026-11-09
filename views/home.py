@@ -23,6 +23,11 @@ with b1:
 with b2:
     if st.button("Try an example", width="stretch"):
         st.switch_page("views/examples.py")
+st.markdown(
+    "<div class='vd-trust'><span>No sign-up</span><span>Files never stored</span>"
+    "<span>Works without an AI key</span></div>",
+    unsafe_allow_html=True,
+)
 
 # Live preview: real numbers from the bundled retail example.
 ex = EXAMPLES["retail"]

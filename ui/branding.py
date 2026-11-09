@@ -31,12 +31,12 @@ def wordmark(size: int = 28) -> str:
 
 
 def logo_svg_file_content() -> str:
-    """Return a standalone wordmark SVG suitable for ``st.logo``."""
+    """Return a standalone wordmark SVG for ``st.logo`` (teal text reads on light and dark)."""
     return (
         '<svg xmlns="http://www.w3.org/2000/svg" width="150" height="32" viewBox="0 0 150 32">'
         + MARK_SVG.format(s=32).replace("<svg", "<svg x='0' y='0'", 1)
         + '<text x="42" y="23" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="20" '
-        'font-weight="800" fill="#0F172A" letter-spacing="-0.4">Veridash</text></svg>'
+        'font-weight="800" fill="#0D9488" letter-spacing="-0.4">Veridash</text></svg>'
     )
 
 
