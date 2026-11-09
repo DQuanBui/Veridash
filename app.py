@@ -21,7 +21,7 @@ apply_theme()
 st.logo(str(ASSETS_DIR / "logo.svg"), icon_image=str(ASSETS_DIR / "mark.svg"), size="large")
 
 pages = [
-    st.Page("views/home.py", title="Home", default=True, url_path="home"),
+    st.Page("views/home.py", title="Home", default=True),
     st.Page("views/analyze.py", title="Analyze", url_path="analyze"),
     st.Page("views/examples.py", title="Examples", url_path="examples"),
     st.Page("views/guide.py", title="Guide", url_path="guide"),
