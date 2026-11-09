@@ -15,11 +15,11 @@ SUBHEAD = (
     "in seconds, with every number traced back to the query that produced it."
 )
 
-# Author / contact (replace LINKEDIN_URL with your profile)
+# Author / contact
 AUTHOR_NAME = "Quan Bui"
 AUTHOR_ROLE = "Information Systems @ Fordham University"
 AUTHOR_EMAIL = "dbui10@fordham.edu"
-LINKEDIN_URL = "https://www.linkedin.com/in/your-profile"
+LINKEDIN_URL = "https://www.linkedin.com/in/dangquanbui/"
 GITHUB_URL = "https://github.com/DQuanBui/Veridash"
 
 # Paths

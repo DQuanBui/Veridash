@@ -221,4 +221,4 @@ For setup and deployment instructions, see the [Setup Guide](docs/SETUP.md).
 
 ## Author
 
-For any inquiries or questions regarding the project, please contact me at: [dbui10@fordham.edu](mailto:dbui10@fordham.edu) · [LinkedIn](https://www.linkedin.com/in/your-profile)
+For any inquiries or questions regarding the project, please contact me at: [dbui10@fordham.edu](mailto:dbui10@fordham.edu) · [LinkedIn](https://www.linkedin.com/in/dangquanbui/)

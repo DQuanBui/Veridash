@@ -94,7 +94,7 @@ switch (for example to `gemini-3.8-flash` or `gemini-3.5-flash-lite`).
 | Row and column limits, sampling threshold, query timeout | `core/settings.py` | 1,000,000 rows, 300 columns, 200,000 rows, 10 s |
 | AI calls per session | `core/settings.py` (`MAX_AI_CALLS_PER_SESSION`) | 10 |
 | Health score weights | `core/health.py` (`HEALTH_WEIGHTS`) | See the Guide page |
-| Author name, email and LinkedIn URL | `core/settings.py` | Edit `LINKEDIN_URL` to your profile |
+| Author name, email and LinkedIn URL | `core/settings.py` | Quan Bui, dbui10@fordham.edu, linkedin.com/in/dangquanbui |
 
 ## Running tests
 
