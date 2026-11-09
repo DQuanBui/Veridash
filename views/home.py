@@ -13,7 +13,7 @@ from ui.state import cached_analysis
 
 hero(
     "Verifiable data analysis",
-    "Drop your data.<br><span>Trust every number.</span>",
+    "Drop your data.<br><span class='vd-accent'>Trust every number.</span>",
     SUBHEAD,
 )
 _, b1, b2, _ = st.columns([2.2, 1.3, 1.3, 2.2], gap="small")

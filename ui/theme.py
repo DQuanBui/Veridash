@@ -138,7 +138,7 @@ div[class*="st-key-card"] {{
 .vd-hero h1 {{ font-size: clamp(36px, 5.5vw, 60px); line-height: 1.05; font-weight: 800;
   letter-spacing: -0.035em; margin: 0 auto 16px auto; max-width: 820px; padding: 0; }}
 .vd-hero h1, .vd-hero h1 * {{ color: var(--vd-text) !important; }}
-.vd-hero h1 span {{ color: var(--vd-primary) !important; }}
+.vd-hero h1 .vd-accent {{ color: var(--vd-primary) !important; }}
 .vd-hero p {{ font-size: 19px; color: var(--vd-muted); max-width: 640px; margin: 0 auto; line-height: 1.55; }}
 
 /* Section header */
