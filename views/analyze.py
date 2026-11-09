@@ -20,7 +20,7 @@ from ui.state import (
     load_example,
     set_source,
 )
-from ui.tabs import ask_tab, charts_tab, data_tab, insights_tab, overview
+from ui.tabs import ask_tab, charts_tab, data_tab, export_tab, insights_tab, overview
 
 EXAMPLE_PLACEHOLDER = "Choose an example..."
 
@@ -121,10 +121,6 @@ def _sidebar(prepared, file_id: str) -> tuple[str | None, str | None, str | None
     return metric, (date_choice if use_date else None), grain, use_date
 
 
-def _placeholder(text: str) -> None:
-    callout(text, title="Coming soon")
-
-
 section_header(
     "Analyze your data",
     "Every number on this page comes from a DuckDB query you can inspect.",
@@ -158,6 +154,7 @@ except LoadError as exc:
     st.stop()
 
 metric, date_col, grain, use_date = _sidebar(prepared, fid)
+cache_key = f"{fid}|{metric}|{date_col}|{grain}"
 with st.spinner("Running queries..."):
     analysis = cached_analysis(fid, source.name, sheet, metric, date_col, grain, use_date, source.data)
 
@@ -185,10 +182,10 @@ with tabs[0]:
 with tabs[1]:
     charts_tab.render(analysis)
 with tabs[2]:
-    insights_tab.render(analysis, cache_key=f"{fid}|{metric}|{date_col}|{grain}")
+    insights_tab.render(analysis, cache_key=cache_key)
 with tabs[3]:
     ask_tab.render(analysis, file_key=fid)
 with tabs[4]:
     data_tab.render(analysis)
 with tabs[5]:
-    _placeholder("Excel, PDF and Power BI exports are on the way.")
+    export_tab.render(analysis, cache_key=cache_key)
