@@ -185,7 +185,7 @@ with tabs[0]:
 with tabs[1]:
     charts_tab.render(analysis)
 with tabs[2]:
-    insights_tab.render(analysis)
+    insights_tab.render(analysis, cache_key=f"{fid}|{metric}|{date_col}|{grain}")
 with tabs[3]:
     _placeholder("Ask questions in plain English. This tab arrives with the AI layer.")
 with tabs[4]:

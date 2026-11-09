@@ -97,7 +97,7 @@ def generate_rule_insights(
     summary.append(
         Statement(
             f"The dataset has {_v(f, 'dataset.rows')} records across {_v(f, 'dataset.columns')} columns{period}, "
-            f"with a data health score of {_v(f, 'health.score')}/100 (grade {health.grade}).",
+            f"with a data health score of {_v(f, 'health.score')}/{_v(f, 'health.score_max')} (grade {health.grade}).",
             ids,
         )
     )
@@ -265,10 +265,10 @@ def generate_rule_insights(
             0,
             Recommendation(
                 hypothesis="Fixing the data issues first may change some of the figures below.",
-                evidence=f"The health score is {_v(f, 'health.score')}/100 with {len([i for i in health.issues if i.severity != 'info'])} "
-                "issue(s) flagged.",
+                evidence=f"The health score is {_v(f, 'health.score')}/{_v(f, 'health.score_max')} with "
+                f"{_v(f, 'health.issues')} issue(s) flagged.",
                 how_to_validate="Resolve the issues listed on the Overview tab, re-upload the file and compare the results.",
-                fact_ids=["health.score"],
+                fact_ids=["health.score", "health.issues"],
             ),
         )
 

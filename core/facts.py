@@ -112,6 +112,14 @@ def build_fact_pack(
         Fact("dataset.columns", "Number of columns", profile.n_cols, "int", "dataset"),
         Fact("health.score", "Data health score (0-100)", health.score, "int", "health"),
         Fact("health.grade", "Data health grade", health.grade, "text", "health"),
+        Fact("health.score_max", "Maximum possible health score", 100, "int", "health"),
+        Fact(
+            "health.issues",
+            "Data issues flagged (excluding informational notes)",
+            len([i for i in health.issues if i.severity != "info"]),
+            "int",
+            "health",
+        ),
         Fact("health.missing_pct", "Missing cells, % of all cells", health.missing_pct, "percent", "health"),
         Fact("health.duplicate_rows", "Duplicate rows", health.duplicate_rows, "int", "health"),
         Fact(
