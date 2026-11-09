@@ -48,6 +48,7 @@ def _register_plotly_template() -> None:
         "linecolor": BORDER,
         "ticks": "",
         "tickfont": {"color": MUTED, "size": 12},
+        "ticklabelstandoff": 6,
         "title": {"font": {"color": MUTED, "size": 12}},
         "automargin": True,
     }
@@ -158,7 +159,7 @@ div[class*="st-key-card"] {{
 
 /* KPI card */
 .vd-kpi {{ background: #fff; border: 1px solid var(--vd-border); border-radius: var(--vd-radius);
-  padding: 16px 18px; box-shadow: var(--vd-shadow); height: 100%; }}
+  padding: 16px 18px; box-shadow: var(--vd-shadow); height: 100%; min-height: 128px; }}
 .vd-kpi .label {{ font-size: 12px; font-weight: 600; color: var(--vd-muted); text-transform: uppercase;
   letter-spacing: 0.06em; }}
 .vd-kpi .value {{ font-size: 28px; font-weight: 700; color: var(--vd-text); margin-top: 6px;
@@ -225,6 +226,8 @@ div[class*="st-key-card"] {{
 .vd-table-wrap {{ border: 1px solid var(--vd-border); border-radius: var(--vd-radius); overflow: auto;
   max-height: 560px; }}
 table.vd-table {{ width: 100%; border-collapse: collapse; font-size: 13.5px; }}
+table.vd-table td, table.vd-table th {{ white-space: nowrap; }}
+table.vd-table td.wrap {{ white-space: normal; }}
 table.vd-table th {{ position: sticky; top: 0; background: var(--vd-subtle); text-align: left; font-weight: 600;
   color: var(--vd-muted); padding: 10px 12px; border-bottom: 1px solid var(--vd-border); white-space: nowrap; }}
 table.vd-table td {{ padding: 9px 12px; border-bottom: 1px solid #F1F5F9; vertical-align: top; }}
@@ -246,7 +249,9 @@ table.vd-table td.num {{ text-align: right; font-variant-numeric: tabular-nums; 
 """
 
 
+_register_plotly_template()
+
+
 def apply_theme() -> None:
-    """Inject global CSS and register the Plotly template. Call once per run."""
-    _register_plotly_template()
+    """Inject the global CSS. Call once per run from ``app.py``."""
     st.html(_CSS)

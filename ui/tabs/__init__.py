@@ -1,0 +1,1 @@
+"""Analyze page tab views."""

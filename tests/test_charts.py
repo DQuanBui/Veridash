@@ -12,12 +12,11 @@ from core.profiler import profile_dataframe
 from core.recommender import make_selection, recommend_charts
 from core.samples import EXAMPLES
 from ui.charts import auto_figure, correlation_matrix, figure_for
-from ui.theme import apply_theme
 
 
 @pytest.mark.parametrize("key", list(EXAMPLES))
 def test_figures_build_for_every_chart(key):
-    apply_theme()
+
     ex = EXAMPLES[key]
     profile = profile_dataframe(load_file(ex.read_bytes(), ex.filename).df)
     with QueryEngine(profile.df) as engine:

@@ -21,11 +21,11 @@ apply_theme()
 st.logo(str(ASSETS_DIR / "logo.svg"), icon_image=str(ASSETS_DIR / "mark.svg"), size="large")
 
 pages = [
-    st.Page("pages/home.py", title="Home", default=True, url_path="home"),
-    st.Page("pages/analyze.py", title="Analyze", url_path="analyze"),
-    st.Page("pages/examples.py", title="Examples", url_path="examples"),
-    st.Page("pages/guide.py", title="Guide", url_path="guide"),
-    st.Page("pages/about.py", title="About", url_path="about"),
+    st.Page("views/home.py", title="Home", default=True, url_path="home"),
+    st.Page("views/analyze.py", title="Analyze", url_path="analyze"),
+    st.Page("views/examples.py", title="Examples", url_path="examples"),
+    st.Page("views/guide.py", title="Guide", url_path="guide"),
+    st.Page("views/about.py", title="About", url_path="about"),
 ]
 
 st.navigation(pages, position="top").run()

@@ -87,7 +87,7 @@ def _hbar(spec: ChartSpec) -> go.Figure:
             showarrow=False, font={"color": MUTED, "size": 12},
         )
     fig.update_xaxes(showgrid=True, gridcolor="#F1F5F9", **_axis_format(spec.value_kind))
-    fig.update_yaxes(showgrid=False, automargin=True)
+    fig.update_yaxes(showgrid=False, automargin=True, ticklabelstandoff=8)
     height = max(260, min(HEIGHT + 60, 36 * len(df) + 80))
     fig.update_layout(margin={"r": 56})
     return _base(fig, height)
