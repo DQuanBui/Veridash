@@ -9,6 +9,7 @@ import streamlit as st
 from core.pipeline import Analysis
 from exports.excel import build_excel
 from exports.pdf import build_pdf
+from exports.powerbi import build_powerbi_kit
 from ui.components import esc, source_badge_html
 from ui.tabs.insights_tab import current_insights
 
@@ -60,5 +61,14 @@ def render(analysis: Analysis, cache_key: str) -> None:
         )
     with cols[2], st.container(key="card_export_pbi"):
         _export_card("Power BI Starter Kit", "Cleaned CSV, Power Query script, DAX measures, a date table and a quickstart.")
-        st.button("Coming soon", disabled=True, width="stretch", key="dl_pbi_soon")
+        st.download_button(
+            "Download Power BI kit",
+            data=lambda: build_powerbi_kit(analysis),
+            file_name=f"{stem}_powerbi_kit.zip",
+            mime="application/zip",
+            type="primary",
+            width="stretch",
+            on_click="ignore",
+            key="dl_pbi",
+        )
     st.caption("Files are built in memory when you click, sent to your browser and never stored.")

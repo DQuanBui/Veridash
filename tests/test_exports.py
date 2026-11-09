@@ -66,3 +66,27 @@ def test_pdf_has_two_to_four_pages(analysis):
     data = build_pdf(analysis)
     assert data.startswith(b"%PDF")
     assert 2 <= _pdf_pages(data) <= 4
+
+
+def test_powerbi_kit_contents(analysis):
+    import zipfile
+
+    from exports.powerbi import build_powerbi_kit
+
+    zf = zipfile.ZipFile(io.BytesIO(build_powerbi_kit(analysis)))
+    assert sorted(zf.namelist()) == ["QUICKSTART.md", "data.csv", "date_table.dax", "load_data.pq", "measures.dax"]
+    csv_text = zf.read("data.csv").decode("utf-8")
+    assert csv_text.splitlines()[0].split(",") == list(analysis.profile.df.columns)
+    assert len(csv_text.strip().splitlines()) == analysis.profile.n_rows + 1
+    m = zf.read("load_data.pq").decode()
+    assert all(f'"{c}"' in m for c in analysis.profile.df.columns)
+    assert f"Columns = {analysis.profile.n_cols}" in m
+    dax = zf.read("measures.dax").decode()
+    assert "Record Count = COUNTROWS ( Data )" in dax
+    assert "% of Total =" in dax
+    if analysis.selection.date_col:
+        assert "SAMEPERIODLASTYEAR" in dax and "DATEADD" in dax and "Running" in dax
+        assert "CALENDAR ( DATE (" in zf.read("date_table.dax").decode()
+    if analysis.selection.metric:
+        assert f"Data[{analysis.selection.metric}]" in dax
+    assert "Five steps" in zf.read("QUICKSTART.md").decode()
