@@ -20,7 +20,7 @@ from ui.state import (
     load_example,
     set_source,
 )
-from ui.tabs import charts_tab, data_tab, insights_tab, overview
+from ui.tabs import ask_tab, charts_tab, data_tab, insights_tab, overview
 
 EXAMPLE_PLACEHOLDER = "Choose an example..."
 
@@ -187,7 +187,7 @@ with tabs[1]:
 with tabs[2]:
     insights_tab.render(analysis, cache_key=f"{fid}|{metric}|{date_col}|{grain}")
 with tabs[3]:
-    _placeholder("Ask questions in plain English. This tab arrives with the AI layer.")
+    ask_tab.render(analysis, file_key=fid)
 with tabs[4]:
     data_tab.render(analysis)
 with tabs[5]:

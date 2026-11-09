@@ -255,6 +255,11 @@ def _pct_change(first: float, last: float) -> float | None:
     return 100.0 * (last - first) / abs(first)
 
 
+def _missing_note(profile: Profile, cat: str) -> list[str]:
+    n = profile.get(cat).n_missing
+    return [f"{n:,} rows with no {cat} are excluded"] if n else []
+
+
 def _f(chart: str, name: str, label: str, value: Any, kind: str) -> Fact:
     if isinstance(value, float | int) and not isinstance(value, bool):
         value = float(value)
@@ -409,6 +414,7 @@ def _top(engine: QueryEngine, profile: Profile, sel: Selection, cat: str, key: s
     spec = ChartSpec(key, "bar", title, sql, cat, y, sel.value_kind, df, meta={"category": cat})
     if n_total > TOP_N:
         spec.notes.append(f"Showing top {TOP_N} of {n_total} values")
+    spec.notes += _missing_note(profile, cat)
     spec.facts.append(_f(key, "distinct", f"Distinct {cat} values", n_total, "int"))
     for i, row in enumerate(df.itertuples(index=False), start=1):
         spec.facts.append(_f(key, f"{i}.label", f"#{i} {cat}", str(row[0]), "text"))
@@ -430,7 +436,7 @@ def _top(engine: QueryEngine, profile: Profile, sel: Selection, cat: str, key: s
     return spec
 
 
-def _share(engine: QueryEngine, sel: Selection, cat: str) -> ChartSpec | None:
+def _share(engine: QueryEngine, profile: Profile, sel: Selection, cat: str) -> ChartSpec | None:
     share_sel = sel if sel.agg != "AVG" else Selection(None, "COUNT", None, sel.grain, [], [], [])
     sql = _top_sql(share_sel, cat, True, None)
     df = engine.run(sql).df
@@ -439,6 +445,7 @@ def _share(engine: QueryEngine, sel: Selection, cat: str) -> ChartSpec | None:
     y = share_sel.metric_alias
     title = f"Share of {share_sel.metric_label.lower()} by {pretty(cat).lower()}"
     spec = ChartSpec("share", "donut", title, sql, cat, y, share_sel.value_kind, df, meta={"category": cat})
+    spec.notes += _missing_note(profile, cat)
     for i, row in enumerate(df.itertuples(index=False), start=1):
         spec.facts.append(_f("share", f"{i}.label", f"#{i} {cat} by share", str(row[0]), "text"))
         spec.facts.append(_f("share", f"{i}.value", f"{share_sel.metric_label} for {row[0]}", row[1], share_sel.value_kind))
@@ -653,7 +660,7 @@ def recommend_charts(engine: QueryEngine, profile: Profile, sel: Selection) -> l
     if top_cat:
         charts.append((8, _top(engine, profile, sel, top_cat, "top")))
     if share_cat:
-        charts.append((7, _share(engine, sel, share_cat)))
+        charts.append((7, _share(engine, profile, sel, share_cat)))
     if sel.booleans and group_cat:
         charts.append((7, _rate(engine, sel, sel.booleans[0], group_cat)))
     if secondary:
