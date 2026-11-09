@@ -36,7 +36,7 @@ def render(analysis: Analysis, cache_key: str) -> None:
     cols = st.columns(3, gap="medium")
     with cols[0], st.container(key="card_export_excel"):
         _export_card("Excel report",
-                     "Summary, column profile, one sheet per chart with a native Excel chart, and the full data as a filterable table.")
+                     "Summary, column profile, native Excel charts and the full data as a filterable table.")
         st.download_button(
             "Download Excel",
             data=lambda: build_excel(analysis, insights),
