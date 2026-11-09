@@ -1,6 +1,106 @@
-"""About page (scaffold)."""
+"""About: the story, architecture, stack, design decisions, roadmap and author."""
+
+from __future__ import annotations
 
 import streamlit as st
 
-st.title("About")
-st.caption("Coming soon.")
+from core.settings import AUTHOR_EMAIL, AUTHOR_NAME, AUTHOR_ROLE, GITHUB_URL, LINKEDIN_URL
+from ui.branding import mark
+from ui.components import esc, footer, section_header
+
+section_header("About Veridash", "Why it exists and how it is built.", kicker="About")
+
+st.markdown("### The problem")
+st.markdown(
+    """
+Turning a raw spreadsheet into a first trustworthy read of the data takes longer than it should: checking
+quality, finding the right columns, building the first charts and writing up what matters. AI assistants
+promise to shortcut this, but they often produce numbers that cannot be traced to anything, which is a
+non-starter for anyone who has to defend a figure in a meeting.
+
+Veridash takes a different approach. Code computes every number with SQL you can read, and AI is limited to
+choosing and explaining facts that were already computed. Then every number the AI writes is checked
+against those facts. The result is a fast first analysis you can actually trust.
+"""
+)
+
+st.markdown("### Architecture")
+st.graphviz_chart(
+    """
+digraph G {
+  rankdir=LR; bgcolor="transparent"; nodesep=0.5; ranksep=0.55; pad=0.2;
+  node [shape=box, style="rounded,filled", fillcolor="#F8FAFC", color="#CBD5E1", fontname="Helvetica",
+        fontsize=13, fontcolor="#0F172A", margin="0.18,0.1"];
+  edge [color="#0D9488", arrowsize=0.8, penwidth=1.3];
+  upload [label="CSV or Excel\nin memory", fillcolor="#F0FDFA", color="#5EEAD4"];
+  prep [label="Load, type and\nhealth-check"];
+  duckdb [label="DuckDB SQL\nKPIs and charts"];
+  facts [label="Fact pack\nan ID per number"];
+  rules [label="Rule-based\ninsights"];
+  gemini [label="Gemini\n(optional)", fillcolor="#EEF2FF", color="#A5B4FC"];
+  check [label="Fact-check\nevery number"];
+  ui [label="Streamlit UI", fillcolor="#F0FDFA", color="#5EEAD4"];
+  exports [label="Excel, PDF,\nPower BI kit"];
+  ask [label="Ask your data\nvalidated SELECT"];
+  upload -> prep -> duckdb -> facts;
+  facts -> rules -> check;
+  facts -> gemini -> check;
+  check -> ui -> exports;
+  ui -> ask;
+  ask -> duckdb [style=dashed, constraint=false, color="#94A3B8"];
+}
+""",
+    width="stretch",
+)
+
+st.markdown("### Tech stack")
+st.markdown(
+    """
+| Layer | Tools |
+|---|---|
+| Interface | Streamlit (multipage with st.navigation), custom CSS design system, Plotly |
+| Analysis engine | pandas, NumPy, DuckDB (in-memory, sandboxed) |
+| AI | Google Gen AI SDK (Gemini), structured JSON output |
+| Exports | xlsxwriter (native Excel charts), fpdf2 and matplotlib (PDF), Power Query M and DAX |
+| Quality | pytest (including Streamlit AppTest), Ruff |
+"""
+)
+
+st.markdown("### Key design decisions")
+st.markdown(
+    f"""
+- **The AI never does math.** Numbers come from code; the AI selects and explains them.
+- **Every chart shows its real query.** The SQL on screen is the SQL that ran.
+- **AI output is fact-checked.** Every number is matched to a computed fact or flagged.
+- **Only summaries reach the AI.** Schema and aggregates, never raw rows.
+- **A Power BI kit instead of a .pbix.** Plain-text M and DAX that open anywhere and can be reviewed.
+- **A transparent health score.** One formula, one config, shown in full in the Guide.
+
+Read the full reasoning, alternatives and trade-offs in
+[DESIGN_DECISIONS.md]({GITHUB_URL}/blob/main/docs/DESIGN_DECISIONS.md).
+"""
+)
+
+st.markdown("### Roadmap")
+st.markdown(
+    """
+- A PBIP project with a TMDL semantic model, once it can be validated against Power BI Desktop.
+- Joining two related files (for example, orders and customers) with a guided key picker.
+- Significance tests for group differences, reported alongside the existing hypotheses.
+- Saved analysis "recipes" that re-run the same checks on next month's file.
+- Dark mode and an accessibility pass on chart colors and keyboard navigation.
+"""
+)
+
+st.markdown("### Author")
+with st.container(key="card_author"):
+    st.markdown(
+        f"<div style='display:flex;gap:16px;align-items:center'>{mark(48)}<div>"
+        f"<div style='font-weight:700;font-size:18px'>{esc(AUTHOR_NAME)}</div>"
+        f"<div style='color:#64748B'>{esc(AUTHOR_ROLE)}</div>"
+        f"<div style='margin-top:6px'><a href='mailto:{esc(AUTHOR_EMAIL)}'>{esc(AUTHOR_EMAIL)}</a>"
+        f" · <a href='{esc(LINKEDIN_URL)}' target='_blank' rel='noopener'>LinkedIn</a></div></div></div>",
+        unsafe_allow_html=True,
+    )
+
+footer()
