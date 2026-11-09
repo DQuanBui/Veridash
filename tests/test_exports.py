@@ -52,3 +52,17 @@ def test_excel_summary_mentions_health_and_verification(analysis):
     assert f"{analysis.health.score}/100" in text
     assert "Verified numbers:" in text
     assert "Rule-based" in text
+
+
+def _pdf_pages(data: bytes) -> int:
+    import re
+
+    return len(re.findall(rb"/Type /Page\b", data))
+
+
+def test_pdf_has_two_to_four_pages(analysis):
+    from exports.pdf import build_pdf
+
+    data = build_pdf(analysis)
+    assert data.startswith(b"%PDF")
+    assert 2 <= _pdf_pages(data) <= 4

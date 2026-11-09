@@ -196,8 +196,8 @@ def generate_rule_insights(
         fid = next(x.id for x in corr.facts if x.value == r)
         findings.append(
             Statement(
-                f"{pretty(a)} and {pretty(b).lower()} have the strongest correlation, which is {strength(r)} "
-                f"(r = {_v(f, fid)}).",
+                f"{pretty(a)} and {pretty(b).lower()} have the strongest correlation in the data "
+                f"({strength(r)}, r = {_v(f, fid)}).",
                 [fid],
             )
         )
@@ -264,7 +264,7 @@ def generate_rule_insights(
         recs.insert(
             0,
             Recommendation(
-                hypothesis="Fixing the data issues first may change some of the figures below.",
+                hypothesis="Fixing the flagged data issues may change some of these figures.",
                 evidence=f"The health score is {_v(f, 'health.score')}/{_v(f, 'health.score_max')} with "
                 f"{_v(f, 'health.issues')} issue(s) flagged.",
                 how_to_validate="Resolve the issues listed on the Overview tab, re-upload the file and compare the results.",

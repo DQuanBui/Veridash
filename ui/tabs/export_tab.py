@@ -8,6 +8,7 @@ import streamlit as st
 
 from core.pipeline import Analysis
 from exports.excel import build_excel
+from exports.pdf import build_pdf
 from ui.components import esc, source_badge_html
 from ui.tabs.insights_tab import current_insights
 
@@ -47,7 +48,16 @@ def render(analysis: Analysis, cache_key: str) -> None:
         )
     with cols[1], st.container(key="card_export_pdf"):
         _export_card("PDF summary", "A short report: health, KPIs, top charts, insights and methodology.")
-        st.button("Coming soon", disabled=True, width="stretch", key="dl_pdf_soon")
+        st.download_button(
+            "Download PDF",
+            data=lambda: build_pdf(analysis, insights),
+            file_name=f"{stem}_veridash.pdf",
+            mime="application/pdf",
+            type="primary",
+            width="stretch",
+            on_click="ignore",
+            key="dl_pdf",
+        )
     with cols[2], st.container(key="card_export_pbi"):
         _export_card("Power BI Starter Kit", "Cleaned CSV, Power Query script, DAX measures, a date table and a quickstart.")
         st.button("Coming soon", disabled=True, width="stretch", key="dl_pbi_soon")
