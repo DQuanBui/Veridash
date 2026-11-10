@@ -44,6 +44,7 @@ class Insights:
     source: str = "rules"  # "rules" | "ai"
     model: str | None = None
     notice: str | None = None
+    language: str = "English"
 
     def texts(self) -> list[str]:
         """All prose fields, in display order (used by the fact-checker)."""

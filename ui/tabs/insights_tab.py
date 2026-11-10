@@ -6,7 +6,7 @@ import streamlit as st
 
 from ai.client import GeminiClient, resolve_api_key, resolve_model
 from ai.factcheck import FactCheckReport, fact_check, highlight_html
-from ai.insights_ai import generate_ai_insights
+from ai.insights_ai import DEFAULT_LANGUAGE, LANGUAGES, generate_ai_insights
 from core.facts import FactPack
 from core.insights_rules import Insights
 from core.pipeline import Analysis
@@ -128,22 +128,30 @@ def render(analysis: Analysis, cache_key: str) -> None:
     cache: dict[str, Insights] = st.session_state.setdefault(AI_CACHE_KEY, {})
     cached = cache.get(cache_key)
 
-    if api_key and cached is None:
+    if api_key:
         client = GeminiClient(api_key, resolve_model(), st.session_state)
-        left, right = st.columns([3, 2], vertical_alignment="center")
+        left, mid, right = st.columns([3, 1.2, 1.8], vertical_alignment="bottom")
         with left:
-            st.markdown(
-                "**AI insights are available.** Gemini will read only the fact pack (schema and "
-                "aggregated results) and every number it writes will be fact-checked."
-            )
+            if cached is None:
+                st.markdown(
+                    "**AI insights are available.** Gemini will read only the fact pack (schema and "
+                    "aggregated results) and every number it writes will be fact-checked."
+                )
+            else:
+                st.markdown("**Want them in another language?** Pick one and write them again.")
             src = "your session key" if key_source == "session" else "the app's configured key"
             st.caption(f"Using {src} · model {client.model} · {client.calls_left} AI call(s) left this session")
+        with mid:
+            current = cached.language if cached is not None and cached.source == "ai" else DEFAULT_LANGUAGE
+            language = st.selectbox("Language", list(LANGUAGES), index=list(LANGUAGES).index(current),
+                                    key="vd_ai_language")
         with right:
-            go = st.button("Write AI insights with Gemini", type="primary", width="stretch",
+            label = "Write AI insights with Gemini" if cached is None else "Write again"
+            go = st.button(label, type="primary" if cached is None else "secondary", width="stretch",
                            disabled=client.calls_left <= 0)
         if go:
             with st.spinner("Gemini is reading the fact pack..."):
-                cache[cache_key] = generate_ai_insights(client, analysis.facts, analysis.rule_insights)
+                cache[cache_key] = generate_ai_insights(client, analysis.facts, analysis.rule_insights, language)
             st.rerun()
     elif not api_key:
         st.caption(

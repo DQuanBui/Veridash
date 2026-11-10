@@ -79,6 +79,8 @@ exports for Excel, PDF and Power BI. It is built on three pillars:
 - **Citations:** each statement cites the computed facts it relies on.
 - **Fact-check badge:** every number in the AI's text is matched to a computed fact, allowing for rounding, and
   the badge reports the result, for example "Verified numbers: 12/12". Unverified numbers are highlighted, not hidden.
+- **Eight languages:** AI insights can be written in English, Spanish, French, German, Portuguese, Italian, Dutch
+  or Vietnamese. Numbers keep one format in every language, so the fact-check works the same way.
 - **Works without a key:** rule-based insights with the same structure are always available.
 
 ### Ask your data

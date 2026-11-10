@@ -90,6 +90,9 @@ faqs = [
      "Yes. Use the sidebar on the Analyze page. Charts, numbers, insights and exports all update together."),
     ("Why was my column read as text instead of numbers?",
      "Fewer than 90% of its values look like numbers. Clean up stray text such as N/A or TBD and upload again."),
+    ("Can the insights be in my language?",
+     "Yes, with a Gemini key. On the Insights tab, pick Spanish, French, German, Portuguese, Italian, Dutch or "
+     "Vietnamese before writing. Numbers keep the same format in every language, so the fact-check still works."),
     ("Is there a dark mode?",
      "Yes. Veridash follows your device's setting. To switch, open the menu in the top-right corner, choose "
      "Settings and pick a theme."),

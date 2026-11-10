@@ -61,8 +61,41 @@ Rules you must follow:
    (a concrete check the analyst could run).
 5. Caveats must mention material data-quality issues from the health facts and the limits
    of the analysis.
-6. Plain English, short sentences, no markdown, no emoji.
+6. {language_rule}
 Return exactly 3 summary bullets, 3-5 findings, 2-4 recommendations and 2-5 caveats."""
+
+
+# Languages the AI can write in. All are covered by the PDF's DejaVu font.
+LANGUAGES = {
+    "English": "English",
+    "Español": "Spanish",
+    "Français": "French",
+    "Deutsch": "German",
+    "Português": "Portuguese",
+    "Italiano": "Italian",
+    "Nederlands": "Dutch",
+    "Tiếng Việt": "Vietnamese",
+}
+DEFAULT_LANGUAGE = "English"
+
+
+def system_prompt(language: str = DEFAULT_LANGUAGE) -> str:
+    """The system prompt, with the writing-language rule filled in.
+
+    Numbers must keep the fact pack's display format (period decimals, comma
+    thousands, $ and %) in every language, so the fact-checker can verify them.
+    """
+    name = LANGUAGES.get(language, "English")
+    if name == "English":
+        rule = "Plain English, short sentences, no markdown, no emoji."
+    else:
+        rule = (
+            f"Write every text field in {name}, in short, plain sentences with no markdown and no emoji. "
+            "Keep column names and group labels exactly as in the fact pack. Write numbers exactly as in "
+            'the "display" strings (for example $785.3K, 34.6%, 1,204), with a period as the decimal '
+            f"separator, even if {name} normally uses a comma."
+        )
+    return SYSTEM_PROMPT.replace("{language_rule}", rule)
 
 
 def build_prompt(pack: FactPack) -> str:
@@ -112,11 +145,15 @@ def parse_insights(payload: dict[str, Any], pack: FactPack, model: str) -> Insig
     return insights
 
 
-def generate_ai_insights(client: GeminiClient, pack: FactPack, fallback: Insights) -> Insights:
+def generate_ai_insights(
+    client: GeminiClient, pack: FactPack, fallback: Insights, language: str = DEFAULT_LANGUAGE
+) -> Insights:
     """Ask Gemini for insights; on any failure return ``fallback`` with a notice."""
     try:
-        payload = client.generate_json(build_prompt(pack), INSIGHTS_SCHEMA, SYSTEM_PROMPT)
-        return parse_insights(payload, pack, client.model)
+        payload = client.generate_json(build_prompt(pack), INSIGHTS_SCHEMA, system_prompt(language))
+        insights = parse_insights(payload, pack, client.model)
+        insights.language = language if language in LANGUAGES else DEFAULT_LANGUAGE
+        return insights
     except AIError as exc:
         reason = str(exc)
     except Exception:  # defensive: never let AI break the page

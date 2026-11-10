@@ -117,3 +117,31 @@ def test_prompt_contains_no_raw_rows(retail):
     leaked = [d for d in raw_dates if d in prompt and d not in ("2023-01-01", "2024-12-31")]
     assert leaked == []
     assert len(prompt) < 60_000
+
+
+def test_system_prompt_language_rule():
+    from ai.insights_ai import LANGUAGES, system_prompt
+
+    assert "Plain English" in system_prompt()
+    spanish = system_prompt("Español")
+    assert "Write every text field in Spanish" in spanish and "period as the decimal" in spanish
+    assert "{language_rule}" not in spanish
+    assert system_prompt("Klingon") == system_prompt()  # unknown languages fall back to English
+    assert "English" in LANGUAGES and len(LANGUAGES) >= 6
+
+
+def test_insights_in_another_language_are_still_fact_checked(retail):
+    f = retail.facts.by_id()
+    payload = _payload(retail)
+    payload["summary"][0]["text"] = f"Los ingresos totales son {f['kpi.metric'].display}."
+    payload["findings"] = [{"text": f"La puntuación de salud es {f['health.score'].display}.",
+                            "fact_ids": ["health.score"]}] * 3
+    seen = {}
+    client, models = make_client([json.dumps(payload)])
+    original = models.generate_content
+    models.generate_content = lambda **kw: seen.update(kw) or original(**kw)
+    insights = generate_ai_insights(client, retail.facts, retail.rule_insights, language="Español")
+    assert insights.source == "ai" and insights.language == "Español"
+    assert "Spanish" in str(seen["config"])
+    report = fact_check([s.text for s in insights.summary + insights.findings], retail.facts)
+    assert report.total >= 2 and not report.unverified
