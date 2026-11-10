@@ -12,6 +12,8 @@ Each section ends with where the decision lives in the code.
 7. [Health score design](#7-health-score-design)
 8. [A Power BI kit instead of a .pbix](#8-a-power-bi-kit-instead-of-a-pbix)
 9. [Defence in depth for user SQL](#9-defence-in-depth-for-user-sql)
+10. [Explaining change only where the parts add up](#10-explaining-change-only-where-the-parts-add-up)
+11. [Other languages without weakening the fact-check](#11-other-languages-without-weakening-the-fact-check)
 
 ---
 
@@ -200,3 +202,40 @@ quoted identifiers are masked before keyword checks, so values such as "load" in
 
 **In the code.** `ai/nl2sql.py` (`validate_sql`) and `core/engine.py`. `tests/test_nl2sql.py` covers 16 rejection
 cases, and `tests/test_recommender.py` proves the sandbox blocks file reads and cannot be switched off.
+
+## 10. Explaining change only where the parts add up
+
+**Context.** "Revenue rose 19.6% last month" invites the next question: which stores, regions or products moved
+it? Analysts answer that with a contribution (or variance) breakdown.
+
+**Decision.** The "What drove the latest change" chart compares the last two *complete* periods, per group, in a
+single query, and only for totals and counts. For those, the group changes add up to the total change, which
+the tests check. Averages are skipped because a group's change in average does not add up to the overall
+change; showing it would look precise while misleading.
+
+**Alternatives considered.** *A full mix-and-rate decomposition for averages* (correct, but hard to read for a
+non-analyst) or *letting the AI explain the change* (exactly the kind of arithmetic the AI is not allowed to do).
+
+**Trade-off.** Files whose main metric is an average (such as satisfaction scores) get no breakdown. Groups with
+a missing label are excluded, and the chart says how many rows that affects.
+
+**In the code.** `core/recommender.py` (`_drivers`) and `tests/test_recommender.py`.
+
+## 11. Other languages without weakening the fact-check
+
+**Context.** Many users read more comfortably in their own language, but the fact-checker parses numbers such
+as $785.3K and 34.6%. A Spanish or French text would normally write 34,6 %, which would not parse.
+
+**Decision.** AI insights can be written in eight languages, and the prompt requires every number to keep the
+fact pack's display format (period decimals, comma thousands, $ and %) in all of them. Column names and group
+labels stay as they appear in the data, so labels with digits are still recognised. The list is limited to
+languages the PDF font can render.
+
+**Alternatives considered.** *Locale-aware parsing in the fact-checker* (more natural text, but a second number
+grammar to verify and keep in sync) or *machine-translating the English output* (a second model call whose
+numbers would also need checking).
+
+**Trade-off.** Numbers look slightly foreign in some languages (34.6% instead of 34,6 %). Rule-based insights
+and the interface stay in English.
+
+**In the code.** `ai/insights_ai.py` (`LANGUAGES`, `system_prompt`) and `tests/test_ai.py`.

@@ -207,7 +207,7 @@ flowchart LR
 | Exports | The Excel file opens with all sheets, the PDF has two to four pages, the Power BI kit has every file |
 | App | Every page renders, all three examples run end to end without a key, and edge-case files do not break |
 
-All 200 automated tests pass, and the codebase is lint-clean under Ruff.
+All 217 automated tests pass on every push (GitHub Actions), and the codebase is lint-clean under Ruff.
 
 ## Roadmap
 

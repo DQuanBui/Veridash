@@ -26,7 +26,7 @@ flowchart TD
     end
     subgraph Out["Interface and exports"]
         UI[Streamlit views + ui/]
-        X[exports/<br/>excel.py, pdf.py, powerbi.py]
+        X[exports/<br/>excel.py, pdf.py, powerbi.py, audit.py]
     end
     U --> L --> P --> H
     P --> E --> R --> F
@@ -56,7 +56,8 @@ flowchart TD
    categories are chosen from priority lists and data shape; sidebar overrides win.
 6. **Compute** (`core/engine.py`, `core/recommender.py`). The typed DataFrame is registered in an in-memory
    DuckDB connection with external access disabled and locked. Each KPI and chart runs its own SQL; the result,
-   a one-sentence insight and a list of facts are stored on the spec.
+   a one-sentence insight and a list of facts are stored on the spec. For totals and counts over time, one
+   query also breaks the latest change down by group.
 7. **Fact pack** (`core/facts.py`). Dataset, health, KPI, chart and profile facts are collected, each with a
    stable dotted ID such as `kpi.metric` or `top.1.share_pct`.
 8. **Insights.** Rule-based insights are always generated from the fact pack. With a key, `ai/insights_ai.py`
@@ -65,8 +66,8 @@ flowchart TD
 9. **Ask your data** (`ai/nl2sql.py`). The question plus schema context goes to Gemini, which returns one query.
    `validate_sql` checks it and adds a `LIMIT`; the engine runs it with a timeout. Users can also type SQL.
 10. **Exports** (`exports/`). Built lazily when a download button is clicked, fully in memory: an xlsxwriter
-    workbook (`in_memory` mode) with native charts, an fpdf2 PDF with matplotlib images, and a zip with CSV, M
-    and DAX.
+    workbook (`in_memory` mode) with native charts, an fpdf2 PDF with matplotlib images, a zip with CSV, M
+    and DAX, and an audit-trail CSV listing every fact with the SQL that produced it.
 
 ## Module map
 
@@ -74,7 +75,7 @@ flowchart TD
 |---|---|---|
 | `core/` | Loading, typing, health, SQL engine, recommendations, facts, rule-based insights, pipeline | pandas, NumPy, DuckDB |
 | `ai/` | Gemini client, AI insights, fact-checking, natural-language SQL | `core/`, google-genai |
-| `exports/` | Excel, PDF and Power BI outputs | `core/`, `ai/factcheck`, xlsxwriter, fpdf2, matplotlib |
+| `exports/` | Excel, PDF, Power BI and audit-trail outputs | `core/`, `ai/factcheck`, xlsxwriter, fpdf2, matplotlib |
 | `ui/` | Theme, components, Plotly figures, session state and caching, tab views | `core/`, `ai/`, `exports/`, Streamlit, Plotly |
 | `views/` | The four pages: Home, Analyze, Examples, Guide | `ui/` |
 | `app.py` | Page config, theme injection, navigation | `ui/`, `views/` |
