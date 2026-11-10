@@ -7,6 +7,7 @@ import re
 import streamlit as st
 
 from core.pipeline import Analysis
+from exports.audit import build_audit_csv
 from exports.excel import build_excel
 from exports.pdf import build_pdf
 from exports.powerbi import build_powerbi_kit
@@ -33,7 +34,7 @@ def render(analysis: Analysis, cache_key: str) -> None:
         f"{source_badge_html(insights.source, insights.model)}</div>",
         unsafe_allow_html=True,
     )
-    cols = st.columns(3, gap="medium")
+    cols = st.columns(2, gap="medium")
     with cols[0], st.container(key="card-eqb_export_excel"):
         _export_card("Excel report",
                      "Summary, column profile, native Excel charts and the full data as a filterable table.")
@@ -59,7 +60,9 @@ def render(analysis: Analysis, cache_key: str) -> None:
             on_click="ignore",
             key="dl_pdf",
         )
-    with cols[2], st.container(key="card-eqb_export_pbi"):
+    st.write("")
+    cols = st.columns(2, gap="medium")
+    with cols[0], st.container(key="card-eqb_export_pbi"):
         _export_card("Power BI Starter Kit", "Cleaned CSV, Power Query script, DAX measures, a date table and a quickstart.")
         st.download_button(
             "Download Power BI kit",
@@ -70,5 +73,18 @@ def render(analysis: Analysis, cache_key: str) -> None:
             width="stretch",
             on_click="ignore",
             key="dl_pbi",
+        )
+    with cols[1], st.container(key="card-eqb_export_audit"):
+        _export_card("Audit trail",
+                     "Every number Veridash computed, with its fact ID and the exact SQL behind it, as a CSV.")
+        st.download_button(
+            "Download audit trail",
+            data=lambda: build_audit_csv(analysis, insights),
+            file_name=f"{stem}_audit_trail.csv",
+            mime="text/csv",
+            type="primary",
+            width="stretch",
+            on_click="ignore",
+            key="dl_audit",
         )
     st.caption("Files are built in memory when you click, sent to your browser and never stored.")

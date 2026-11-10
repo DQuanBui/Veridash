@@ -88,13 +88,15 @@ exports for Excel, PDF and Power BI. It is built on three pillars:
 - **Transparent results:** the SQL, the result table and an automatic chart are shown together.
 - **SQL mode:** without a key, users can write their own queries under the same safety rules.
 
-### Exports: Excel, PDF and the Power BI Starter Kit
+### Exports: Excel, PDF, the Power BI Starter Kit and an audit trail
 - **Excel report:** a summary sheet, the column profile, one sheet per chart with a native Excel chart and its
   query, and the full dataset as a filterable table.
 - **PDF summary:** a two to four page report with the health score, KPIs, top charts, insights and methodology.
 - **Power BI Starter Kit:** the cleaned data, a Power Query script with correct column types, DAX measures
   (totals, averages, share of total, year-over-year, month-over-month and running totals), a date table and a
   five-step quickstart.
+- **Audit trail:** a CSV of every number Veridash computed, with its fact ID, whether the insights cite it,
+  and the exact SQL behind it, so anyone can re-check the work outside the app.
 
 ### Example datasets
 - **Retail sales:** two years of store transactions across regions, categories and products.

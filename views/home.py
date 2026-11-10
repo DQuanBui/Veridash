@@ -61,7 +61,7 @@ COMPARISON = [
      "Kept in memory for your session and never stored; the AI never sees your rows"),
     ("Getting started", "Sign-up first", "No sign-up, and it works without an AI key"),
     ("Taking results further", "Shared from inside their app",
-     "Excel with native charts, a PDF summary, or a Power BI starter kit"),
+     "Excel with native charts, a PDF, a Power BI starter kit and an audit trail of every number"),
 ]
 
 hero(

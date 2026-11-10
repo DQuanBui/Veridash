@@ -90,3 +90,23 @@ def test_powerbi_kit_contents(analysis):
     if analysis.selection.metric:
         assert f"Data[{analysis.selection.metric}]" in dax
     assert "Five steps" in zf.read("QUICKSTART.md").decode()
+
+
+def test_audit_trail_lists_every_fact_with_its_sql(analysis):
+    from exports.audit import audit_table, build_audit_csv
+
+    table = audit_table(analysis, analysis.rule_insights)
+    assert len(table) == len(analysis.facts.facts)
+    assert table["fact_id"].is_unique
+    kpi_row = table[table["fact_id"] == "kpi.records"].iloc[0]
+    assert kpi_row["sql"].startswith("SELECT COUNT(*)")
+    for chart in analysis.charts:
+        rows = table[table["source"] == chart.key]
+        assert (rows["sql"] == chart.sql).all()
+    # Python-computed facts say where they came from instead of showing SQL.
+    health = table[table["source"] == "health"]
+    assert (health["sql"] == "").all() and health["computed_by"].str.startswith("Health check").all()
+    # Every fact the rule insights cite is marked.
+    cited = set(table.loc[table["cited_in_insights"] == "yes", "fact_id"])
+    assert cited == analysis.rule_insights.cited_ids() & set(table["fact_id"])
+    assert build_audit_csv(analysis).startswith("\ufefffact_id,label".encode())
