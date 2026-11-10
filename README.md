@@ -228,7 +228,8 @@ Building it taught me how much of a tool's credibility comes from transparency. 
 chart, publishing the health formula and flagging unverified numbers took more work than hiding them, but those
 choices are what make the results something I would be comfortable presenting to a manager or a client.
 
-For setup and deployment instructions, see the [Setup Guide](docs/SETUP.md).
+For setup and deployment instructions, see the [Setup Guide](docs/SETUP.md). For what changed in each version,
+see the [Changelog](CHANGELOG.md).
 
 ## Author
 
