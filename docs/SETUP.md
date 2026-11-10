@@ -103,6 +103,18 @@ pytest            # all tests, including Streamlit AppTest smoke tests (about 20
 ruff check .      # lint
 ```
 
+The same two commands run on GitHub Actions for every push and pull request (`.github/workflows/ci.yml`), and
+the README badge shows the latest result. To run Ruff and a few hygiene checks automatically before each
+commit, install the optional hooks once:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+Dependabot (`.github/dependabot.yml`) opens weekly pull requests for dependency updates; CI must pass before
+one is merged.
+
 To regenerate the example datasets (seeded, so the output is identical every time):
 
 ```bash

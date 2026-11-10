@@ -1,0 +1,17 @@
+# Optional local hooks: `pip install pre-commit && pre-commit install`.
+# They run the same lint as CI, plus basic hygiene checks, before each commit.
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.4
+    hooks:
+      - id: ruff
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-yaml
+      - id: check-toml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-added-large-files
+        args: ["--maxkb=1500"]
+      - id: detect-private-key

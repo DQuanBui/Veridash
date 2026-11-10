@@ -1,0 +1,16 @@
+# Weekly update checks. Runtime pins stay deliberate: each update arrives as a pull
+# request that CI must pass before it is merged.
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      dev-tools:
+        patterns: ["pytest", "ruff"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
