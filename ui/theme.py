@@ -46,6 +46,7 @@ class ChartTokens:
     surface: str
     fill: str
     box_fill: str
+    negative: str
     palette: tuple[str, ...]
     diverging: tuple[tuple[float, str], ...]
 
@@ -60,6 +61,7 @@ LIGHT = ChartTokens(
     surface="#FFFFFF",
     fill="rgba(13,148,136,0.08)",
     box_fill="rgba(13,148,136,0.18)",
+    negative="#DC2626",
     palette=tuple(PALETTE_LIGHT),
     diverging=((0.0, "#4F46E5"), (0.5, "#F1F5F9"), (1.0, "#0D9488")),
 )
@@ -73,6 +75,7 @@ DARK = ChartTokens(
     surface="#111A2C",
     fill="rgba(20,184,166,0.12)",
     box_fill="rgba(20,184,166,0.22)",
+    negative="#F87171",
     palette=tuple(PALETTE_DARK),
     diverging=((0.0, "#6366F1"), (0.5, "#1E293B"), (1.0, "#14B8A6")),
 )

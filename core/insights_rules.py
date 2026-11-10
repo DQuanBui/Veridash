@@ -160,6 +160,19 @@ def generate_rule_insights(
                 ["trend.peak_period", "trend.peak_value", "trend.first_value", "trend.first_period"],
             )
         )
+    drivers = _chart(charts, "drivers")
+    if drivers and "drivers.1.change" in f:
+        cat = pretty(drivers.meta["category"]).lower()
+        moved = "added" if float(f["drivers.1.change"].value) > 0 else "removed"
+        findings.append(
+            Statement(
+                f"From {_v(f, 'drivers.prev_period')} to {_v(f, 'drivers.last_period')}, {metric.lower()} changed by "
+                f"{_v(f, 'drivers.total_change')}; by {cat}, {_v(f, 'drivers.1.label')} {moved} the most "
+                f"({_v(f, 'drivers.1.change')}).",
+                ["drivers.prev_period", "drivers.last_period", "drivers.total_change", "drivers.1.label",
+                 "drivers.1.change"],
+            )
+        )
     for chart in (top, _chart(charts, "top_secondary")):
         if chart is None:
             continue

@@ -65,7 +65,7 @@ exports for Excel, PDF and Power BI. It is built on three pillars:
 - **Smart parsing:** currency, percentages and accounting negatives such as (123) are read as numbers.
 
 ### Smart charts and KPIs
-- **Chosen by data shape:** trends over time, top-N rankings, share of total, rates by group, distributions,
+- **Chosen by data shape:** trends over time, what drove the latest change, top-N rankings, share of total, rates by group, distributions,
   spread by group, a correlation heatmap and a scatter of the strongest pair.
 - **One-sentence insights:** each chart states what it shows, using numbers from its own query.
 - **"How this was calculated":** every chart and KPI shows the exact SQL that ran and the table it returned.

@@ -458,6 +458,90 @@ def _share(engine: QueryEngine, profile: Profile, sel: Selection, cat: str) -> C
     return spec
 
 
+def _signed(value: float, kind: str) -> str:
+    """Format a change with an explicit sign, e.g. ``+$12.3K`` or ``-41``."""
+    return ("+" if value >= 0 else "-") + fmt_value(abs(value), kind)
+
+
+def _complete_periods(engine: QueryEngine, profile: Profile, sel: Selection) -> pd.DataFrame:
+    """The trend table without a trailing incomplete period."""
+    assert sel.date_col is not None
+    df = engine.run(_trend_sql(sel)).df
+    max_date = pd.Timestamp(profile.get(sel.date_col).stats["max"], unit="s")
+    if len(df) and _is_partial(df["period"].iloc[-1], sel.grain, max_date):
+        df = df.iloc[:-1]
+    return df
+
+
+def _drivers(engine: QueryEngine, profile: Profile, sel: Selection, cat: str) -> ChartSpec | None:
+    """Which groups drove the change between the last two complete periods.
+
+    Only additive metrics (SUM or COUNT) are broken down: their group changes
+    add up to the total change, which is not true for averages.
+    """
+    if not sel.date_col or sel.agg == "AVG":
+        return None
+    periods = _complete_periods(engine, profile, sel)
+    if len(periods) < 2:
+        return None
+    prev_p, last_p = periods["period"].iloc[-2], periods["period"].iloc[-1]
+    total = float(periods.iloc[-1, 1]) - float(periods.iloc[-2, 1])
+    c, p, expr = quote_ident(cat), period_expr(sel.date_col, sel.grain), sel.metric_expr()
+    prev_lit = f"DATE {sql_literal(pd.Timestamp(prev_p).strftime('%Y-%m-%d'))}"
+    last_lit = f"DATE {sql_literal(pd.Timestamp(last_p).strftime('%Y-%m-%d'))}"
+    sql = (
+        f"SELECT {c}, previous, latest, latest - previous AS change\n"
+        "FROM (\n"
+        f"  SELECT {c} AS {c},\n"
+        f"         COALESCE({expr} FILTER (WHERE {p} = {prev_lit}), 0) AS previous,\n"
+        f"         COALESCE({expr} FILTER (WHERE {p} = {last_lit}), 0) AS latest\n"
+        "  FROM data\n"
+        f"  WHERE {c} IS NOT NULL AND {p} IN ({prev_lit}, {last_lit})\n"
+        "  GROUP BY 1\n"
+        ")\n"
+        "WHERE latest <> previous\n"
+        "ORDER BY abs(latest - previous) DESC, 1\n"
+        f"LIMIT {TOP_N}"
+    )
+    df = engine.run(sql).df
+    if df.empty or total == 0:
+        return None
+    g, kind = sel.grain, sel.value_kind
+    last_txt, prev_txt = fmt_period(last_p, g), fmt_period(prev_p, g)
+    title = f"What drove the latest change, by {pretty(cat).lower()}"
+    spec = ChartSpec("drivers", "bar", title, sql, cat, "change", kind, df,
+                     meta={"category": cat, "diverging": True})
+    spec.notes.append(f"{last_txt} vs {prev_txt}, the last two complete {g}s")
+    n_total = profile.get(cat).n_unique
+    if n_total > TOP_N:
+        spec.notes.append(f"Showing the {TOP_N} largest movers of {n_total} values")
+    spec.notes += _missing_note(profile, cat)
+    k = spec.key
+    spec.facts = [
+        _f(k, "last_period", f"Latest complete {g}", last_txt, "text"),
+        _f(k, "prev_period", f"Prior {g}", prev_txt, "text"),
+        _f(k, "total_change", f"Change in {sel.metric_label.lower()}, {last_txt} vs {prev_txt}", total, kind),
+    ]
+    for i, row in enumerate(df.itertuples(index=False), start=1):
+        label = str(row[0])
+        spec.facts += [
+            _f(k, f"{i}.label", f"#{i} mover by {cat}", label, "text"),
+            _f(k, f"{i}.change", f"Change for {label}, {last_txt} vs {prev_txt}", row[3], kind),
+            _f(k, f"{i}.latest", f"{sel.metric_label} for {label} in {last_txt}", row[2], kind),
+        ]
+    top = df.iloc[0]
+    spec.insight = (
+        f"{sel.metric_label} {'rose' if total > 0 else 'fell'} by {fmt_value(abs(total), kind)} in {last_txt} "
+        f"vs {prev_txt}; {top.iloc[0]} moved the most ({_signed(float(top['change']), kind)})"
+    )
+    against = df[(df["change"] > 0) != (total > 0)]
+    if len(against):
+        other = against.iloc[0]
+        spec.insight += f", while {other.iloc[0]} pulled the other way ({_signed(float(other['change']), kind)})"
+    spec.insight += "."
+    return spec
+
+
 def _rate(engine: QueryEngine, sel: Selection, flag: str, cat: str) -> ChartSpec | None:
     c, b = quote_ident(cat), quote_ident(flag)
     rate = quote_ident(_slug(flag) + "_rate_pct")
@@ -661,6 +745,8 @@ def recommend_charts(engine: QueryEngine, profile: Profile, sel: Selection) -> l
         charts.append((8, _top(engine, profile, sel, top_cat, "top")))
     if share_cat:
         charts.append((7, _share(engine, profile, sel, share_cat)))
+    if group_cat:
+        charts.append((8, _drivers(engine, profile, sel, group_cat)))
     if sel.booleans and group_cat:
         charts.append((7, _rate(engine, sel, sel.booleans[0], group_cat)))
     if secondary:

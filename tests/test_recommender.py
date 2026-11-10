@@ -90,3 +90,55 @@ def test_total_matches_pandas():
         kpis = {k.key: k for k in build_kpis(engine, profile, sel)}
     assert kpis["metric"].value == pytest.approx(profile.df["revenue"].sum())
     assert kpis["records"].value == len(profile.df)
+
+
+def _drivers_for(df: pd.DataFrame, metric: str | None = None, grain: str = "month"):
+    profile = profile_dataframe(df)
+    sel = make_selection(profile, metric=metric, grain=grain)
+    with QueryEngine(profile.df) as engine:
+        charts = recommend_charts(engine, profile, sel)
+    return sel, next((c for c in charts if c.key == "drivers"), None)
+
+
+def _monthly_sales() -> pd.DataFrame:
+    rows = []
+    for month, amounts in {"2024-01-15": (100, 50, 30), "2024-02-15": (160, 20, 30), "2024-03-15": (200, 10, 45)}.items():
+        for region, amount in zip(("East", "West", "North"), amounts, strict=True):
+            rows.append({"date": month, "region": region, "revenue": float(amount)})
+    rows.append({"date": "2024-03-31", "region": "East", "revenue": 0.0})  # keeps March complete
+    return pd.DataFrame(rows)
+
+
+def test_drivers_add_up_to_the_total_change():
+    _, spec = _drivers_for(_monthly_sales())
+    assert spec is not None and spec.kind == "bar" and spec.meta["diverging"]
+    facts = {f.id: f.value for f in spec.facts}
+    assert facts["drivers.last_period"] == "Mar 2024" and facts["drivers.prev_period"] == "Feb 2024"
+    assert facts["drivers.total_change"] == pytest.approx(255 - 210)
+    assert spec.data["change"].sum() == pytest.approx(facts["drivers.total_change"])
+    # Largest mover first, and decreases are kept with their sign.
+    assert list(spec.data["region"]) == ["East", "North", "West"]
+    assert facts["drivers.3.change"] == pytest.approx(-10)
+    assert "East moved the most (+$40)" in spec.insight
+    assert "West pulled the other way (-$10)" in spec.insight
+
+
+def test_drivers_skip_averages_and_files_without_dates():
+    df = _monthly_sales().rename(columns={"revenue": "satisfaction_score"})
+    sel, spec = _drivers_for(df, metric="satisfaction_score")
+    assert sel.agg == "AVG" and spec is None
+    _, spec = _drivers_for(_monthly_sales().drop(columns="date"))
+    assert spec is None
+
+
+def test_drivers_text_passes_the_fact_check():
+    from ai.factcheck import fact_check
+    from core.pipeline import analyze, prepare
+
+    ex = EXAMPLES["retail"]
+    analysis = analyze(prepare(ex.read_bytes(), ex.filename))
+    spec = next(c for c in analysis.charts if c.key == "drivers")
+    texts = [spec.insight, *[s.text for s in analysis.rule_insights.findings if "changed by" in s.text]]
+    assert len(texts) == 2
+    report = fact_check(texts, analysis.facts)
+    assert report.total and not report.unverified

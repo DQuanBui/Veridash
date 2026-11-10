@@ -26,6 +26,7 @@ from core.recommender import ChartSpec
 from ui.charts import correlation_matrix
 
 TEAL = "#0D9488"
+RED = "#DC2626"
 INK = (15, 23, 42)
 MUTED = (100, 116, 139)
 TEAL_RGB = (13, 148, 136)
@@ -64,7 +65,11 @@ def _png(spec: ChartSpec) -> bytes:
         ax.bar([str(v) for v in df[spec.x]], df["records"], color=TEAL)
     elif spec.kind == "bar":
         labels = [str(v)[:22] for v in df[spec.x]][::-1]
-        ax.barh(labels, df[spec.y][::-1], color=TEAL)
+        values = df[spec.y][::-1]
+        colors = [TEAL if v >= 0 else RED for v in values] if spec.meta.get("diverging") else TEAL
+        ax.barh(labels, values, color=colors)
+        if spec.meta.get("diverging"):
+            ax.axvline(0, color="#64748B", linewidth=0.8)
         ax.xaxis.set_major_formatter(_axis_formatter(spec.value_kind))
         ax.xaxis.set_major_locator(matplotlib.ticker.MaxNLocator(5))
         ax.grid(axis="x", color="#F1F5F9")

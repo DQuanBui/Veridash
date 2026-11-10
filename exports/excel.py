@@ -194,8 +194,11 @@ def _native_chart(wb: xlsxwriter.Workbook, sheet: str, spec: ChartSpec, df: pd.D
                           "fill": {"color": TEAL}, "gap": 60})
     elif spec.kind == "bar":
         chart = wb.add_chart({"type": "bar"})
-        chart.add_series({"name": pretty(spec.y), "categories": ref(spec.x), "values": ref(spec.y),
-                          "fill": {"color": TEAL}, "gap": 60})
+        series = {"name": pretty(spec.y), "categories": ref(spec.x), "values": ref(spec.y),
+                  "fill": {"color": TEAL}, "gap": 60}
+        if spec.meta.get("diverging"):
+            series |= {"invert_if_negative": True, "invert_if_negative_color": "#DC2626"}
+        chart.add_series(series)
         chart.set_y_axis({"reverse": True})
     elif spec.kind == "histogram":
         chart = wb.add_chart({"type": "column"})

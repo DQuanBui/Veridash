@@ -131,6 +131,8 @@ with st.expander("How charts are chosen"):
 - **Main metric:** the first number column matching {", ".join(METRIC_PRIORITY[:8])} and so on. Rates,
   prices and scores ({", ".join(AVG_HINTS[:5])}...) are averaged; everything else is summed.
 - **Trend** when there is a date column, grouped by day, week, month or quarter depending on the date span.
+- **What drove the latest change:** for totals and counts, how much each group added or removed
+  between the last two complete periods. The bars add up to the total change.
 - **Top {TOP_N}** bar charts, **share of total**, **rate by group** for yes/no columns, a **distribution**,
   **spread by group**, a **correlation heatmap** and a **scatter** of the strongest pair, up to {MAX_CHARTS} charts.
 - ID columns are never charted. Above {HEAVY_VISUAL_ROW_LIMIT:,} rows, distributions use a labelled sample and

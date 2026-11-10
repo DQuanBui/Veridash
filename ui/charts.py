@@ -65,13 +65,18 @@ def _line(spec: ChartSpec, tk: ChartTokens) -> go.Figure:
 def _hbar(spec: ChartSpec, tk: ChartTokens) -> go.Figure:
     df = spec.data.iloc[::-1]  # largest at the top
     labels = [str(v) for v in df[spec.x]]
+    diverging = bool(spec.meta.get("diverging"))
     text = _labels(df[spec.y], spec.value_kind)
+    color: str | list[str] = tk.primary
+    if diverging:
+        text = [("+" if v >= 0 else "-") + fmt_value(abs(float(v)), spec.value_kind) for v in df[spec.y]]
+        color = [tk.primary if v >= 0 else tk.negative for v in df[spec.y]]
     fig = go.Figure(
         go.Bar(
             x=df[spec.y],
             y=labels,
             orientation="h",
-            marker={"color": tk.primary, "cornerradius": 4},
+            marker={"color": color, "cornerradius": 4},
             text=text,
             textposition="outside",
             cliponaxis=False,
@@ -85,8 +90,10 @@ def _hbar(spec: ChartSpec, tk: ChartTokens) -> go.Figure:
         overall = float(df[ref].iloc[0])
         _reference_line(fig, tk, overall, f"Overall {fmt_value(overall, 'percent')}")
     fig.update_xaxes(showgrid=True, gridcolor=tk.grid, **_axis_format(spec.value_kind))
+    if diverging:
+        fig.update_xaxes(zeroline=True, zerolinecolor=tk.muted, zerolinewidth=1)
     fig.update_yaxes(showgrid=False, automargin=True, ticklabelstandoff=8)
-    fig.update_layout(margin={"r": 56})
+    fig.update_layout(margin={"r": 56, "l": 8})
     return _base(fig, tk, max(260, min(HEIGHT + 60, 36 * len(df) + 80)))
 
 
