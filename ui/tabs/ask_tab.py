@@ -5,7 +5,7 @@ from __future__ import annotations
 import streamlit as st
 
 from ai.client import GeminiClient, resolve_api_key, resolve_model
-from ai.nl2sql import AskResult, ask, example_questions, run_validated
+from ai.nl2sql import AskResult, Starter, ask, example_questions, run_validated, starter_queries
 from core.engine import QueryEngine
 from core.pipeline import Analysis
 from core.settings import ASK_MAX_ROWS, CATEGORY_LABELS_FOR_AI
@@ -15,6 +15,7 @@ from ui.components import badge_html, callout, esc
 from ui.state import session_api_key
 
 HISTORY_KEY = "vd_ask_history"
+STARTER_KEY = "vd_starter_pick"
 
 
 def _render_result(res: AskResult, key: str) -> None:
@@ -52,11 +53,38 @@ def _locked(examples: list[str]) -> None:
     )
 
 
+def _run_starter(analysis: Analysis, history: list[AskResult], starters: list[Starter]) -> None:
+    """Callback: run the picked quick question, then clear the pick so it can be clicked again."""
+    picked = st.session_state.get(STARTER_KEY)
+    starter = next((s for s in starters if s.question == picked), None)
+    if starter is not None:
+        with QueryEngine(analysis.profile.df) as engine:
+            history.insert(0, run_validated(engine, starter.sql, starter.question, starter.explanation))
+        del history[5:]
+    st.session_state[STARTER_KEY] = None
+
+
+def _quick_questions(analysis: Analysis, history: list[AskResult]) -> None:
+    starters = starter_queries(analysis.profile, analysis.selection)
+    if not starters:
+        return
+    st.pills(
+        "Quick questions (no key needed)",
+        [s.question for s in starters],
+        key=STARTER_KEY,
+        on_change=_run_starter,
+        args=(analysis, history, starters),
+    )
+    st.caption("Each one runs a ready-made SQL query, shown with its answer below.")
+    st.write("")
+
+
 def render(analysis: Analysis, file_key: str) -> None:
     """Render the Ask your data tab. History is kept per file for this session."""
     history: list[AskResult] = st.session_state.setdefault(HISTORY_KEY, {}).setdefault(file_key, [])
     examples = example_questions(analysis.selection)
     api_key, _ = resolve_api_key(session_api_key())
+    _quick_questions(analysis, history)
 
     if api_key:
         client = GeminiClient(api_key, resolve_model(), st.session_state)

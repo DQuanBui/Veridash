@@ -15,6 +15,7 @@ from ai.nl2sql import (
     example_questions,
     run_validated,
     schema_context,
+    starter_queries,
     validate_sql,
 )
 from core.engine import QueryEngine
@@ -120,3 +121,29 @@ def test_ask_blocks_malicious_model_output(retail):
     with QueryEngine(retail.profile.df) as engine:
         res = ask(client, engine, retail.profile, "Export everything")
     assert res.error and res.data.empty
+
+
+@pytest.mark.parametrize("key", list(EXAMPLES))
+def test_starter_queries_validate_and_run(key):
+    ex = EXAMPLES[key]
+    analysis = analyze(prepare(ex.read_bytes(), ex.filename))
+    starters = starter_queries(analysis.profile, analysis.selection)
+    assert 3 <= len(starters) <= 5
+    with QueryEngine(analysis.profile.df) as engine:
+        for starter in starters:
+            res = run_validated(engine, starter.sql, starter.question)
+            assert res.error is None, (starter.question, res.error)
+            assert not res.data.empty
+
+
+def test_missing_values_starter_counts_blanks():
+    from core.loader import load_file
+    from core.profiler import profile_dataframe
+    from core.recommender import make_selection
+
+    data = b"city,amount\nParis,1\n,2\nRome,\nRome,4\n"
+    profile = profile_dataframe(load_file(data, "x.csv").df)
+    starter = next(s for s in starter_queries(profile, make_selection(profile)) if s.question.startswith("Missing"))
+    with QueryEngine(profile.df) as engine:
+        res = run_validated(engine, starter.sql)
+    assert dict(zip(res.data["column_name"], res.data["missing"], strict=True)) == {"amount": 1, "city": 1}

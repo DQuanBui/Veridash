@@ -17,10 +17,10 @@ import duckdb
 import pandas as pd
 
 from ai.client import AIError, GeminiClient
-from core.engine import QueryEngine, QueryError
+from core.engine import QueryEngine, QueryError, quote_ident, sql_literal
 from core.formatting import pretty
 from core.profiler import ColType, Profile
-from core.recommender import Selection
+from core.recommender import Selection, period_expr
 from core.settings import ASK_MAX_ROWS, CATEGORY_LABELS_FOR_AI
 
 BLOCKED_KEYWORDS = (
@@ -205,3 +205,69 @@ def example_questions(selection: Selection) -> list[str]:
     if len(qs) < 3:
         qs.append(f"What are the minimum, average and maximum {metric}?")
     return qs[:3]
+
+
+@dataclass
+class Starter:
+    """A ready-made question with hand-built SQL, runnable without an AI key."""
+
+    question: str
+    sql: str
+    explanation: str
+
+
+MAX_STARTER_COLUMNS = 15
+
+
+def starter_queries(profile: Profile, selection: Selection) -> list[Starter]:
+    """Up to five useful questions answered by plain SQL built from the schema."""
+    sel = selection
+    expr, alias = sel.metric_expr(), quote_ident(sel.metric_alias)
+    label = sel.metric_label
+    cats = sel.categories
+    out: list[Starter] = []
+    if cats:
+        c = quote_ident(cats[0])
+        out.append(Starter(
+            f"{label} by {pretty(cats[0]).lower()}",
+            f"SELECT {c}, {expr} AS {alias}, COUNT(*) AS records\nFROM data\nWHERE {c} IS NOT NULL\n"
+            "GROUP BY 1\nORDER BY 2 DESC",
+            f"Every {pretty(cats[0]).lower()} value, largest first, with its record count.",
+        ))
+    if sel.date_col:
+        d = quote_ident(sel.date_col)
+        out.append(Starter(
+            f"{label} by {sel.grain}",
+            f"SELECT {period_expr(sel.date_col, sel.grain)} AS {sel.grain}, {expr} AS {alias}\nFROM data\n"
+            f"WHERE {d} IS NOT NULL\nGROUP BY 1\nORDER BY 1",
+            f"The trend as a table, one row per {sel.grain}.",
+        ))
+    if len(cats) >= 2:
+        a, b = quote_ident(cats[0]), quote_ident(cats[1])
+        out.append(Starter(
+            f"{label} by {pretty(cats[0]).lower()} and {pretty(cats[1]).lower()}",
+            f"SELECT {a}, {b}, {expr} AS {alias}\nFROM data\nWHERE {a} IS NOT NULL AND {b} IS NOT NULL\n"
+            "GROUP BY 1, 2\nORDER BY 3 DESC\nLIMIT 20",
+            "The 20 largest combinations of the two main groups.",
+        ))
+    if sel.metric:
+        m = quote_ident(sel.metric)
+        out.append(Starter(
+            f"10 largest records by {pretty(sel.metric).lower()}",
+            f"SELECT *\nFROM data\nWHERE {m} IS NOT NULL\nORDER BY {m} DESC\nLIMIT 10",
+            "Full rows for the biggest values, useful for spotting outliers.",
+        ))
+    columns = [col.name for col in profile.columns][:MAX_STARTER_COLUMNS]
+    if columns:
+        parts = [
+            f"SELECT {sql_literal(name)} AS column_name, COUNT(*) - COUNT({quote_ident(name)}) AS missing, "
+            f"COUNT(DISTINCT {quote_ident(name)}) AS distinct_values FROM data"
+            for name in columns
+        ]
+        more = f" (the first {MAX_STARTER_COLUMNS})" if len(profile.columns) > MAX_STARTER_COLUMNS else ""
+        out.append(Starter(
+            "Missing and distinct values per column",
+            "SELECT * FROM (\n  " + "\n  UNION ALL ".join(parts) + "\n)\nORDER BY missing DESC, column_name",
+            f"A quick quality check: blanks and distinct values for each column{more}.",
+        ))
+    return out[:5]

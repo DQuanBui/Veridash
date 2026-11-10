@@ -81,6 +81,8 @@ exports for Excel, PDF and Power BI. It is built on three pillars:
 - **Works without a key:** rule-based insights with the same structure are always available.
 
 ### Ask your data
+- **Quick questions:** up to five one-click questions built from the columns, such as totals by group, the trend
+  as a table, the largest records and missing values per column. They run plain SQL and need no key.
 - **Plain-English questions:** Gemini writes a single SQL query, which Veridash validates before running.
 - **Strict safety rules:** read-only queries only, no file access, a row limit and a timeout.
 - **Transparent results:** the SQL, the result table and an automatic chart are shown together.

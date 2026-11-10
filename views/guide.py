@@ -64,7 +64,7 @@ st.markdown(
 | **Overview** | A health score with each issue explained, plus your key numbers. |
 | **Charts** | Four to eight charts picked for your data, each with a one-line takeaway. |
 | **Insights** | A short summary, key findings and ideas to test, with every number checked. |
-| **Ask your data** | Ask a question in plain English, or write SQL yourself. |
+| **Ask your data** | One-click quick questions, plain-English questions with a key, or your own SQL. |
 | **Data** | Search the cleaned data and see what each column contains. |
 | **Export** | Download an Excel report, a PDF summary or a Power BI starter kit. |
 """
@@ -80,7 +80,8 @@ callout(
 st.markdown("### Common questions")
 faqs = [
     ("Do I need an API key?",
-     "No. Without a key you get the health check, charts, KPIs, rule-based insights, the SQL box and every export. "
+     "No. Without a key you get the health check, charts, KPIs, rule-based insights, quick questions, the SQL box "
+     "and every export. "
      "A free Gemini key adds AI-written insights and plain-English questions."),
     ("Why does a number show as unverified?",
      "The AI wrote a number that does not match anything Veridash calculated, for example a difference it worked out "
