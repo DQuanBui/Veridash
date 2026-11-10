@@ -62,6 +62,21 @@ WHY = {
     "id_columns": "Identifier columns are unique per row, so charting them is meaningless.",
 }
 
+# A practical next step for each issue, in plain language with Excel and Power Query pointers.
+FIX = {
+    "missing_cells": "Fill gaps at the source if you can. Otherwise choose per column: leave them blank "
+    "(Veridash skips them), fill a default such as 0 or Unknown, or drop the rows. In Excel, Go To Special > "
+    "Blanks selects every empty cell.",
+    "duplicate_rows": "First check whether the copies are real, such as two identical orders, or an export "
+    "error. To remove them: Excel Data > Remove Duplicates, or Power Query Remove Rows > Remove Duplicates.",
+    "mixed_types": "Replace placeholder text such as N/A, TBD or a dash with an empty cell, keep units in the "
+    "header instead of the cells, then upload again.",
+    "constant_columns": "Usually safe to delete. Keep the column only if it documents the file, such as a "
+    "currency or a country.",
+    "outlier_columns": "Sort the column on the Data tab to see the extreme values. Correct typos at the source, "
+    "keep genuine large values and read the median alongside the average.",
+}
+
 
 @dataclass
 class CheckResult:
@@ -85,6 +100,11 @@ class Issue:
     why: str
     check: str
     columns: list[str] = field(default_factory=list)
+
+    @property
+    def fix(self) -> str:
+        """A practical next step, or an empty string when nothing needs fixing."""
+        return FIX.get(self.check, "")
 
 
 @dataclass

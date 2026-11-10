@@ -61,7 +61,8 @@ exports for Excel, PDF and Power BI. It is built on three pillars:
 - **Score and grade:** a 0 to 100 health score with an A to F grade, built from a published formula.
 - **Weighted checks:** penalties for missing cells, duplicate rows, mixed-type columns, constant columns and a
   high share of outliers, each capped so no single problem dominates.
-- **Plain-English issues:** every issue has a severity and a "why it matters" line.
+- **Plain-English issues:** every issue has a severity, a "why it matters" line and a practical "how to fix"
+  step with Excel and Power Query pointers, also included in the Excel and PDF reports.
 - **Smart parsing:** currency, percentages and accounting negatives such as (123) are read as numbers.
 
 ### Smart charts and KPIs

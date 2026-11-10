@@ -185,6 +185,8 @@ def _health_and_kpis(pdf: _Report, analysis: Analysis) -> None:
     for issue in issues:
         pdf.para(f"[{issue.severity}] {issue.title}", 8.5, bold=True)
         pdf.para(issue.why, 8, color=MUTED)
+        if issue.fix:
+            pdf.para(f"How to fix: {issue.fix}", 8, color=MUTED)
     pdf.set_left_margin(16)
     pdf.set_y(max(pdf.get_y(), y + 26))
 

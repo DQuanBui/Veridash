@@ -89,6 +89,7 @@ def _summary_sheet(wb: xlsxwriter.Workbook, analysis: Analysis, insights: Insigh
     ws.set_column(0, 0, 34)
     ws.set_column(1, 1, 22)
     ws.set_column(2, 2, 90)
+    ws.set_column(3, 3, 70)
     stamp = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
     ws.write(0, 0, "Veridash report", fmt.title)
     ws.write(1, 0, f"{analysis.name} · generated {stamp}", fmt.subtitle)
@@ -100,12 +101,13 @@ def _summary_sheet(wb: xlsxwriter.Workbook, analysis: Analysis, insights: Insigh
     ws.write(5, 0, "Rows / columns", fmt.label)
     ws.write(5, 1, f"{analysis.profile.n_rows:,} / {analysis.profile.n_cols}")
     row = 7
-    ws.write_row(row, 0, ["Issue", "Severity", "Why it matters"], fmt.header)
+    ws.write_row(row, 0, ["Issue", "Severity", "Why it matters", "How to fix"], fmt.header)
     for issue in h.issues:
         row += 1
         ws.write(row, 0, issue.title, fmt.text)
         ws.write(row, 1, issue.severity)
         ws.write(row, 2, f"{issue.detail} {issue.why}", fmt.text)
+        ws.write(row, 3, issue.fix, fmt.text)
 
     row += 2
     ws.write(row, 0, "Key metrics", fmt.h2)

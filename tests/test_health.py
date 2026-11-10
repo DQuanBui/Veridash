@@ -6,7 +6,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from core.health import HEALTH_WEIGHTS, assess_health, grade_for
+from core.health import FIX, HEALTH_WEIGHTS, assess_health, grade_for
+from core.loader import load_file
 from core.profiler import profile_dataframe
 
 
@@ -62,3 +63,12 @@ def test_constant_mixed_and_outlier_issues():
 @pytest.mark.parametrize(("score", "grade"), [(100, "A"), (90, "A"), (89, "B"), (75, "C"), (60, "D"), (12, "F")])
 def test_grades(score, grade):
     assert grade_for(score) == grade
+
+
+def test_every_actionable_issue_has_a_fix():
+    assert set(FIX) == set(HEALTH_WEIGHTS)
+    data = b"id,amount,flag,note\n1,10,x,TBD\n1,10,x,TBD\n2,,x,ok\n3,1000000,x,5\n4,12,x,6\n5,11,x,7\n"
+    report = assess_health(profile_dataframe(load_file(data, "f.csv").df))
+    actionable = [i for i in report.issues if i.severity != "info"]
+    assert actionable and all(i.fix for i in actionable)
+    assert all(i.fix == "" for i in report.issues if i.check == "id_columns")
