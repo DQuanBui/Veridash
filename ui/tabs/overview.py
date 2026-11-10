@@ -50,7 +50,8 @@ def _issues(health: HealthReport) -> str:
         f"<div>{badge_html(i.severity, SEVERITY_VARIANT[i.severity])}</div>"
         f"<div><div class='t'>{esc(i.title)}</div><div class='d'>{esc(i.detail)}</div>"
         f"<div class='w'><b>Why it matters:</b> {esc(i.why)}</div>"
-        + (f"<div class='w'><b>How to fix:</b> {esc(i.fix)}</div>" if i.fix else "")
+        + (f"<details class='vd-fix'><summary>How to fix</summary><div>{esc(i.fix)}</div></details>"
+           if i.fix else "")
         + "</div></div>"
         for i in health.issues
     )

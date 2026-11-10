@@ -91,7 +91,12 @@ def _hbar(spec: ChartSpec, tk: ChartTokens) -> go.Figure:
         _reference_line(fig, tk, overall, f"Overall {fmt_value(overall, 'percent')}")
     fig.update_xaxes(showgrid=True, gridcolor=tk.grid, **_axis_format(spec.value_kind))
     if diverging:
-        fig.update_xaxes(zeroline=True, zerolinecolor=tk.muted, zerolinewidth=1)
+        # Pad both sides so the signed labels outside the bars never collide with the group names.
+        # Each bar carries its signed value, so the axis numbers are hidden.
+        lo, hi = min(0.0, float(df[spec.y].min())), max(0.0, float(df[spec.y].max()))
+        span = (hi - lo) or 1.0
+        fig.update_xaxes(zeroline=True, zerolinecolor=tk.muted, zerolinewidth=1, showticklabels=False,
+                         range=[lo - (0.5 * span if lo < 0 else 0), hi + (0.35 * span if hi > 0 else 0)])
     fig.update_yaxes(showgrid=False, automargin=True, ticklabelstandoff=8)
     fig.update_layout(margin={"r": 56, "l": 8})
     return _base(fig, tk, max(260, min(HEIGHT + 60, 36 * len(df) + 80)))

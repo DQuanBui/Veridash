@@ -298,6 +298,9 @@ div[class*="st-key-card-eqb"] > :last-child { margin-top: auto; }
 .vd-issue .t { font-weight: 600; font-size: 14.5px; color: var(--vd-text); }
 .vd-issue .d { font-size: 13.5px; color: var(--vd-muted); margin-top: 2px; }
 .vd-issue .w { font-size: 13.5px; color: var(--vd-text); margin-top: 4px; }
+.vd-fix { margin-top: 6px; font-size: 13.5px; color: var(--vd-text); }
+.vd-fix summary { cursor: pointer; color: var(--vd-primary); font-weight: 600; width: fit-content; }
+.vd-fix > div { margin-top: 4px; padding-left: 10px; border-left: 2px solid var(--vd-border); }
 
 /* Insight lists */
 .vd-insight { padding: 12px 0; border-top: 1px solid var(--vd-border); }
