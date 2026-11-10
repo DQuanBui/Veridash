@@ -144,7 +144,7 @@ def compare_table(left_title: str, right_title: str, rows: Iterable[tuple[str, s
 def footer() -> None:
     """Site footer: brand and contact links, with the author credit underneath."""
     _md(
-        f'<div class="vd-footer"><div class="row"><div>{wordmark(22)}</div><nav>'
+        f'<div class="vd-footer"><div class="row"><div>{wordmark(22)}</div><nav aria-label="Contact">'
         f'<a href="mailto:{esc(AUTHOR_EMAIL)}">{esc(AUTHOR_EMAIL)}</a>'
         f'<a href="{esc(LINKEDIN_URL)}" target="_blank" rel="noopener">LinkedIn</a>'
         f'<a href="{esc(GITHUB_URL)}" target="_blank" rel="noopener">GitHub</a>'

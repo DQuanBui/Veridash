@@ -20,7 +20,8 @@ def _score_ring(health: HealthReport) -> str:
     issues = len([i for i in health.issues if i.severity != "info"])
     return (
         '<div class="vd-score">'
-        f'<div class="ring" style="background: conic-gradient({color} {health.score * 3.6}deg, var(--vd-border) 0);">'
+        f'<div class="ring" role="img" aria-label="Data health score {health.score} out of 100, grade {health.grade}" '
+        f'style="background: conic-gradient({color} {health.score * 3.6}deg, var(--vd-border) 0);">'
         f'<div class="inner"><div class="n" style="color:{color}">{health.score}</div>'
         f'<div class="g">GRADE {health.grade}</div></div></div>'
         f'<div><div class="title">Data health</div><div class="meta">{issues} issue(s) found. '

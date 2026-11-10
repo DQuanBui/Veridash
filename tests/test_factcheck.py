@@ -84,3 +84,10 @@ def test_highlight_escapes_and_marks(pack):
     assert "&lt;b&gt;" in out
     assert 'class="vd-num-ok"' in out
     assert 'class="vd-num-bad"' in out
+
+
+def test_unverified_numbers_are_announced_to_screen_readers(pack):
+    text = "Revenue is $1,234 and a made-up 99.9%."
+    out = highlight_html(text, check_text(text, pack))
+    assert out.count('class="vd-sr"') == sum(not c.verified for c in check_text(text, pack)) >= 1
+    assert "(not verified)" in out

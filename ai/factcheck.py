@@ -199,7 +199,10 @@ def highlight_html(text: str, claims: list[NumberClaim]) -> str:
         out.append(html.escape(text[pos : c.start]))
         cls = "vd-num-ok" if c.verified else "vd-num-bad"
         title = f"Verified: {c.fact_id}" if c.verified else "Not found in the fact pack"
-        out.append(f'<span class="{cls}" title="{html.escape(title)}">{html.escape(text[c.start : c.end])}</span>')
+        note = "" if c.verified else '<span class="vd-sr"> (not verified)</span>'
+        out.append(
+            f'<span class="{cls}" title="{html.escape(title)}">{html.escape(text[c.start : c.end])}{note}</span>'
+        )
         pos = c.end
     out.append(html.escape(text[pos:]))
     return "".join(out)

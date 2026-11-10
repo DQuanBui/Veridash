@@ -368,6 +368,18 @@ table.vd-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .vd-locked p { color: var(--vd-muted); margin: 0 auto; max-width: 520px; }
 
 /* Small screens */
+/* Accessibility */
+.vd-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.vd-footer a:focus-visible, .vd-fix summary:focus-visible, .stApp a:focus-visible {
+  outline: 2px solid var(--vd-primary); outline-offset: 2px; border-radius: 4px; }
+.stButton button:focus-visible, .stDownloadButton button:focus-visible {
+  outline: 2px solid var(--vd-primary); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
 @media (max-width: 640px) {
   .block-container { padding-top: 4rem; }
   .vd-hero { padding: 32px 0 24px 0; }
