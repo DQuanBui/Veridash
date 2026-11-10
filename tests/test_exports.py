@@ -110,3 +110,16 @@ def test_audit_trail_lists_every_fact_with_its_sql(analysis):
     cited = set(table.loc[table["cited_in_insights"] == "yes", "fact_id"])
     assert cited == analysis.rule_insights.cited_ids() & set(table["fact_id"])
     assert build_audit_csv(analysis).startswith("\ufefffact_id,label".encode())
+
+
+def test_data_tab_downloads(analysis):
+    from ui.tabs.data_tab import data_dictionary, to_csv_bytes
+
+    dictionary = data_dictionary(analysis.profile.columns)
+    assert list(dictionary["column"]) == [c.name for c in analysis.profile.columns]
+    assert {"type", "missing_pct", "distinct_values", "summary"} <= set(dictionary.columns)
+    text = to_csv_bytes(analysis.profile.df.head(3), analysis.profile.columns).decode("utf-8-sig")
+    lines = text.splitlines()
+    assert len(lines) == 4 and lines[0].split(",")[0] == analysis.profile.columns[0].name
+    if "date" in analysis.profile.df:
+        assert " 00:00:00" not in text  # date-only columns keep a plain date

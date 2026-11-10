@@ -65,7 +65,7 @@ st.markdown(
 | **Charts** | Four to eight charts picked for your data, each with a one-line takeaway. |
 | **Insights** | A short summary, key findings and ideas to test, with every number checked. |
 | **Ask your data** | One-click quick questions, plain-English questions with a key, or your own SQL. |
-| **Data** | Search the cleaned data and see what each column contains. |
+| **Data** | Search the cleaned data, see what each column contains, and download either as a CSV. |
 | **Export** | Download an Excel report, a PDF summary, a Power BI starter kit or an audit trail of every number. |
 """
 )

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from datetime import UTC, datetime
 
 import pandas as pd
@@ -58,6 +59,34 @@ def profile_table_html(columns: list[ColumnProfile]) -> str:
     )
 
 
+def data_dictionary(columns: list[ColumnProfile]) -> pd.DataFrame:
+    """One row per column: name, detected type, completeness and a short summary."""
+    return pd.DataFrame(
+        [
+            {
+                "column": c.name,
+                "type": str(c.col_type),
+                "unit": c.unit or "",
+                "missing_pct": round(c.missing_pct, 2),
+                "distinct_values": c.n_unique,
+                "summary": _summary(c),
+                "notes": ", ".join(n for n, on in (("mixed types", c.mixed_type), ("constant", c.is_constant)) if on),
+            }
+            for c in columns
+        ]
+    )
+
+
+def to_csv_bytes(df: pd.DataFrame, columns: list[ColumnProfile] | None = None) -> bytes:
+    """CSV with ISO dates (no time part for date-only columns) and a BOM so Excel reads UTF-8."""
+    out = df.copy()
+    for col in columns or []:
+        if col.col_type == ColType.DATE and col.name in out:
+            fmt = "%Y-%m-%d %H:%M:%S" if col.stats.get("has_time") else "%Y-%m-%d"
+            out[col.name] = out[col.name].dt.strftime(fmt)
+    return out.to_csv(index=False).encode("utf-8-sig")
+
+
 def _search(df: pd.DataFrame, term: str) -> pd.DataFrame:
     mask = pd.Series(False, index=df.index)
     lowered = term.lower()
@@ -86,6 +115,28 @@ def render(analysis: Analysis) -> None:
         if c.col_type == ColType.DATE and not c.stats.get("has_time")
     }
     st.dataframe(view.head(PREVIEW_ROWS), hide_index=True, height=360, column_config=date_only)
+    stem = re.sub(r"\.[A-Za-z0-9]+$", "", analysis.name) or "data"
+    left, right, _ = st.columns([1, 1, 1.4], gap="small")
+    with left:
+        st.download_button(
+            "Download matching rows" if term else "Download cleaned data",
+            data=lambda: to_csv_bytes(view, profile.columns),
+            file_name=f"{stem}_{'filtered' if term else 'cleaned'}.csv",
+            mime="text/csv",
+            width="stretch",
+            on_click="ignore",
+            key="dl_clean_csv",
+        )
+    with right:
+        st.download_button(
+            "Download data dictionary",
+            data=lambda: to_csv_bytes(data_dictionary(profile.columns)),
+            file_name=f"{stem}_data_dictionary.csv",
+            mime="text/csv",
+            width="stretch",
+            on_click="ignore",
+            key="dl_dictionary",
+        )
 
     st.write("")
     st.markdown("<p class='vd-chart-title'>Column profile</p>", unsafe_allow_html=True)
