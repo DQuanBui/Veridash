@@ -76,7 +76,7 @@ flowchart TD
 | `ai/` | Gemini client, AI insights, fact-checking, natural-language SQL | `core/`, google-genai |
 | `exports/` | Excel, PDF and Power BI outputs | `core/`, `ai/factcheck`, xlsxwriter, fpdf2, matplotlib |
 | `ui/` | Theme, components, Plotly figures, session state and caching, tab views | `core/`, `ai/`, `exports/`, Streamlit, Plotly |
-| `views/` | The five pages | `ui/` |
+| `views/` | The four pages: Home, Analyze, Examples, Guide | `ui/` |
 | `app.py` | Page config, theme injection, navigation | `ui/`, `views/` |
 
 `core/` never imports Streamlit, so the whole engine can be tested and reused without the UI. The one shared

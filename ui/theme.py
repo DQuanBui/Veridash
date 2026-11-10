@@ -325,12 +325,35 @@ table.vd-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .vd-author .n { font-weight: 700; font-size: 18px; color: var(--vd-text); }
 .vd-author .r { color: var(--vd-muted); }
 
-/* Footer */
-.vd-footer { margin-top: 72px; padding: 28px 0 8px 0; border-top: 1px solid var(--vd-border);
-  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+/* Footer: brand and links on one row, author credit centered underneath */
+.vd-footer { margin-top: 72px; padding: 24px 0 4px 0; border-top: 1px solid var(--vd-border);
   color: var(--vd-muted); font-size: 14px; }
-.vd-footer a { color: var(--vd-muted); text-decoration: none; margin-left: 18px; }
+.vd-footer .row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.vd-footer nav { display: flex; flex-wrap: wrap; gap: 6px 20px; }
+.vd-footer a { color: var(--vd-muted); text-decoration: none; }
 .vd-footer a:hover { color: var(--vd-accent); }
+.vd-footer .credit { text-align: center; font-size: 13px; margin-top: 18px; color: var(--vd-muted); }
+
+/* Comparison table (Home) */
+.vd-compare { border: 1px solid var(--vd-border); border-radius: var(--vd-radius); overflow: hidden;
+  background: var(--vd-surface); box-shadow: var(--vd-shadow); }
+.vd-compare table { width: 100%; border-collapse: collapse; font-size: 15px; color: var(--vd-text); }
+.vd-compare th, .vd-compare td { padding: 14px 18px; text-align: left; vertical-align: top;
+  border-bottom: 1px solid var(--vd-divider); line-height: 1.5; }
+.vd-compare tr:last-child th, .vd-compare tr:last-child td { border-bottom: none; }
+.vd-compare thead th { font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--vd-muted);
+  background: var(--vd-subtle); }
+.vd-compare tbody th { font-weight: 600; width: 22%; }
+.vd-compare td { color: var(--vd-muted); width: 39%; }
+.vd-compare .ours { background: var(--vd-tint); color: var(--vd-text); }
+.vd-compare thead .ours { color: var(--vd-accent); }
+.vd-compare td.ours::before { content: "✓"; color: var(--vd-primary); font-weight: 700; margin-right: 8px; }
+
+/* Use case cards */
+.vd-usecase .who { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--vd-accent); margin-top: 12px; }
+.vd-usecase .q { font-size: 17px; font-weight: 700; line-height: 1.4; color: var(--vd-text); margin: 6px 0 8px 0; }
+.vd-usecase ul { margin: 0 0 12px 0; padding-left: 18px; color: var(--vd-muted); font-size: 14.5px; line-height: 1.6; }
 
 /* Empty and locked states */
 .vd-locked { text-align: center; padding: 36px 20px; border: 1px dashed var(--vd-faint); border-radius: var(--vd-radius);
@@ -343,7 +366,7 @@ table.vd-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
   .block-container { padding-top: 4rem; }
   .vd-hero { padding: 32px 0 24px 0; }
   .vd-issue { grid-template-columns: 1fr; gap: 4px; }
-  .vd-footer a { margin-left: 0; margin-right: 18px; }
+  .vd-compare th, .vd-compare td { padding: 10px 12px; font-size: 14px; }
   div[class*="st-key-card"] { padding: 16px; }
 }
 </style>

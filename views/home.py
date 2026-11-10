@@ -1,4 +1,4 @@
-"""Home: landing page with a live preview computed from the retail example."""
+"""Home: what Veridash does, who it is for, and why its numbers can be trusted."""
 
 from __future__ import annotations
 
@@ -7,9 +7,62 @@ import streamlit as st
 from core.loader import file_hash
 from core.samples import EXAMPLES
 from core.settings import SUBHEAD
+from ui.branding import icon
 from ui.charts import PLOTLY_CONFIG, figure_for
-from ui.components import feature_card, footer, hero, kpi_card, section_header, step_card
-from ui.state import cached_analysis
+from ui.components import compare_table, esc, hero, kpi_card, section_header, step_card
+from ui.state import cached_analysis, load_example
+
+# Use cases: the question a team asks, what Veridash answers, and a one-click demo.
+USE_CASES = [
+    {
+        "key": "retail",
+        "icon": "store",
+        "who": "Sales and retail",
+        "question": "Which stores and products drive revenue, and is growth real?",
+        "points": ["Monthly revenue trend with peaks called out", "Top products and share of total by region",
+                   "Bulk orders and outliers flagged before they skew averages"],
+        "button": "Try the retail example",
+    },
+    {
+        "key": "hr",
+        "icon": "users",
+        "who": "People and HR",
+        "question": "Where is attrition highest, and what is different about those teams?",
+        "points": ["Attrition rate by department against the company average",
+                   "Satisfaction by role and salary band", "Missing survey answers counted, not hidden"],
+        "button": "Try the HR example",
+    },
+    {
+        "key": "portfolio",
+        "icon": "trend",
+        "who": "Finance and investments",
+        "question": "Which holdings and sectors carry the portfolio?",
+        "points": ["Market value by ticker and sector share", "Spread of position sizes by sector",
+                   "Very large positions and missing prices surfaced"],
+        "button": "Try the portfolio example",
+    },
+    {
+        "key": None,
+        "icon": "table",
+        "who": "Reporting and BI",
+        "question": "Need a trustworthy first read before you build the real report?",
+        "points": ["Health check before anything goes to a dashboard",
+                   "Excel report with native charts, or a PDF to share",
+                   "Power BI starter kit: Power Query, DAX measures, date table"],
+        "button": "Analyze your own file",
+    },
+]
+
+COMPARISON = [
+    ("Where the numbers come from", "Generated or summarized by the AI",
+     "Computed by code, with the exact query shown next to every chart"),
+    ("Checking AI text", "Taken on trust", "Every number fact-checked, and anything unmatched flagged"),
+    ("Your data", "Uploaded to an account and stored in the cloud",
+     "Kept in memory for your session and never stored; the AI never sees your rows"),
+    ("Getting started", "Sign-up first", "No sign-up, and it works without an AI key"),
+    ("Taking results further", "Shared from inside their app",
+     "Excel with native charts, a PDF summary, or a Power BI starter kit"),
+]
 
 hero(
     "Verifiable data analysis",
@@ -40,7 +93,7 @@ st.write("")
 with st.container(key="card_preview"):
     st.markdown(
         "<p class='vd-chart-title'>Live preview</p><p class='vd-chart-insight'>Computed just now from the "
-        "retail example. Every figure comes from a DuckDB query you can inspect.</p>",
+        "retail example. Every figure comes from a query you can inspect.</p>",
         unsafe_allow_html=True,
     )
     left, right = st.columns([2, 3], gap="medium")
@@ -61,43 +114,42 @@ with st.container(key="card_preview"):
             st.caption(trend.insight)
 
 section_header(
-    "Built for numbers you can defend",
-    "Veridash separates computing from explaining, so every figure can be traced and every claim checked.",
+    "Answers for the questions teams actually ask",
+    "Start from a realistic example in one click, or bring your own file.",
+    kicker="Use cases",
+    center=True,
+)
+for row in (USE_CASES[:2], USE_CASES[2:]):
+    cols = st.columns(2, gap="medium")
+    for col, case in zip(cols, row, strict=True):
+        with col, st.container(key=f"card-eqb_usecase_{case['key'] or 'own'}"):
+            points = "".join(f"<li>{esc(p)}</li>" for p in case["points"])
+            st.markdown(
+                f"<div class='vd-usecase'><div class='vd-icon'>{icon(case['icon'])}</div>"
+                f"<div class='who'>{esc(case['who'])}</div><div class='q'>{esc(case['question'])}</div>"
+                f"<ul>{points}</ul></div>",
+                unsafe_allow_html=True,
+            )
+            if st.button(case["button"], key=f"usecase_{case['key'] or 'own'}", width="stretch"):
+                if case["key"]:
+                    load_example(case["key"])
+                st.switch_page("views/analyze.py")
+
+section_header(
+    "What makes Veridash different",
+    "Most AI data tools ask you to trust their numbers. Veridash shows its work.",
     kicker="Why Veridash",
     center=True,
 )
-p1, p2, p3 = st.columns(3, gap="medium")
-with p1:
-    feature_card(
-        "check",
-        "Verified numbers",
-        "Every chart and KPI comes from a real SQL query shown beside it. AI text is fact-checked "
-        "number by number against those results.",
-    )
-with p2:
-    feature_card(
-        "lock",
-        "Private by design",
-        "Files are processed in memory and never stored. AI features see only the schema and "
-        "aggregated statistics, never your rows.",
-    )
-with p3:
-    feature_card(
-        "export",
-        "Export to your tools",
-        "Download an Excel report with native charts, a PDF summary, or a Power BI Starter Kit "
-        "with Power Query and DAX measures.",
-    )
+compare_table("Many AI dashboard tools", "Veridash", COMPARISON)
 
 section_header("How it works", "From raw file to a report you can share, in four steps.", kicker="Workflow", center=True)
 s1, s2, s3, s4 = st.columns(4, gap="medium")
 with s1:
-    step_card(1, "upload", "Upload", "Drop a CSV or Excel file, or start with one of three example datasets.")
+    step_card(1, "upload", "Upload", "Drop in a CSV or Excel file, or pick an example.")
 with s2:
-    step_card(2, "search", "Check", "Get a 0 to 100 health score with every issue explained and weighted.")
+    step_card(2, "search", "Check", "See a 0 to 100 health score, with every issue explained.")
 with s3:
-    step_card(3, "chart", "Understand", "See recommended charts, KPIs and insights, each with its query.")
+    step_card(3, "chart", "Understand", "Get charts, KPIs and insights, each with its query.")
 with s4:
-    step_card(4, "export", "Export", "Take the results to Excel, PDF or Power BI in one click.")
-
-footer()
+    step_card(4, "export", "Export", "Take the results to Excel, PDF or Power BI.")

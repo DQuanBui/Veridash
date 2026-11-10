@@ -175,54 +175,59 @@ def _file_bar(source: Source, analysis, sheets: list[str], sheet_key: str) -> st
     return sheet
 
 
-requested = st.query_params.get("example")
-if requested in EXAMPLES and get_source() is None:
-    load_example(requested)
-source = get_source()
-if source is None:
-    _empty_state()
-    st.stop()
+def main() -> None:
+    """Render the page. Returns early (rather than st.stop) so the site footer still renders."""
+    requested = st.query_params.get("example")
+    if requested in EXAMPLES and get_source() is None:
+        load_example(requested)
+    source = get_source()
+    if source is None:
+        _empty_state()
+        return
 
-sheets: list[str] = []
-if source.name.lower().endswith(EXCEL_EXTENSIONS):
+    sheets: list[str] = []
+    if source.name.lower().endswith(EXCEL_EXTENSIONS):
+        try:
+            sheets = list_excel_sheets(source.data, source.name)
+        except LoadError as exc:
+            callout(str(exc), title="This file could not be loaded", kind="error")
+            st.button("Choose another file", on_click=_start_over)
+            return
+        sheets = sheets if len(sheets) > 1 else []
+    sheet_key = f"vd_sheet_{file_hash(source.data)}"
+    sheet = st.session_state.get(sheet_key, sheets[0] if sheets else None)
+
+    fid = file_hash(source.data + (sheet or "").encode())
     try:
-        sheets = list_excel_sheets(source.data, source.name)
+        with st.spinner("Profiling your data..."):
+            prepared = cached_prepare(fid, source.name, sheet, source.data)
     except LoadError as exc:
         callout(str(exc), title="This file could not be loaded", kind="error")
         st.button("Choose another file", on_click=_start_over)
-        st.stop()
-    sheets = sheets if len(sheets) > 1 else []
-sheet_key = f"vd_sheet_{file_hash(source.data)}"
-sheet = st.session_state.get(sheet_key, sheets[0] if sheets else None)
+        return
 
-fid = file_hash(source.data + (sheet or "").encode())
-try:
-    with st.spinner("Profiling your data..."):
-        prepared = cached_prepare(fid, source.name, sheet, source.data)
-except LoadError as exc:
-    callout(str(exc), title="This file could not be loaded", kind="error")
-    st.button("Choose another file", on_click=_start_over)
-    st.stop()
+    metric, date_col, grain, use_date = _sidebar(prepared, fid)
+    cache_key = f"{fid}|{metric}|{date_col}|{grain}"
+    with st.spinner("Running queries..."):
+        analysis = cached_analysis(fid, source.name, sheet, metric, date_col, grain, use_date, source.data)
 
-metric, date_col, grain, use_date = _sidebar(prepared, fid)
-cache_key = f"{fid}|{metric}|{date_col}|{grain}"
-with st.spinner("Running queries..."):
-    analysis = cached_analysis(fid, source.name, sheet, metric, date_col, grain, use_date, source.data)
+    _file_bar(source, analysis, sheets, sheet_key)
+    for note in prepared.loaded.notes:
+        st.caption(note)
 
-_file_bar(source, analysis, sheets, sheet_key)
-for note in prepared.loaded.notes:
-    st.caption(note)
+    tabs = st.tabs(["Overview", "Charts", "Insights", "Ask your data", "Data", "Export"])
+    with tabs[0]:
+        overview.render(analysis)
+    with tabs[1]:
+        charts_tab.render(analysis)
+    with tabs[2]:
+        insights_tab.render(analysis, cache_key=cache_key)
+    with tabs[3]:
+        ask_tab.render(analysis, file_key=fid)
+    with tabs[4]:
+        data_tab.render(analysis)
+    with tabs[5]:
+        export_tab.render(analysis, cache_key=cache_key)
 
-tabs = st.tabs(["Overview", "Charts", "Insights", "Ask your data", "Data", "Export"])
-with tabs[0]:
-    overview.render(analysis)
-with tabs[1]:
-    charts_tab.render(analysis)
-with tabs[2]:
-    insights_tab.render(analysis, cache_key=cache_key)
-with tabs[3]:
-    ask_tab.render(analysis, file_key=fid)
-with tabs[4]:
-    data_tab.render(analysis)
-with tabs[5]:
-    export_tab.render(analysis, cache_key=cache_key)
+
+main()

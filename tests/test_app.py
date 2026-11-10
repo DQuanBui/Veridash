@@ -7,7 +7,7 @@ from streamlit.testing.v1 import AppTest
 
 from core.samples import EXAMPLES
 
-PAGES = ["views/home.py", "views/analyze.py", "views/examples.py", "views/guide.py", "views/about.py"]
+PAGES = ["views/home.py", "views/analyze.py", "views/examples.py", "views/guide.py"]
 
 
 def _app() -> AppTest:

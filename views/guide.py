@@ -1,4 +1,4 @@
-"""Guide: how to prepare files, what each tab does, and how Veridash works."""
+"""Guide: a short how-to first, with the technical detail tucked into expanders."""
 
 from __future__ import annotations
 
@@ -18,23 +18,27 @@ from core.settings import (
     QUERY_TIMEOUT_S,
     SCATTER_MAX_POINTS,
 )
-from ui.components import callout, footer, section_header
+from ui.components import callout, section_header, step_card
 
-section_header("Guide", "Everything Veridash does, and exactly how it does it.", kicker="Guide", top=True)
+section_header("Guide", "Everything you need for a great result, in a two-minute read.", kicker="Guide", top=True)
+
+c1, c2, c3 = st.columns(3, gap="medium")
+with c1:
+    step_card(1, "upload", "Add your data", "Upload a CSV or Excel file on Analyze, or pick one of the examples.")
+with c2:
+    step_card(2, "search", "Read the Overview", "Check the health score and issues first, then explore Charts and Insights.")
+with c3:
+    step_card(3, "export", "Take it with you", "Ask follow-up questions, then download Excel, PDF or a Power BI kit.")
 
 st.markdown("### Prepare your file")
 left, right = st.columns([3, 2], gap="large")
 with left:
     st.markdown(
         f"""
-- **Tidy format.** One row per record (an order, an employee, a transaction) and one column per field.
-- **One header row.** The first row names the columns. No merged cells, titles or notes above it.
-- **One table per sheet.** For Excel workbooks with several sheets, pick the sheet in Analyze.
-- **Consistent values.** Keep each column to one kind of value. Text such as "TBD" in a number column is
-  flagged as a mixed-type issue and treated as missing.
-- **Formats Veridash understands.** Dates like 2024-03-31 or 03/31/2024, numbers like 1,234.50, $1,234,
-  (123) for negatives and 12.5%. European decimal commas (1.234,56) are not supported.
-- **Limits.** CSV, XLSX or XLS up to {MAX_FILE_MB} MB, {MAX_ROWS:,} rows and {MAX_COLUMNS} columns.
+- **One row per record** (an order, an employee, a transaction) and one column per field.
+- **One header row** at the top, with no titles, notes or merged cells above it.
+- **One kind of value per column.** Text such as "TBD" in a number column is flagged and treated as missing.
+- **Up to {MAX_FILE_MB} MB:** CSV, XLSX or XLS, up to {MAX_ROWS:,} rows and {MAX_COLUMNS} columns.
 """
     )
 with right:
@@ -57,135 +61,118 @@ st.markdown(
     """
 | Tab | What you get |
 |---|---|
-| **Overview** | Health score and grade, every issue with its severity and why it matters, the KPI row and dataset facts. |
-| **Charts** | Four to eight recommended charts. Each has a one-sentence insight and a "How this was calculated" panel with the exact SQL and its result. |
-| **Insights** | Executive summary, key findings, recommendations framed as hypotheses and data caveats, with fact citations and a verification badge. |
-| **Ask your data** | Ask a question in plain English (with a Gemini key) or write SQL yourself. Every query is validated before it runs. |
-| **Data** | A searchable preview of the cleaned data and a profile of every column. |
-| **Export** | Excel report with native charts, a PDF summary and a Power BI Starter Kit. |
+| **Overview** | A health score with each issue explained, plus your key numbers. |
+| **Charts** | Four to eight charts picked for your data, each with a one-line takeaway. |
+| **Insights** | A short summary, key findings and ideas to test, with every number checked. |
+| **Ask your data** | Ask a question in plain English, or write SQL yourself. |
+| **Data** | Search the cleaned data and see what each column contains. |
+| **Export** | Download an Excel report, a PDF summary or a Power BI starter kit. |
 """
 )
 
-st.markdown("### How the health score is calculated")
-st.markdown("The score starts at 100. Each check subtracts a penalty that grows with the size of the problem and is capped:")
-st.code("score = 100 - sum( min(cap_i, points_per_unit_i x measure_i) )", language="text")
-st.dataframe(
-    pd.DataFrame(
-        [
-            {"Check": c["label"], "Measure": c["unit"], "Points per unit": c["points_per_unit"], "Cap": c["cap"]}
-            for c in HEALTH_WEIGHTS.values()
-        ]
-    ),
-    hide_index=True,
-)
-bands = ", ".join(f"{g} at {f}+" for f, g in GRADE_BANDS[:-1]) + ", F below 60"
-st.markdown(
-    f"""
-- **Grades:** {bands}.
-- **Outliers** use the IQR rule: a value is an outlier if it falls below Q1 - 1.5 x IQR or above
-  Q3 + 1.5 x IQR. A column counts as high-outlier when more than {OUTLIER_SHARE_THRESHOLD:g}% of its values are outliers.
-- **Example:** 2% missing cells (3 points) plus 1% duplicate rows (2 points) and one mixed-type column (5 points)
-  gives 100 - 10 = 90, grade A.
-- Identifier columns are reported for information only and do not lose points.
-"""
-)
-
-st.markdown("### How charts are chosen")
-st.markdown(
-    f"""
-- **Primary metric:** the first numeric column matching this priority list:
-  {", ".join(METRIC_PRIORITY[:12])} and so on. You can override it in the sidebar.
-- **Aggregation:** metrics that look like rates, prices or scores ({", ".join(AVG_HINTS[:6])}...) are averaged;
-  everything else is summed.
-- **Trend** when there is a date column; the grain (day, week, month, quarter) is chosen from the date span.
-- **Top {TOP_N} bar chart** for the most useful category, and a second one when another category exists.
-- **Share of total** donut for a category with eight or fewer values (only for summed metrics).
-- **Rate by group** when there is a yes/no column, such as attrition by department.
-- **Distribution** of the metric (histogram, or counts for small whole-number columns) and its **spread by group** (box plot).
-- **Correlation heatmap** when there are three or more numeric columns, plus a **scatter** of the strongest pair.
-- At most {MAX_CHARTS} charts. Identifier columns are never charted.
-- Above {HEAVY_VISUAL_ROW_LIMIT:,} rows, distributions use a reproducible sample of {HEAVY_VISUAL_ROW_LIMIT:,} rows and
-  scatter plots show at most {SCATTER_MAX_POINTS:,} points. Each sampled chart says so. KPIs always use the full data.
-"""
-)
-
-st.markdown("### How AI is used and fact-checked")
-st.markdown(
-    f"""
-1. **Code computes every number.** DuckDB runs the SQL behind each KPI and chart. Each result becomes a
-   *fact* with an ID, such as `kpi.metric` or `top.1.share_pct`.
-2. **The AI only selects and explains.** Gemini receives the fact pack (the schema plus those computed facts)
-   and is instructed to use only those numbers, cite fact IDs, describe patterns without inventing causes and
-   phrase recommendations as hypotheses.
-3. **Every number is checked.** Veridash extracts each number from the AI's text (including $, %, K/M/B
-   and years) and matches it to a fact, allowing for display rounding. "35%" verifies against 34.6, but
-   "35.0%" does not. The badge shows how many verified, and unverified numbers are underlined in red, never hidden.
-4. **It degrades gracefully.** Retries handle temporary errors. Any failure falls back to rule-based insights
-   with a notice. Each session can make at most {MAX_AI_CALLS_PER_SESSION} AI calls, and results are cached per file.
-"""
-)
-
-st.markdown("### Privacy")
+st.markdown("### Your privacy")
 callout(
-    "Your file is processed in memory and never written to disk or stored by Veridash. Raw rows are never sent to the AI.",
+    "Your file is processed in memory and never stored. The AI never sees your rows: only column names, "
+    f"summary results and, for questions, up to {CATEGORY_LABELS_FOR_AI} example labels per column.",
     title="The short version",
 )
-st.markdown(
-    f"""
-- **In memory only.** Uploaded bytes live in your browser session's server memory. Results are cached in
-  server memory for up to an hour, keyed by a fingerprint of the file, so repeat views are fast. Nothing is
-  written to disk, and exports are built in memory when you click.
-- **What the AI sees for insights:** column names and types, the health results and the aggregated results
-  behind the KPIs and charts. That includes group labels that appear in those results (for example, the top
-  {TOP_N} products by revenue). It never sees individual rows.
-- **What the AI sees for Ask your data:** column names and types, simple ranges (min, max, date range) and up
-  to {CATEGORY_LABELS_FOR_AI} distinct category labels per column, so it can write correct filters. Query results
-  are computed locally by DuckDB and are not sent back to the AI.
-- **Your key.** A key entered in the sidebar is kept only in your session's memory and is never logged or stored.
-- **Google's terms apply** to anything sent to Gemini. On the free tier Google may use prompts to improve its
-  products, so use a paid key for sensitive work, or leave AI off: every feature except plain-English questions
-  works without it.
-- **Hosting.** On Streamlit Community Cloud the app runs on Streamlit's servers; the same in-memory rules apply.
-"""
-)
 
-st.markdown("### Limitations")
-st.markdown(
-    f"""
-- Designed for one clean, tidy table at a time; it does not join files or reshape pivoted layouts.
-- Type detection is heuristic. Ambiguous dates such as 03/04/2024 are read month-first, and European
-  number formats are not supported.
-- Correlations and group differences describe association only; they are not causal and are not
-  significance-tested.
-- The fact-checker verifies that each number exists in the computed facts, not that the sentence around it
-  uses the number correctly. Read AI text critically.
-- Ask your data returns at most {ASK_MAX_ROWS:,} rows, and queries stop after {QUERY_TIMEOUT_S:g} seconds.
-- The Power BI kit is a starting point (data, Power Query, DAX and a date table), not a finished .pbix report.
-"""
-)
-
-st.markdown("### FAQ")
+st.markdown("### Common questions")
 faqs = [
     ("Do I need an API key?",
-     "No. Without a key you get the full health check, charts, KPIs, rule-based insights, the SQL box and all exports. "
-     "A Gemini key adds AI-written insights and plain-English questions."),
+     "No. Without a key you get the health check, charts, KPIs, rule-based insights, the SQL box and every export. "
+     "A free Gemini key adds AI-written insights and plain-English questions."),
     ("Why does a number show as unverified?",
-     "The AI wrote a number that does not match any computed fact at the precision it was written, for example a "
-     "difference it calculated itself. Veridash flags it instead of hiding it so you can judge it."),
-    ("Is the SQL shown really what ran?",
-     "Yes. The SQL string displayed is the same string passed to DuckDB, and the table under it is the result it returned."),
-    ("Why was my column detected as text instead of a number?",
-     "Fewer than 90% of its values could be read as numbers. Clean the stray values or check for unusual formats."),
-    ("Can I change the metric or date grain?",
-     "Yes. Use the sidebar on the Analyze page. Charts, KPIs, insights and exports update together."),
+     "The AI wrote a number that does not match anything Veridash calculated, for example a difference it worked out "
+     "itself. It is flagged in red instead of hidden, so you can judge it."),
+    ("Can I change the main metric or the date grouping?",
+     "Yes. Use the sidebar on the Analyze page. Charts, numbers, insights and exports all update together."),
+    ("Why was my column read as text instead of numbers?",
+     "Fewer than 90% of its values look like numbers. Clean up stray text such as N/A or TBD and upload again."),
     ("Is there a dark mode?",
-     "Yes. Veridash follows your device's light or dark setting automatically. To switch, open the menu "
-     "in the top-right corner, choose Settings and pick a theme."),
-    ("Where does my file go after I close the tab?",
-     "Your session's memory is released, and cached results expire from server memory within an hour."),
+     "Yes. Veridash follows your device's setting. To switch, open the menu in the top-right corner, choose "
+     "Settings and pick a theme."),
+    ("Where does my file go when I close the tab?",
+     "Nowhere. Your session's memory is released, and cached results expire from server memory within an hour."),
 ]
 for question, answer in faqs:
     with st.expander(question):
         st.write(answer)
 
-footer()
+st.markdown("### Under the hood")
+st.caption("For the curious: exactly how Veridash scores, chooses and checks.")
+
+with st.expander("How the health score is calculated"):
+    st.markdown("The score starts at 100. Each check subtracts a penalty that grows with the problem, up to a cap:")
+    st.code("score = 100 - sum( min(cap, points_per_unit x measure) )", language="text")
+    st.dataframe(
+        pd.DataFrame(
+            [
+                {"Check": c["label"], "Measure": c["unit"], "Points per unit": c["points_per_unit"], "Cap": c["cap"]}
+                for c in HEALTH_WEIGHTS.values()
+            ]
+        ),
+        hide_index=True,
+    )
+    bands = ", ".join(f"{g} at {f}+" for f, g in GRADE_BANDS[:-1]) + ", F below 60"
+    st.markdown(
+        f"""
+- **Grades:** {bands}.
+- **Outliers** use the IQR rule (below Q1 - 1.5 x IQR or above Q3 + 1.5 x IQR). A column counts as
+  high-outlier when more than {OUTLIER_SHARE_THRESHOLD:g}% of its values are outliers.
+- **Example:** 2% missing cells (3 points), 1% duplicate rows (2 points) and one mixed-type column (5 points)
+  gives 100 - 10 = 90, grade A.
+"""
+    )
+
+with st.expander("How charts are chosen"):
+    st.markdown(
+        f"""
+- **Main metric:** the first number column matching {", ".join(METRIC_PRIORITY[:8])} and so on. Rates,
+  prices and scores ({", ".join(AVG_HINTS[:5])}...) are averaged; everything else is summed.
+- **Trend** when there is a date column, grouped by day, week, month or quarter depending on the date span.
+- **Top {TOP_N}** bar charts, **share of total**, **rate by group** for yes/no columns, a **distribution**,
+  **spread by group**, a **correlation heatmap** and a **scatter** of the strongest pair, up to {MAX_CHARTS} charts.
+- ID columns are never charted. Above {HEAVY_VISUAL_ROW_LIMIT:,} rows, distributions use a labelled sample and
+  scatter plots show at most {SCATTER_MAX_POINTS:,} points; key numbers always use the full data.
+"""
+    )
+
+with st.expander("How AI is used and fact-checked"):
+    st.markdown(
+        f"""
+1. **Code calculates every number** with SQL, and each result gets an ID.
+2. **The AI only picks and explains** those numbers. It is told to cite them, avoid inventing causes and
+   phrase recommendations as ideas to test.
+3. **Every number it writes is checked** against the calculated results, allowing for rounding: "35%" matches
+   34.6, but "35.0%" does not. Anything unmatched is underlined in red.
+4. **If anything goes wrong,** Veridash falls back to rule-based insights. Each session gets
+   {MAX_AI_CALLS_PER_SESSION} AI calls, and results are reused for the same file.
+"""
+    )
+
+with st.expander("Privacy in detail"):
+    st.markdown(
+        f"""
+- **In memory only.** Uploads live in your session's server memory. Results are cached for up to an hour by a
+  fingerprint of the file. Nothing is written to disk, and exports are built when you click.
+- **AI insights** see column names and types, the health results and the summary results behind the charts,
+  including the group names in them (for example, the top {TOP_N} products). Never individual rows.
+- **Ask your data** also shares simple ranges and up to {CATEGORY_LABELS_FOR_AI} labels per column so the AI can
+  write correct filters. Query results stay on the server.
+- **Your key** is kept only in your session and never logged. Google's terms apply to anything sent to Gemini;
+  on the free tier Google may use prompts to improve its products.
+"""
+    )
+
+with st.expander("Limitations"):
+    st.markdown(
+        f"""
+- One tidy table at a time; it does not join files or unpivot layouts.
+- Ambiguous dates such as 03/04/2024 are read month first, and European number formats (1.234,56) are not supported.
+- Correlations and group differences show association, not cause, and are not significance-tested.
+- The fact-check confirms each number exists in the results, not that the sentence uses it correctly.
+- Ask your data returns at most {ASK_MAX_ROWS:,} rows and stops queries after {QUERY_TIMEOUT_S:g} seconds.
+- The Power BI kit is a starting point, not a finished report.
+"""
+    )

@@ -8,6 +8,7 @@ from __future__ import annotations
 import streamlit as st
 
 from core.settings import APP_NAME, ASSETS_DIR
+from ui.components import footer
 from ui.theme import apply_theme
 
 st.set_page_config(
@@ -25,7 +26,7 @@ pages = [
     st.Page("views/analyze.py", title="Analyze", url_path="analyze"),
     st.Page("views/examples.py", title="Examples", url_path="examples"),
     st.Page("views/guide.py", title="Guide", url_path="guide"),
-    st.Page("views/about.py", title="About", url_path="about"),
 ]
 
 st.navigation(pages, position="top").run()
+footer()  # one footer, at the bottom of every page

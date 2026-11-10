@@ -128,13 +128,25 @@ def chart_card(
         render()
 
 
-def footer() -> None:
-    """Site footer with author credit and contact links."""
+def compare_table(left_title: str, right_title: str, rows: Iterable[tuple[str, str, str]]) -> None:
+    """Two-column comparison; the right column is highlighted as Veridash's."""
+    body = "".join(
+        f"<tr><th scope='row'>{esc(label)}</th><td>{esc(left)}</td><td class='ours'>{esc(right)}</td></tr>"
+        for label, left, right in rows
+    )
     _md(
-        f'<div class="vd-footer"><div>{wordmark(22)}<span style="margin-left:14px">'
-        f"Built by {esc(AUTHOR_NAME)}</span></div><div>"
+        "<div class='vd-compare'><table><thead><tr><th></th>"
+        f"<th>{esc(left_title)}</th><th class='ours'>{esc(right_title)}</th></tr></thead>"
+        f"<tbody>{body}</tbody></table></div>"
+    )
+
+
+def footer() -> None:
+    """Site footer: brand and contact links, with the author credit underneath."""
+    _md(
+        f'<div class="vd-footer"><div class="row"><div>{wordmark(22)}</div><nav>'
         f'<a href="mailto:{esc(AUTHOR_EMAIL)}">{esc(AUTHOR_EMAIL)}</a>'
         f'<a href="{esc(LINKEDIN_URL)}" target="_blank" rel="noopener">LinkedIn</a>'
         f'<a href="{esc(GITHUB_URL)}" target="_blank" rel="noopener">GitHub</a>'
-        "</div></div>"
+        f'</nav></div><div class="credit">Built by {esc(AUTHOR_NAME)} · 2026</div></div>'
     )

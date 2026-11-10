@@ -175,8 +175,8 @@ flowchart LR
 
 | Part | What it does |
 |---|---|
-| App entry point | Sets up the page, theme and navigation between the five pages. |
-| Pages | Home, Analyze, Examples, Guide and About. |
+| App entry point | Sets up the page, theme, navigation between the four pages and the site footer. |
+| Pages | Home (use cases and how Veridash differs), Analyze, Examples and Guide. |
 | Analysis engine | Loads files, detects types, scores health, runs sandboxed SQL, picks charts and KPIs, builds the fact pack and writes rule-based insights. |
 | AI layer | Connects to Gemini, writes AI insights, fact-checks numbers and turns questions into validated SQL. |
 | Exports | Builds the Excel report, the PDF summary and the Power BI Starter Kit. |
@@ -197,7 +197,7 @@ flowchart LR
 | Exports | The Excel file opens with all sheets, the PDF has two to four pages, the Power BI kit has every file |
 | App | Every page renders, all three examples run end to end without a key, and edge-case files do not break |
 
-All 201 automated tests pass, and the codebase is lint-clean under Ruff.
+All 200 automated tests pass, and the codebase is lint-clean under Ruff.
 
 ## Roadmap
 
