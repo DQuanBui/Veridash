@@ -19,7 +19,7 @@ trust benchmark measures how well those checks work: the fact-check catches 96.0
 ![Gemini](https://img.shields.io/badge/Gemini-8E75B2?logo=googlegemini&logoColor=white)
 ![Power BI](https://img.shields.io/badge/Power%20BI-F2C811?logo=powerbi&logoColor=black)
 
-![Veridash demo: home, health check, change breakdown, fact-checked insights, exports and the trust benchmark](docs/screenshots/demo.gif)
+![Veridash demo: home, health check, change breakdown, fact-checked insights, checking pasted text, exports, comparing two files and the trust benchmark](docs/screenshots/demo.gif)
 
 ---
 
