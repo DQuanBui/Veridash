@@ -182,3 +182,22 @@ def test_wrong_numbers_in_a_comparison_are_caught(pair):
     c = compare(*pair)
     claims = check_text("Revenue went up by 25%, with 70 rows.", c.facts)
     assert not any(x.verified for x in claims)
+
+
+def test_no_change_is_worded_plainly():
+    df = pd.DataFrame({"team": ["A", "B"] * 5, "sales": [10.0, 20.0] * 5})
+    c = compare(_prep(df), _prep(df))
+    assert "Total sales is $150 in both files." in c.summary
+
+
+def test_changes_that_round_to_zero_are_not_shown_as_minus_zero():
+    before = pd.DataFrame({"team": ["A", "B"] * 50, "satisfaction_score": [3.552, 3.553] * 50})
+    after = pd.DataFrame({"team": ["A", "B"] * 50, "satisfaction_score": [3.549, 3.551] * 50})
+    c = compare(_prep(before), _prep(after))
+    assert "Average satisfaction score is 3.55 in both files, once rounded." in c.summary
+    assert not any("-0" in s for s in c.summary)
+
+
+def test_record_counts_read_naturally():
+    c = compare(_prep(pd.DataFrame({"team": ["A", "B"] * 5})), _prep(pd.DataFrame({"team": ["A", "B"] * 6})))
+    assert "The number of records went from 10 to 12, a change of +2 (+20.0%)." in c.summary

@@ -343,9 +343,14 @@ def _facts_and_summary(c: Comparison) -> tuple[FactPack, list[str]]:
             Fact("metric.after", f"{sel.metric_label} in the after file", m.after, kind, "compare"),
             Fact("metric.change", f"Change in {sel.metric_label.lower()}", m.change, kind, "compare"),
         ]
-        text = (f"{sel.metric_label} went from {fmt_value(m.before, kind)} to {fmt_value(m.after, kind)}, "
-                f"a change of {_signed(m.change, kind)}")
-        if m.change_pct is not None:
+        subject = "The number of records" if sel.agg == "COUNT" else sel.metric_label
+        b_txt, a_txt = fmt_value(m.before, kind), fmt_value(m.after, kind)
+        text = f"{subject} went from {b_txt} to {a_txt}, a change of {_signed(m.change, kind)}"
+        if b_txt == a_txt:
+            text = f"{subject} is {a_txt} in both files" + ("" if m.change == 0 else ", once rounded")
+        elif fmt_value(abs(m.change), kind) == fmt_value(0, kind):
+            text = f"{subject} went from {b_txt} to {a_txt}, a very small change"
+        elif m.change_pct is not None:
             facts.append(Fact("metric.change_pct", f"Change in {sel.metric_label.lower()}, %", m.change_pct,
                               "percent", "compare"))
             text += f" ({fmt_signed_pct(m.change_pct)})"
@@ -360,14 +365,16 @@ def _facts_and_summary(c: Comparison) -> tuple[FactPack, list[str]]:
                 Fact(f"groups.{i}.after", f"{sel.metric_label} for {row.label}, after", float(row.after), kind, "compare"),
                 Fact(f"groups.{i}.change", f"Change for {row.label}", float(row.change), kind, "compare"),
             ]
-        top = m.groups.iloc[0]
-        text = f"By {pretty(m.group_col).lower()}, {top['label']} moved the most ({_signed(float(top['change']), kind)})"
-        if m.change:
-            against = m.groups[(m.groups["change"] > 0) != (m.change > 0)]
-            if len(against) and against.index[0] != top.name:
-                o = against.iloc[0]
-                text += f", while {o['label']} moved the other way ({_signed(float(o['change']), kind)})"
-        summary.append(text + ".")
+        visible = m.groups[m.groups["change"].abs().map(lambda v: fmt_value(v, kind)) != fmt_value(0, kind)]
+        if len(visible):
+            top = visible.iloc[0]
+            text = f"By {pretty(m.group_col).lower()}, {top['label']} moved the most ({_signed(float(top['change']), kind)})"
+            if m.change:
+                against = visible[(visible["change"] > 0) != (m.change > 0)]
+                if len(against) and against.index[0] != top.name:
+                    o = against.iloc[0]
+                    text += f", while {o['label']} moved the other way ({_signed(float(o['change']), kind)})"
+            summary.append(text + ".")
 
     h = c.health
     if h.before != h.after:

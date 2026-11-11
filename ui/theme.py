@@ -379,6 +379,9 @@ table.vd-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .vd-checks li span::before { content: "✓"; color: var(--vd-primary); font-weight: 700; margin-right: 8px; }
 .vd-checks li.bad span::before { content: "✗"; color: #EF4444; }
 .vd-checks b { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.vd-checks.plain { grid-template-columns: 1fr; }
+.vd-checks.plain li { align-items: center; }
+.vd-checks.plain li span::before { content: none; }
 
 /* Home proof band */
 .vd-proof { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 24px; }

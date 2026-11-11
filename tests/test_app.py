@@ -7,7 +7,8 @@ from streamlit.testing.v1 import AppTest
 
 from core.samples import EXAMPLES
 
-PAGES = ["views/home.py", "views/analyze.py", "views/examples.py", "views/benchmark.py", "views/guide.py"]
+PAGES = ["views/home.py", "views/analyze.py", "views/compare.py", "views/examples.py", "views/benchmark.py",
+         "views/guide.py"]
 
 
 def _app() -> AppTest:
@@ -55,3 +56,24 @@ def test_benchmark_page_shows_published_scores():
     html = " ".join(m.value for m in at.markdown)
     assert f"{load()['factcheck']['catch_pct']}%" in html
     assert "Another group&#x27;s number" in html or "Another group's number" in html
+
+
+def test_compare_page_with_two_files():
+    import pandas as pd
+
+    from ui.state import Source
+
+    ids = [f"E{i:04d}" for i in range(60)]
+    before = pd.DataFrame({"employee_id": ids[:50], "team": ["A", "B"] * 25,
+                           "salary": [50_000.0 + 100 * i for i in range(50)]})
+    after = pd.DataFrame({"employee_id": ids[10:], "team": ["A", "B", "C", "D"] * 12 + ["A", "B"],
+                          "salary": [52_000.0 + 100 * i for i in range(50)], "level": ["L1", "L2"] * 25})
+    at = _app().run()
+    at.session_state["vd_cmp_before"] = Source("jan.csv", before.to_csv(index=False).encode(), "upload")
+    at.session_state["vd_cmp_after"] = Source("feb.csv", after.to_csv(index=False).encode(), "upload")
+    at.switch_page("views/compare.py").run()
+    assert not at.exception, at.exception
+    html = " ".join(m.value for m in at.markdown)
+    assert "What changed" in html and "Verified numbers: " in html
+    assert "added (level)" in html
+    assert any(m.label == "New" and m.value == "10" for m in at.metric)
