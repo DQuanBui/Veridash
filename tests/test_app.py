@@ -99,5 +99,6 @@ def test_check_any_text_on_the_insights_tab():
     assert not at.exception, at.exception
     html = " ".join(m.value for m in at.markdown)
     assert "Verified numbers: 1/3" in html
-    table = next(d.value for d in at.dataframe if "Why" in d.value.columns)
-    assert "Wrong group" in " ".join(table["Why"])
+    table = next(d.value for d in at.dataframe if "Computed value" in d.value.columns)
+    assert list(table["Status"]) == ["Wrong group", "Verified", "Not found"]
+    assert "is the figure for Apparel, not Electronics" in html

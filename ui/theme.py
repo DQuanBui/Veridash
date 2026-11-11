@@ -389,6 +389,10 @@ table.vd-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
   font-variant-numeric: tabular-nums; }
 .vd-proof span { display: block; color: var(--vd-muted); font-size: 14px; line-height: 1.4; margin-top: 2px; }
 
+.vd-reasons { margin: 4px 0 6px 0 !important; padding-left: 18px !important; color: var(--vd-muted);
+  font-size: 14px; }
+.vd-reasons b { color: var(--vd-text); }
+
 /* Empty and locked states */
 .vd-locked { text-align: center; padding: 36px 20px; border: 1px dashed var(--vd-faint); border-radius: var(--vd-radius);
   background: var(--vd-subtle); }

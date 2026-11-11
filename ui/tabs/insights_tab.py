@@ -206,17 +206,19 @@ def check_any_text(pack: FactPack, cache_key: str) -> None:
             [
                 {
                     "Number": c.raw,
-                    "Status": "Verified" if c.verified else "Not verified",
+                    "Status": "Verified" if c.verified else (c.reason.split(":", 1)[0] if c.reason else "Not found"),
                     "Matched fact": c.fact_id or "",
                     "Computed value": facts[c.fact_id].display if c.fact_id in facts else "",
-                    "Why": "" if c.verified else (c.reason or "Not found among the computed numbers"),
                 }
                 for c in claims
             ],
             hide_index=True,
         )
-        if ok < len(claims):
+        reasons = [f"<li><b>{esc(c.raw)}</b>: {esc(c.reason)}</li>" for c in claims if not c.verified and c.reason]
+        if reasons:
+            st.markdown(f"<ul class='vd-reasons'>{''.join(reasons)}</ul>", unsafe_allow_html=True)
+        if any(not c.verified and not c.reason for c in claims):
             st.caption(
-                "Not verified means Veridash did not compute that number, or computed it differently. It may still "
-                "be right, for example a figure for one month; check it with Ask your data."
+                "Not found means Veridash did not compute that number. It may still be right, for example a figure "
+                "for one month; check it with Ask your data."
             )
