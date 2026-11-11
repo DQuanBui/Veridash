@@ -1,11 +1,11 @@
-"""Insights tab: AI or rule-based insights, citations and the fact-check badge."""
+"""Insights tab: AI or rule-based insights, citations, the fact-check badge and a checker for any text."""
 
 from __future__ import annotations
 
 import streamlit as st
 
 from ai.client import GeminiClient, resolve_api_key, resolve_model
-from ai.factcheck import FactCheckReport, fact_check, highlight_html
+from ai.factcheck import FactCheckReport, check_text, fact_check, highlight_html
 from ai.insights_ai import DEFAULT_LANGUAGE, LANGUAGES, generate_ai_insights
 from core.facts import FactPack
 from core.insights_rules import Insights
@@ -14,6 +14,7 @@ from ui.components import callout, esc, source_badge_html, verified_badge_html
 from ui.state import session_api_key
 
 AI_CACHE_KEY = "vd_ai_insights"
+MAX_CHECK_CHARS = 4000
 
 
 def _cites(ids: list[str], pack: FactPack) -> str:
@@ -166,3 +167,56 @@ def render(analysis: Analysis, cache_key: str) -> None:
             insights = analysis.rule_insights
     st.write("")
     render_insights(insights, analysis.facts)
+    st.write("")
+    check_any_text(analysis.facts, cache_key)
+
+
+def check_any_text(pack: FactPack, cache_key: str) -> None:
+    """Fact-check text written elsewhere (a colleague's report, an AI chat) against this file."""
+    with st.container(key="card_check_text"):
+        st.markdown(
+            "<p class='vd-chart-title'>Check someone else's numbers</p>"
+            "<p class='vd-chart-insight'>Paste a paragraph from a report, an email or an AI chat about this file. "
+            "Every number is checked against what Veridash computed, including its direction and which group "
+            "it belongs to. No key needed, and nothing is sent anywhere.</p>",
+            unsafe_allow_html=True,
+        )
+        text = st.text_area(
+            "Text to check",
+            key=f"vd_check_text_{cache_key}",
+            max_chars=MAX_CHECK_CHARS,
+            height=110,
+            placeholder="For example: Electronics brought in $271.4K, and revenue rose 19.6% last month.",
+            label_visibility="collapsed",
+        )
+        if not text.strip():
+            return
+        claims = check_text(text, pack)
+        if not claims:
+            st.caption("No numbers found in that text.")
+            return
+        ok = sum(c.verified for c in claims)
+        st.markdown(
+            f"<div class='vd-badges'>{verified_badge_html(ok, len(claims))}</div>"
+            f"<div class='vd-insight'><div class='txt'>{highlight_html(text, claims)}</div></div>",
+            unsafe_allow_html=True,
+        )
+        facts = pack.by_id()
+        st.dataframe(
+            [
+                {
+                    "Number": c.raw,
+                    "Status": "Verified" if c.verified else "Not verified",
+                    "Matched fact": c.fact_id or "",
+                    "Computed value": facts[c.fact_id].display if c.fact_id in facts else "",
+                    "Why": "" if c.verified else (c.reason or "Not found among the computed numbers"),
+                }
+                for c in claims
+            ],
+            hide_index=True,
+        )
+        if ok < len(claims):
+            st.caption(
+                "Not verified means Veridash did not compute that number, or computed it differently. It may still "
+                "be right, for example a figure for one month; check it with Ask your data."
+            )

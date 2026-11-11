@@ -88,3 +88,16 @@ def test_compare_example_buttons():
     assert "portfolio_2024_12.csv" in html and "What changed" in html
     at.button(key="cmp_reset").click().run()
     assert any(b.key == "cmp_ex_retail_years" for b in at.button)
+
+
+def test_check_any_text_on_the_insights_tab():
+    at = _app().run()
+    at.switch_page("views/analyze.py").run()
+    at.button(key="start_retail").click().run()
+    area = next(t for t in at.text_area if t.key.startswith("vd_check_text_"))
+    area.input("Electronics comes to $209.1K, total revenue is $785.3K and it rose 99.9%.").run()
+    assert not at.exception, at.exception
+    html = " ".join(m.value for m in at.markdown)
+    assert "Verified numbers: 1/3" in html
+    table = next(d.value for d in at.dataframe if "Why" in d.value.columns)
+    assert "Wrong group" in " ".join(table["Why"])
