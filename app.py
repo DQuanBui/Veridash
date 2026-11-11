@@ -19,8 +19,10 @@ def _code_state() -> dict:
     return {"lock": threading.Lock()}
 
 
-# After a deploy, load the new versions of the project's modules before importing them.
-refresh_changed_modules(Path(__file__).resolve().parent, _code_state())
+# After a deploy, load the new versions of the project's modules before importing them, and drop
+# results cached by the old code (for example, the examples' analyses) so every page shows the new version.
+if refresh_changed_modules(Path(__file__).resolve().parent, _code_state()):
+    st.cache_data.clear()
 
 from core.settings import APP_NAME, ASSETS_DIR  # noqa: E402
 from ui.components import footer  # noqa: E402
