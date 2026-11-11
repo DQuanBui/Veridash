@@ -17,6 +17,7 @@ Each section ends with where the decision lives in the code.
 12. [Measuring the safeguards with a published benchmark](#12-measuring-the-safeguards-with-a-published-benchmark)
 13. [Checking which group a number belongs to](#13-checking-which-group-a-number-belongs-to)
 14. [A web report with no JavaScript](#14-a-web-report-with-no-javascript)
+15. [Comparing two files in one stacked table](#15-comparing-two-files-in-one-stacked-table)
 
 ---
 
@@ -307,3 +308,27 @@ often blocked in attachments) or *a hosted share link* (would mean storing users
 file with HTML in its column names and values cannot inject markup.
 
 **In the code.** `exports/html_report.py` and `tests/test_exports.py`.
+
+## 15. Comparing two files in one stacked table
+
+**Context.** A common analyst task is checking a new month's export against the last one. Comparing two
+separate analyses by eye hides the reason for a change, and joining two tables row by row needs a key that many
+files do not have.
+
+**Decision.** Both files go through the normal pipeline, then their shared columns are stacked into one table
+with a `_file` column (`before` or `after`). Each comparison figure is one query with `FILTER (WHERE "_file" =
+...)`, so the SQL shown is short and the same engine and sandbox are reused. Columns count as shared only with
+the same name and detected type. For totals and counts, a group missing from one file counts as zero so the
+group changes add up; for averages, only groups present in both files are compared. Records are matched only
+when an ID column exists, and value changes are counted only when every ID appears once per file. The summary is
+written from a fact pack and passes the same fact-check as the insights.
+
+**Alternatives considered.** *Diffing two separate analyses* (no shared query, and the chosen metric or grouping
+could differ between files) or *a full row-level diff on every column* (needs a key and produces output too long
+to read).
+
+**Trade-off.** A renamed column shows as one removed and one added, and a column whose type changed is left out
+of the numbers. Both are listed so the user can see why.
+
+**In the code.** `core/compare.py`, `views/compare.py`, `exports/compare_csv.py` and `tests/test_compare.py`; the
+pandas cross-check in `bench/crosscheck.py` recomputes both Compare examples.

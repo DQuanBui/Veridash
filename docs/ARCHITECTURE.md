@@ -17,6 +17,7 @@ flowchart TD
         R[recommender.py<br/>selection, KPIs, chart specs + SQL]
         F[facts.py<br/>fact pack with IDs]
         IR[insights_rules.py<br/>rule-based insights]
+        CMP[compare.py<br/>two files, one stacked table]
     end
     subgraph AI["AI layer (ai/)"]
         C[client.py<br/>Gemini, retries, budget]
@@ -32,6 +33,7 @@ flowchart TD
     P --> E --> R --> F
     H --> F
     F --> IR --> FC
+    H --> CMP --> FC
     F --> IA --> FC
     IA -.-> C
     NL -.-> C
@@ -75,7 +77,11 @@ flowchart TD
     workbook (`in_memory` mode) with native charts, an fpdf2 PDF with matplotlib images, a zip with CSV, M
     and DAX, an audit-trail CSV listing every fact with the SQL that produced it, and a self-contained HTML
     report (inline SVG charts, no JavaScript) whose verified numbers link to the facts they matched.
-11. **Trust benchmark** (`bench/`, outside the app). `python -m bench` plants wrong numbers in sentences built
+11. **Compare** (`core/compare.py`). Two files each go through steps 2 to 4. Their shared columns (same name
+    and type) are stacked into one DuckDB table with a `_file` column, so the metric in each file, the groups
+    that moved it and the records matched by a shared ID column each come from one SQL query. A fact pack and a
+    rule-based summary are built from the results and fact-checked like any insights.
+12. **Trust benchmark** (`bench/`, outside the app). `python -m bench` plants wrong numbers in sentences built
     from the examples' facts and scores the fact-checker, sends harmful and harmless SQL through the guard and
     the sandbox, and recomputes headline numbers with pandas. Results go to `bench/results.json`, which the
     Benchmark page reads; CI runs `python -m bench --check` and fails if they are out of date.
@@ -84,12 +90,12 @@ flowchart TD
 
 | Package | Responsibility | Depends on |
 |---|---|---|
-| `core/` | Loading, typing, health, SQL engine, recommendations, facts, rule-based insights, pipeline | pandas, NumPy, DuckDB |
+| `core/` | Loading, typing, health, SQL engine, recommendations, facts, rule-based insights, pipeline, comparison | pandas, NumPy, DuckDB |
 | `ai/` | Gemini client, AI insights, fact-checking, natural-language SQL | `core/`, google-genai |
-| `exports/` | Web report, Excel, PDF, Power BI and audit-trail outputs | `core/`, `ai/factcheck`, xlsxwriter, fpdf2, matplotlib |
+| `exports/` | Web report, Excel, PDF, Power BI, audit-trail and comparison outputs | `core/`, `ai/factcheck`, xlsxwriter, fpdf2, matplotlib |
 | `bench/` | Trust benchmark: fact-check, SQL guard and pandas cross-check suites, published results | `core/`, `ai/` |
 | `ui/` | Theme, components, Plotly figures, session state and caching, tab views | `core/`, `ai/`, `exports/`, Streamlit, Plotly |
-| `views/` | The five pages: Home, Analyze, Examples, Benchmark, Guide | `ui/`, `bench/` (published results only) |
+| `views/` | The six pages: Home, Analyze, Compare, Examples, Benchmark, Guide | `ui/`, `bench/` (published results only) |
 | `app.py` | Page config, theme injection, navigation | `ui/`, `views/` |
 
 `core/` never imports Streamlit, so the whole engine can be tested and reused without the UI. The one shared
