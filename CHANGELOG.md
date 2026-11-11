@@ -3,6 +3,30 @@
 Notable changes to Veridash. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.4.0] - 2026-11-11
+
+### Added
+- **A live fact-check on the Home page:** a sentence about the retail example, marked up like a checked report:
+  a green tick on each verified number, a red-pen circle around a wrong one and the reason in the margin.
+  Visitors can edit the sentence and watch it re-check.
+- **A tour of real screens:** switch between the health check, charts, insights, the text checker, Compare and
+  exports, each with a real screen (matching light or dark mode) and a button that opens it with an example.
+- **A four-step timeline** for How it works, and a short Tested, not just promised note linking to the
+  benchmark.
+
+### Changed
+- New type: Bricolage Grotesque for headings and IBM Plex Sans for text, with deep navy ink and calmer,
+  sentence-case labels instead of all-caps tags.
+- Fewer decorative numbers: the Home stats band and live preview are gone, and example cards show the file
+  type and health grade.
+- Every page proofread: proper plurals instead of "(s)", clearer messages, and plainer captions.
+- On phones, the comparison table stacks into readable rows.
+
+### Fixed
+- After a deploy, the live app could keep old copies of its modules and crash (the Compare page failed with an
+  ImportError) or show old styles. The app now reloads changed modules and clears cached results by itself.
+- The footer year no longer appears on the live site.
+
 ## [1.3.0] - 2026-11-11
 
 ### Added
@@ -80,7 +104,8 @@ versions follow [Semantic Versioning](https://semver.org/).
 - Exports: an Excel report with native charts, a PDF summary and a Power BI Starter Kit.
 - Light and dark themes, a Home page with use cases and a comparison, a Guide and an Examples page.
 
-[1.3.0]: https://github.com/DQuanBui/Veridash/compare/568aefc...main
+[1.4.0]: https://github.com/DQuanBui/Veridash/compare/5460983...main
+[1.3.0]: https://github.com/DQuanBui/Veridash/compare/568aefc...5460983
 [1.2.0]: https://github.com/DQuanBui/Veridash/compare/d7600e3...568aefc
 [1.1.0]: https://github.com/DQuanBui/Veridash/compare/6e9501d...d7600e3
 [1.0.0]: https://github.com/DQuanBui/Veridash/commit/6e9501d
