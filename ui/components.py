@@ -63,13 +63,6 @@ def verified_badge_html(verified: int, total: int) -> str:
     return badge_html(f"Verified numbers: {verified}/{total}", variant)
 
 
-def hero(eyebrow: str, title_html: str, subtitle: str) -> None:
-    """Landing hero. ``title_html`` is trusted static markup; the rest is escaped."""
-    _md(
-        f'<div class="vd-hero"><div class="vd-eyebrow">{esc(eyebrow)}</div>'
-        f"<h1>{title_html}</h1><p>{esc(subtitle)}</p></div>"
-    )
-
 
 def section_header(title: str, subtitle: str = "", kicker: str = "", center: bool = False, top: bool = False) -> None:
     """Section heading with optional kicker line and subtitle. ``top`` removes the top margin."""
@@ -87,13 +80,6 @@ def kpi_card(label: str, value: str, sub: str = "") -> None:
         f'<div class="value">{esc(value)}</div>{s}</div>'
     )
 
-
-def feature_card(icon_name: str, title: str, text: str) -> None:
-    """Icon + title + text card (used for pillars)."""
-    _md(
-        f'<div class="vd-card"><div class="vd-icon">{icon(icon_name)}</div>'
-        f"<h4>{esc(title)}</h4><p>{esc(text)}</p></div>"
-    )
 
 
 def step_card(number: int, icon_name: str, title: str, text: str) -> None:
@@ -131,7 +117,8 @@ def chart_card(
 def compare_table(left_title: str, right_title: str, rows: Iterable[tuple[str, str, str]]) -> None:
     """Two-column comparison; the right column is highlighted as Veridash's."""
     body = "".join(
-        f"<tr><th scope='row'>{esc(label)}</th><td>{esc(left)}</td><td class='ours'>{esc(right)}</td></tr>"
+        f"<tr><th scope='row'>{esc(label)}</th><td><span class='lbl'>{esc(left_title)}</span>{esc(left)}</td>"
+        f"<td class='ours'><span class='lbl'>{esc(right_title)}</span>{esc(right)}</td></tr>"
         for label, left, right in rows
     )
     _md(

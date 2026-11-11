@@ -384,6 +384,7 @@ table.vd-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .vd-compare td { color: var(--vd-muted); width: 39%; }
 .vd-compare .ours { background: var(--vd-tint); color: var(--vd-text); }
 .vd-compare thead .ours { color: var(--vd-accent); }
+.vd-compare .lbl { display: none; }
 .vd-compare td.ours::before { content: "✓"; color: var(--vd-primary); font-weight: 700; margin-right: 8px; }
 
 /* Use case cards */
@@ -414,15 +415,19 @@ table.vd-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .vd-checks.plain li { align-items: center; }
 .vd-checks.plain li span::before { content: none; }
 
-/* Home proof band */
-.vd-proof { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 24px; }
-.vd-proof b { display: block; font-size: 28px; font-weight: 800; color: var(--vd-accent); letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums; }
-.vd-proof span { display: block; color: var(--vd-muted); font-size: 14px; line-height: 1.4; margin-top: 2px; }
-
-.vd-reasons { margin: 4px 0 6px 0 !important; padding-left: 18px !important; color: var(--vd-muted);
-  font-size: 14px; }
-.vd-reasons b { color: var(--vd-text); }
+/* Home: the tested note and the four-step timeline */
+.vd-tested { font-size: 16.5px; line-height: 1.6; color: var(--vd-muted); margin: 0; max-width: 48em; }
+.vd-tested b { color: var(--vd-text); font-family: var(--vd-display); font-size: 18px; margin-right: 4px; }
+.vd-steps { position: relative; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px; margin: 8px 0 0 0 !important; padding: 0 !important; }
+.vd-steps::before { content: ""; position: absolute; top: 19px; left: 20px; right: calc(25% - 38px); height: 2px;
+  background: linear-gradient(to right, var(--vd-primary), var(--vd-tint-border)); }
+.vd-steps li { position: relative; margin: 0 !important; padding: 0 !important; }
+.vd-steps .dot { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border-radius: 50%; background: var(--vd-surface); border: 2px solid var(--vd-primary);
+  color: var(--vd-accent); font-weight: 700; font-family: var(--vd-display); }
+.vd-steps h4 { margin: 14px 0 4px 0; padding: 0; font-size: 18px; font-weight: 700; color: var(--vd-text); }
+.vd-steps p { margin: 0; color: var(--vd-muted); font-size: 15px; line-height: 1.55; max-width: 18em; }
 
 /* Empty and locked states */
 .vd-locked { text-align: center; padding: 36px 20px; border: 1px dashed var(--vd-faint); border-radius: var(--vd-radius);
@@ -447,11 +452,21 @@ table.vd-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
   .block-container { padding-top: 4rem; }
   .vd-hero { padding: 32px 0 24px 0; }
   .vd-issue { grid-template-columns: 1fr; gap: 4px; }
-  .vd-compare th, .vd-compare td { padding: 10px 12px; font-size: 14px; }
+  .vd-compare thead { display: none; }
+  .vd-compare table, .vd-compare tbody, .vd-compare tr, .vd-compare th, .vd-compare td { display: block; width: auto; }
+  .vd-compare tr { border-bottom: 1px solid var(--vd-divider); padding: 12px 14px; }
+  .vd-compare tr:last-child { border-bottom: none; }
+  .vd-compare th, .vd-compare td { padding: 4px 0; border: none; font-size: 14.5px; }
+  .vd-compare td.ours { background: none; }
+  .vd-compare tbody th, .vd-compare td { width: auto; }
+  .vd-compare td.ours::before { content: none; }
+  .vd-compare .lbl { display: block; font-size: 12.5px; font-weight: 600; color: var(--vd-muted); }
+  .vd-compare td.ours .lbl { color: var(--vd-accent); }
   div[class*="st-key-card"] { padding: 16px; }
   .vd-meter { grid-template-columns: 1fr auto; }
   .vd-checks { grid-template-columns: 1fr; }
-  .vd-proof { grid-template-columns: 1fr; }
+  .vd-steps { grid-template-columns: 1fr; gap: 18px; }
+  .vd-steps::before { display: none; }
   [data-testid="stColumn"] .vd-kpi { margin-bottom: 4px; }
   .vd-meter .bar { grid-column: 1 / -1; grid-row: 2; }
 }

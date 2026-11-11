@@ -7,12 +7,11 @@ import base64
 import streamlit as st
 
 from ai.factcheck import check_text
-from bench.__main__ import load as load_benchmark
 from core.loader import file_hash
 from core.samples import EXAMPLES
 from core.settings import ASSETS_DIR, SUBHEAD
 from ui.branding import icon
-from ui.components import compare_table, esc, section_header, step_card
+from ui.components import compare_table, esc, section_header
 from ui.state import cached_analysis, load_compare_example, load_example
 from ui.theme import theme_mode
 from ui.worksheet import worksheet_html
@@ -211,7 +210,6 @@ with words:
 section_header(
     "Answers for the questions teams actually ask",
     "Start from a realistic example in one click, or bring your own file.",
-    center=True,
 )
 for row in (USE_CASES[:2], USE_CASES[2:]):
     cols = st.columns(2, gap="medium")
@@ -232,36 +230,34 @@ for row in (USE_CASES[:2], USE_CASES[2:]):
 section_header(
     "What makes Veridash different",
     "Most AI data tools ask you to trust their numbers. Veridash shows its work.",
-    center=True,
 )
 compare_table("Many AI dashboard tools", "Veridash", COMPARISON)
 
-# Proof, not promises: published benchmark scores, re-checked on every push.
-scores = load_benchmark()
-fc, sg = scores["factcheck"], scores["sql_guard"]
 st.write("")
-with st.container(key="card_proof"):
-    left, right = st.columns([4, 1.2], vertical_alignment="center", gap="medium")
-    with left:
+with st.container(key="card_tested"):
+    note, go = st.columns([4, 1.3], vertical_alignment="center", gap="medium")
+    with note:
         st.markdown(
-            "<div class='vd-proof'>"
-            f"<div><b>{fc['catch_pct']}%</b><span>of planted wrong numbers caught</span></div>"
-            f"<div><b>{fc['false_alarms']}</b><span>false alarms on {fc['correct_sentences']:,} correct sentences</span></div>"
-            f"<div><b>{sg['guard_blocked']} of {sg['attacks']}</b><span>harmful queries blocked</span></div>"
-            "</div>",
+            "<p class='vd-tested'><b>Tested, not just promised.</b> We planted over a thousand wrong numbers "
+            "and dozens of harmful queries to see what Veridash would catch. The results are public and "
+            "re-checked on every update.</p>",
             unsafe_allow_html=True,
         )
-    with right:
+    with go:
         if st.button("See the benchmark", key="home_benchmark", width="stretch"):
             st.switch_page("views/benchmark.py")
 
-section_header("How it works", "From raw file to a report you can share, in four steps.", center=True)
-s1, s2, s3, s4 = st.columns(4, gap="medium")
-with s1:
-    step_card(1, "upload", "Upload", "Drop in a CSV or Excel file, or pick an example.")
-with s2:
-    step_card(2, "search", "Check", "See a 0 to 100 health score, with every issue explained.")
-with s3:
-    step_card(3, "chart", "Understand", "Get charts, KPIs and insights, each with its query.")
-with s4:
-    step_card(4, "export", "Export", "Take the results to Excel, PDF or Power BI.")
+section_header("How it works", "From a raw file to a report you can share.")
+STEPS = [
+    ("Upload", "Drop in a CSV or Excel file, or start from an example."),
+    ("Check", "See a health score and a plain list of what to fix."),
+    ("Understand", "Read charts and insights, each traced to its query."),
+    ("Share", "Download a web report, Excel, PDF or a Power BI kit."),
+]
+st.markdown(
+    "<ol class='vd-steps'>"
+    + "".join(f"<li><span class='dot' aria-hidden='true'>{i}</span><h4>{esc(t)}</h4><p>{esc(d)}</p></li>"
+              for i, (t, d) in enumerate(STEPS, start=1))
+    + "</ol>",
+    unsafe_allow_html=True,
+)
