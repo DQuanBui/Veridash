@@ -4,14 +4,15 @@ from __future__ import annotations
 
 import streamlit as st
 
+from ai.factcheck import check_text
 from bench.__main__ import load as load_benchmark
 from core.loader import file_hash
 from core.samples import EXAMPLES
 from core.settings import SUBHEAD
 from ui.branding import icon
-from ui.charts import PLOTLY_CONFIG, figure_for
-from ui.components import compare_table, esc, hero, kpi_card, section_header, step_card
+from ui.components import compare_table, esc, section_header, step_card
 from ui.state import cached_analysis, load_example
+from ui.worksheet import worksheet_html
 
 # Use cases: the question a team asks, what Veridash answers, and a one-click demo.
 USE_CASES = [
@@ -69,57 +70,48 @@ COMPARISON = [
      "A web report, Excel with native charts, a PDF, a Power BI starter kit and an audit trail"),
 ]
 
-hero(
-    "Verifiable data analysis",
-    "Drop your data.<br><span class='vd-accent'>Trust every number.</span>",
-    SUBHEAD,
-)
-_, b1, b2, b3, _ = st.columns([1.6, 1.3, 1.3, 1.3, 1.6], gap="small")
-with b1:
-    if st.button("Analyze your data", type="primary", width="stretch"):
-        st.switch_page("views/analyze.py")
-with b2:
-    if st.button("Compare two files", width="stretch"):
-        st.switch_page("views/compare.py")
-with b3:
-    if st.button("Try an example", width="stretch"):
-        st.switch_page("views/examples.py")
-st.markdown(
-    "<div class='vd-trust'><span>No sign-up</span><span>Files never stored</span>"
-    "<span>Works without an AI key</span></div>",
-    unsafe_allow_html=True,
-)
+# Example sentence for the worksheet: two figures check out, one belongs to a different category.
+DEMO_SENTENCE = "Revenue reached $785.3K. Electronics led with $209.1K, and revenue rose 19.6% last month."
 
-# Live preview: real numbers from the bundled retail example.
 ex = EXAMPLES["retail"]
 data = ex.read_bytes()
 analysis = cached_analysis(file_hash(data), ex.filename, None, None, None, None, True, data)
-kpis = {k.key: k for k in analysis.kpis}
-trend = next((c for c in analysis.charts if c.key == "trend"), None)
 
 st.write("")
-with st.container(key="card_preview"):
+left, right = st.columns([1.2, 1], gap="large", vertical_alignment="center")
+with left:
     st.markdown(
-        "<p class='vd-chart-title'>Live preview</p><p class='vd-chart-insight'>Computed just now from the "
-        "retail example. Every figure comes from a query you can inspect.</p>",
+        "<div class='vd-hero'><h1>Drop your data.<br>Trust every number.</h1>"
+        f"<p>{esc(SUBHEAD)}</p></div>",
         unsafe_allow_html=True,
     )
-    left, right = st.columns([2, 3], gap="medium")
-    with left:
-        kpi_card(kpis["metric"].label, kpis["metric"].display, f"{analysis.profile.n_rows:,} transactions")
-        st.write("")
-        c1, c2 = st.columns(2, gap="small")
-        with c1:
-            change = kpis.get("period_change")
-            kpi_card("Latest month", change.display if change else "n/a", "vs prior month")
-        with c2:
-            kpi_card("Data health", f"{analysis.health.score}/100", f"Grade {analysis.health.grade}")
-    with right:
-        if trend is not None:
-            fig = figure_for(trend)
-            fig.update_layout(height=250)
-            st.plotly_chart(fig, theme=None, config=PLOTLY_CONFIG, key="home_trend")
-            st.caption(trend.insight)
+    b1, b2, b3 = st.columns(3, gap="small")
+    with b1:
+        if st.button("Analyze your data", type="primary", width="stretch"):
+            st.switch_page("views/analyze.py")
+    with b2:
+        if st.button("Compare two files", width="stretch"):
+            st.switch_page("views/compare.py")
+    with b3:
+        if st.button("Try an example", width="stretch"):
+            st.switch_page("views/examples.py")
+    st.markdown(
+        "<div class='vd-trust'><span>No sign-up</span><span>Files never stored</span>"
+        "<span>Works without an AI key</span></div>",
+        unsafe_allow_html=True,
+    )
+with right:
+    sentence = st.session_state.get("home_demo", DEMO_SENTENCE)
+    st.markdown(worksheet_html(sentence, check_text(sentence, analysis.facts), "the retail example"),
+                unsafe_allow_html=True)
+    st.text_input(
+        "Edit the sentence, then press Enter",
+        value=DEMO_SENTENCE,
+        key="home_demo",
+        max_chars=240,
+        help="Every number is checked against what Veridash computed from the retail example.",
+    )
+    st.caption("Try changing $209.1K to $271.4K.")
 
 section_header(
     "Answers for the questions teams actually ask",

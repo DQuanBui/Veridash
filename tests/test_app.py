@@ -102,3 +102,14 @@ def test_check_any_text_on_the_insights_tab():
     table = next(d.value for d in at.dataframe if "Computed value" in d.value.columns)
     assert list(table["Status"]) == ["Wrong group", "Verified", "Not found"]
     assert "is the figure for Apparel, not Electronics" in html
+
+
+def test_home_worksheet_rechecks_an_edited_sentence():
+    at = _app().run()
+    html = " ".join(m.value for m in at.markdown)
+    assert "2 of 3 numbers check out." in html
+    at.text_input(key="home_demo").input(
+        "Revenue reached $785.3K. Electronics led with $271.4K, and revenue rose 19.6% last month."
+    ).run()
+    assert not at.exception, at.exception
+    assert "Every number checks out." in " ".join(m.value for m in at.markdown)

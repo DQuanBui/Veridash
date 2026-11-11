@@ -210,21 +210,35 @@ div[class*="st-key-card-eqb"] > :last-child { margin-top: auto; }
 .vd-wordmark { display: inline-flex; align-items: center; gap: 10px; font-weight: 800;
   font-size: 20px; color: var(--vd-text); letter-spacing: -0.02em; }
 
-/* Hero */
-.vd-hero { position: relative; padding: 24px 8px 36px 8px; text-align: center; }
-.vd-hero::before { content: ""; position: absolute; inset: -40px 0 0 0; z-index: -1;
-  background: radial-gradient(60% 60% at 50% 0%, rgba(13,148,136,0.14) 0%, rgba(13,148,136,0) 70%); }
-.vd-eyebrow { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.08em;
-  text-transform: uppercase; color: var(--vd-accent); background: var(--vd-tint);
-  border: 1px solid var(--vd-tint-border); padding: 4px 12px; border-radius: 999px; margin-bottom: 20px; }
-.vd-hero h1 { font-size: clamp(34px, 5.5vw, 60px); line-height: 1.05; font-weight: 800;
-  letter-spacing: -0.035em; margin: 0 auto 16px auto; max-width: 820px; padding: 0; }
-.vd-hero h1, .vd-hero h1 * { color: var(--vd-text) !important; }
-.vd-hero h1 .vd-accent { color: var(--vd-primary) !important; }
-.vd-hero p { font-size: clamp(16px, 2vw, 19px); color: var(--vd-muted); max-width: 640px; margin: 0 auto; line-height: 1.55; }
-.vd-trust { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 22px; margin-top: 18px;
-  color: var(--vd-muted); font-size: 13.5px; }
+/* Home hero: left-aligned headline beside the auditor's worksheet */
+.vd-hero { padding: 8px 0 18px 0; text-align: left; }
+.vd-hero h1 { font-size: clamp(38px, 4.5vw, 60px); line-height: 1.0; font-weight: 800; letter-spacing: -0.045em;
+  margin: 0 0 18px 0; padding: 0; color: var(--vd-text); }
+.vd-hero p { font-size: clamp(16px, 1.6vw, 18.5px); color: var(--vd-muted); max-width: 34em; margin: 0; line-height: 1.6; }
+.vd-trust { display: flex; flex-wrap: wrap; gap: 6px 20px; margin-top: 14px; color: var(--vd-muted); font-size: 14px; }
 .vd-trust span::before { content: "✓"; color: var(--vd-primary); font-weight: 700; margin-right: 6px; }
+
+/* The worksheet: ruled paper with a red margin line, green ticks and red-pen circles */
+.vd-sheet { position: relative; margin: 0 0 10px 0; padding: 18px 22px 16px 46px; border-radius: 4px 4px 16px 4px;
+  border: 1px solid light-dark(#CFE3DC, #24413D);
+  background-color: light-dark(#F5FAF8, #0F1E22);
+  background-image: repeating-linear-gradient(to bottom, transparent 0 35px, light-dark(#DCEBE5, #1C3236) 35px 36px);
+  background-position: 0 6px; box-shadow: 0 18px 40px -26px light-dark(rgba(16, 33, 58, 0.35), rgba(0, 0, 0, 0.7)); }
+.vd-sheet::before { content: ""; position: absolute; left: 30px; top: 0; bottom: 0; width: 1.5px;
+  background: var(--vd-red-pen); opacity: 0.45; }
+.vd-sheet figcaption { font-size: 13px; color: var(--vd-muted); line-height: 36px; margin: -6px 0 0 0; }
+.vd-sheet .line { font-size: clamp(17px, 1.7vw, 20px); line-height: 36px; color: var(--vd-text); margin: 0; }
+.vd-sheet .ok { white-space: nowrap; font-weight: 600; }
+.vd-sheet .tk { width: 1.05em; height: 1.05em; vertical-align: -0.05em; margin-left: 2px; fill: none;
+  stroke: var(--vd-primary); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.vd-sheet .bad { position: relative; white-space: nowrap; font-weight: 600; color: var(--vd-red-pen); padding: 0 3px;
+  margin: 0 5px; }
+.vd-sheet .bad::after { content: ""; position: absolute; inset: 2px -4px; border: 2px solid var(--vd-red-pen);
+  border-radius: 50% 46% 52% 44% / 58% 50% 54% 46%; transform: rotate(-3deg); pointer-events: none; }
+.vd-sheet .notes { list-style: none; margin: 0 !important; padding: 0 !important; }
+.vd-sheet .notes li { font-size: 14.5px; line-height: 36px; color: var(--vd-red-pen); margin: 0 !important; }
+.vd-sheet .notes li::before { content: "✗ "; font-weight: 700; }
+.vd-sheet .tally { font-size: 14px; line-height: 36px; color: var(--vd-muted); margin: 0; }
 
 /* Section header */
 .vd-section { margin: 52px 0 20px 0; }
