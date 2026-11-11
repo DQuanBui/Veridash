@@ -7,6 +7,8 @@ the normal pipeline (load, type, health check). The comparison then reports:
 * **Rows and health:** row counts and the health score on each side, plus
   which health checks got better or worse.
 * **The main metric:** its value in each file, and which groups moved it most.
+* **Records:** when both files share an ID column, which records are new,
+  which are gone, and how many kept records changed value.
 
 The two typed tables are stacked into one DuckDB table, ``data``, with a
 ``_file`` column saying which file each row came from (``before`` or
@@ -175,4 +177,67 @@ def metric_change(engine: QueryEngine, sel: Selection) -> MetricChange:
     df = engine.run(out.groups_sql).df
     df["label"] = df["label"].astype(str)
     out.groups = df
+    return out
+
+
+@dataclass
+class RecordChange:
+    """Records matched by an ID column shared by both files."""
+
+    id_col: str
+    sql: str
+    added: int
+    removed: int
+    kept: int
+    changed: int | None = None  # kept records whose metric value changed (IDs must be unique)
+    added_examples: list[str] = field(default_factory=list)
+    removed_examples: list[str] = field(default_factory=list)
+
+
+def _unique_ids(prepared: Prepared, col: str) -> bool:
+    c = prepared.profile.get(col)
+    return c.n_unique == prepared.profile.n_rows - c.n_missing
+
+
+def record_change(
+    engine: QueryEngine, before: Prepared, after: Prepared, diff: ColumnDiff, sel: Selection
+) -> RecordChange | None:
+    """Match records on the first ID column both files share, or return ``None``."""
+    ids = [n for n in diff.common if after.profile.get(n).col_type == ColType.ID]
+    if not ids:
+        return None
+    col = ids[0]
+    k, f = quote_ident(col), quote_ident(SIDE)
+    unique = _unique_ids(before, col) and _unique_ids(after, col)
+    lines = [
+        "WITH b AS (",
+        f"  SELECT DISTINCT {k} AS id FROM data WHERE {f} = 'before' AND {k} IS NOT NULL",
+        "), a AS (",
+        f"  SELECT DISTINCT {k} AS id FROM data WHERE {f} = 'after' AND {k} IS NOT NULL",
+        ")",
+        "SELECT (SELECT COUNT(*) FROM a WHERE id NOT IN (SELECT id FROM b)) AS added,",
+        "       (SELECT COUNT(*) FROM b WHERE id NOT IN (SELECT id FROM a)) AS removed,",
+        "       (SELECT COUNT(*) FROM a WHERE id IN (SELECT id FROM b)) AS kept",
+    ]
+    if unique and sel.metric:
+        m = quote_ident(sel.metric)
+        lines[-1] += ","
+        lines += [
+            "       (SELECT COUNT(*)",
+            f"        FROM (SELECT {k}, {m} FROM data WHERE {f} = 'before') AS old",
+            f"        JOIN (SELECT {k}, {m} FROM data WHERE {f} = 'after') AS new USING ({k})",
+            f"        WHERE new.{m} IS DISTINCT FROM old.{m}) AS changed",
+        ]
+    sql = "\n".join(lines)
+    row = engine.run(sql).df.iloc[0]
+    out = RecordChange(col, sql, int(row["added"]), int(row["removed"]), int(row["kept"]),
+                       int(row["changed"]) if "changed" in row else None)
+
+    def examples(side: str, other: str) -> list[str]:
+        q = (f"SELECT DISTINCT CAST({k} AS VARCHAR) AS id FROM data WHERE {f} = '{side}' AND {k} IS NOT NULL "
+             f"AND {k} NOT IN (SELECT {k} FROM data WHERE {f} = '{other}' AND {k} IS NOT NULL) ORDER BY 1 LIMIT 5")
+        return engine.run(q).df["id"].tolist()
+
+    out.added_examples = examples(AFTER, BEFORE) if out.added else []
+    out.removed_examples = examples(BEFORE, AFTER) if out.removed else []
     return out

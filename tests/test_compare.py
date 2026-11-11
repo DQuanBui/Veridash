@@ -13,6 +13,7 @@ from core.compare import (
     health_diff,
     metric_change,
     pick_selection,
+    record_change,
     stacked,
 )
 from core.engine import QueryEngine
@@ -112,3 +113,27 @@ def test_files_without_shared_numbers_compare_record_counts():
     m = _metric(before, after)
     assert m.selection.agg == "COUNT"
     assert (m.before, m.after) == (10, 15)
+
+
+def _records(before, after):
+    diff = column_diff(before, after)
+    sel = pick_selection(after, diff)
+    with QueryEngine(stacked(before, after, diff.common)) as engine:
+        return record_change(engine, before, after, diff, sel)
+
+
+def test_records_matched_by_id():
+    ids = [f"E{i:04d}" for i in range(1, 41)]
+    before = pd.DataFrame({"employee_id": ids[:30], "team": ["A", "B", "C"] * 10, "salary": [50_000.0] * 30})
+    after = pd.DataFrame({"employee_id": ids[5:40], "team": ["A", "B", "C", "D", "E"] * 7, "salary": [50_000.0] * 35})
+    after.loc[after["employee_id"].isin(["E0010", "E0011"]), "salary"] = 55_000.0
+    r = _records(_prep(before), _prep(after))
+    assert r.id_col == "employee_id"
+    assert (r.added, r.removed, r.kept) == (10, 5, 25)
+    assert r.changed == 2
+    assert r.added_examples == ["E0031", "E0032", "E0033", "E0034", "E0035"]
+    assert r.removed_examples[0] == "E0001"
+
+
+def test_no_id_column_means_no_record_matching(pair):
+    assert _records(*pair) is None
