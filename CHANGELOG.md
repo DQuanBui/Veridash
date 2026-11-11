@@ -3,6 +3,29 @@
 Notable changes to Veridash. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.2.0] - 2026-11-11
+
+### Added
+- **Trust benchmark:** a deterministic benchmark that plants 1,004 wrong numbers in sentences built from the
+  example datasets, sends 38 harmful and 25 harmless queries through the query guard and the sandbox, and
+  recomputes 214 headline numbers with pandas. Results are published in `bench/results.json` and checked in CI.
+- **Benchmark page:** the scores by error type and attack type, false alarms, safe queries that still run, and
+  the story of the two blind spots the first run found. The Home page shows the headline scores.
+- **Shareable web report:** one HTML file with no JavaScript that opens in any browser, offline. Verified
+  numbers in the insights link to the fact and SQL behind them.
+- **Demo GIF** at the top of the README.
+
+### Changed
+- **Stricter fact-check:** an explicit sign or a direction word ("rose", "fell by") must match the fact, and a
+  group's number must belong to the group named next to it. Planted errors caught rose from 77.9% to 96.0%,
+  with no false alarms.
+- Unverified numbers now explain why they failed, for example "Wrong group: $209.1K is the figure for
+  Apparel, not Electronics".
+- The Guide answers how the fact-check is measured and how to share results.
+
+### Removed
+- The year next to the author credit in the footer.
+
 ## [1.1.0] - 2026-11-10
 
 ### Added
@@ -38,5 +61,6 @@ versions follow [Semantic Versioning](https://semver.org/).
 - Exports: an Excel report with native charts, a PDF summary and a Power BI Starter Kit.
 - Light and dark themes, a Home page with use cases and a comparison, a Guide and an Examples page.
 
-[1.1.0]: https://github.com/DQuanBui/Veridash/compare/6e9501d...main
+[1.2.0]: https://github.com/DQuanBui/Veridash/compare/d7600e3...main
+[1.1.0]: https://github.com/DQuanBui/Veridash/compare/6e9501d...d7600e3
 [1.0.0]: https://github.com/DQuanBui/Veridash/commit/6e9501d
