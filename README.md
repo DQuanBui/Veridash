@@ -3,7 +3,8 @@
 **Drop your data. Trust every number.**
 
 Veridash turns a clean CSV or Excel file into a health check, a column profile, recommended charts and KPIs,
-written insights and ready-to-use exports in seconds. Every number is computed by code and shown next to the
+written insights and ready-to-use exports in seconds, and shows exactly what changed between two versions of a
+file. Every number is computed by code and shown next to the
 exact query that produced it, and any AI-written sentence is fact-checked against those results. A public
 trust benchmark measures how well those checks work: the fact-check catches 96.0% of
 1,004 planted wrong numbers with 0 false alarms.
@@ -38,7 +39,7 @@ without giving up that standard: the code does the math, the AI only explains it
 Veridash is a web app for analysts, students and business users who need a fast, trustworthy first read of a
 tabular dataset. A user uploads a file or picks an example, and the app returns a scored health check, KPIs,
 four to eight charts chosen from the shape of the data, insights in plain English, answers to questions, and
-exports for Excel, PDF and Power BI. It is built on three pillars:
+exports for Excel, PDF and Power BI. A second file can be compared with the first to see what changed. It is built on three pillars:
 
 - **Verified numbers:** every chart and KPI comes from a real SQL query that is shown on screen, and AI text is
   fact-checked number by number.
@@ -89,6 +90,17 @@ exports for Excel, PDF and Power BI. It is built on three pillars:
 - **Eight languages:** AI insights can be written in English, Spanish, French, German, Portuguese, Italian, Dutch
   or Vietnamese. Numbers keep one format in every language, so the fact-check works the same way.
 - **Works without a key:** rule-based insights with the same structure are always available.
+- **Check anyone's numbers:** paste a paragraph from a colleague's report or an AI chat, and every number in it
+  is checked against the file, with the reason for any that fail.
+
+### Compare two files
+- **What changed, at a glance:** rows, the main metric, data health and columns side by side for a before and
+  an after file, such as last month's export and this month's.
+- **Where the change came from:** a diverging chart and a table of the groups that moved the metric most.
+- **Column and record changes:** columns added, removed or retyped, and, with a shared ID column, the records
+  that are new, gone or changed.
+- **Fact-checked and traceable:** a plain-English summary whose numbers all pass the fact-check, the SQL behind
+  every figure, and the whole comparison as a downloadable CSV. Two one-click examples are included.
 
 ### Ask your data
 - **Quick questions:** up to five one-click questions built from the columns, such as totals by group, the trend
@@ -129,6 +141,8 @@ exports for Excel, PDF and Power BI. It is built on three pillars:
 | ![Ask your data](docs/screenshots/ask.png) | ![Excel, PDF and Power BI exports](docs/screenshots/exports.png) |
 | **Trust benchmark** | **Shareable web report** |
 | ![Trust benchmark scores](docs/screenshots/benchmark.png) | ![Self-contained HTML report](docs/screenshots/web_report.png) |
+| **Compare two files** | **Check someone else's numbers** |
+| ![Comparing two monthly files](docs/screenshots/compare.png) | ![Fact-checking pasted text](docs/screenshots/check_text.png) |
 
 ## How it works
 
@@ -138,6 +152,7 @@ exports for Excel, PDF and Power BI. It is built on three pillars:
 4. **Read the insights,** written by AI when a key is available or by rules otherwise, with every number checked.
 5. **Ask follow-up questions** in plain English or write your own query.
 6. **Export the results** as a web report, or to Excel, PDF or Power BI, and continue in your usual tools.
+7. **Next month, compare** the new file with the old one to see what changed and where.
 
 ## Architecture
 
@@ -145,7 +160,8 @@ Veridash is organised in four layers. The **interface** handles pages, navigatio
 **analysis engine** loads the file, detects column types, scores data health, and runs every calculation as
 SQL in an in-memory database that cannot read or write files. The **AI layer** receives only a "fact pack" of
 results the engine has already computed, writes insights or a query, and has every number in its output
-checked. The **exports** layer turns the same results into a web report and Excel, PDF and Power BI files
+checked. The **comparison** stacks two files into one table so that every difference is also a single
+query. The **exports** layer turns the same results into a web report and Excel, PDF and Power BI files
 without writing anything to disk. Alongside the app, a **trust benchmark** attacks the fact-check and the
 query guard and recomputes every headline number without SQL; it runs on every push.
 
@@ -200,11 +216,11 @@ flowchart LR
 
 | Part | What it does |
 |---|---|
-| App entry point | Sets up the page, theme, navigation between the five pages and the site footer. |
-| Pages | Home (use cases and how Veridash differs), Analyze, Examples, Benchmark and Guide. |
-| Analysis engine | Loads files, detects types, scores health, runs sandboxed SQL, picks charts and KPIs, builds the fact pack and writes rule-based insights. |
+| App entry point | Sets up the page, theme, navigation between the six pages and the site footer. |
+| Pages | Home (use cases and how Veridash differs), Analyze, Compare, Examples, Benchmark and Guide. |
+| Analysis engine | Loads files, detects types, scores health, runs sandboxed SQL, picks charts and KPIs, builds the fact pack, writes rule-based insights and compares two files. |
 | AI layer | Connects to Gemini, writes AI insights, fact-checks numbers and turns questions into validated SQL. |
-| Exports | Builds the web report, the Excel report, the PDF summary, the Power BI Starter Kit and the audit trail. |
+| Exports | Builds the web report, the Excel report, the PDF summary, the Power BI Starter Kit, the audit trail and the comparison CSV. |
 | Interface kit | The theme, chart styling and reusable components such as cards, badges and callouts. |
 | Sample data | Three synthetic datasets and the seeded script that generates them. |
 | Trust benchmark | Plants errors and harmful queries, recomputes numbers with pandas and publishes the scores. |
@@ -221,9 +237,10 @@ flowchart LR
 | Fact-checking | Verified, unverified and rounding cases, signs and directions, group labels, years and dates |
 | Query safety | Writes, multiple statements, file access and blocked functions are all rejected |
 | Exports | The Excel file opens with all sheets, the PDF has two to four pages, the Power BI kit has every file, the web report is self-contained and escaped |
+| Comparison | Column, health, metric and record changes, groups missing from one file, rounding, and a fully verified summary |
 | App | Every page renders, all three examples run end to end without a key, and edge-case files do not break |
 
-All 252 automated tests pass on every push (GitHub Actions), and the codebase is lint-clean under Ruff.
+All 276 automated tests pass on every push (GitHub Actions), and the codebase is lint-clean under Ruff.
 
 ### Trust benchmark
 
@@ -240,7 +257,7 @@ its published results go out of date. The same scores are shown on the app's Ben
 | Harmful queries blocked by the query guard | 38 of 38 |
 | File, network and setting attacks blocked by the sandbox alone | 17 of 17 |
 | Harmless queries that still run | 25 of 25 |
-| Headline numbers matching an independent pandas recomputation | 214 of 214 |
+| Numbers matching an independent pandas recomputation, including both comparisons | 258 of 258 |
 
 Every remaining miss is a wrong number that happens to equal another real figure in the same file, which no
 number check can tell apart.
@@ -250,7 +267,7 @@ number check can tell apart.
 - **PBIP project with a semantic model,** once it can be validated against Power BI Desktop.
 - **Joining related files,** such as orders and customers, with a guided key picker.
 - **Significance tests** for group differences, reported alongside the existing hypotheses.
-- **Saved analysis recipes** that re-run the same checks on next month's file.
+- **Compare a series of files,** such as twelve monthly exports, as a trend of what changed.
 - **Benchmark the AI itself:** measure how often Gemini's insights pass the fact-check across many files.
 
 ## Conclusion
