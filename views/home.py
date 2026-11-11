@@ -50,8 +50,8 @@ USE_CASES = [
         "who": "Reporting and BI",
         "question": "Need a trustworthy first read before you build the real report?",
         "points": ["Health check with a practical fix for every issue",
-                   "Excel, PDF and a Power BI starter kit with DAX measures",
-                   "An audit trail listing every number and the SQL behind it"],
+                   "This month's export compared with last month's, record by record",
+                   "Excel, PDF, Power BI and a web report, plus an audit trail of every number"],
         "button": "Analyze your own file",
     },
 ]
@@ -62,9 +62,11 @@ COMPARISON = [
     ("Checking AI text", "Taken on trust", "Every number fact-checked, and anything unmatched flagged"),
     ("Your data", "Uploaded to an account and stored in the cloud",
      "Kept in memory for your session and never stored; the AI never sees your rows"),
+    ("A new month's file", "Rebuild the report and spot the differences by eye",
+     "Compare two files: columns, totals, the groups that moved and the records that changed"),
     ("Getting started", "Sign-up first", "No sign-up, and it works without an AI key"),
     ("Taking results further", "Shared from inside their app",
-     "Excel with native charts, a PDF, a Power BI starter kit and an audit trail of every number"),
+     "A web report, Excel with native charts, a PDF, a Power BI starter kit and an audit trail"),
 ]
 
 hero(
@@ -72,11 +74,14 @@ hero(
     "Drop your data.<br><span class='vd-accent'>Trust every number.</span>",
     SUBHEAD,
 )
-_, b1, b2, _ = st.columns([2.2, 1.3, 1.3, 2.2], gap="small")
+_, b1, b2, b3, _ = st.columns([1.6, 1.3, 1.3, 1.3, 1.6], gap="small")
 with b1:
     if st.button("Analyze your data", type="primary", width="stretch"):
         st.switch_page("views/analyze.py")
 with b2:
+    if st.button("Compare two files", width="stretch"):
+        st.switch_page("views/compare.py")
+with b3:
     if st.button("Try an example", width="stretch"):
         st.switch_page("views/examples.py")
 st.markdown(
