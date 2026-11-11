@@ -276,6 +276,16 @@ div[class*="st-key-card_exrow"] { padding: 14px 16px; margin-bottom: 2px; }
 .vd-exhead .vd-icon { flex: none; }
 .vd-exhead + .vd-spark { height: 46px; }
 
+/* Overview: the start-here guide */
+div[class*="st-key-card_start_here"] { padding: 12px 14px 12px 18px; background: var(--vd-subtle); box-shadow: none; }
+.vd-start { counter-reset: step; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px 22px; margin: 0 !important; padding: 0 !important; }
+.vd-start li { counter-increment: step; margin: 0 !important; padding: 0 !important; font-size: 13.5px;
+  color: var(--vd-muted); line-height: 1.45; }
+.vd-start b { display: flex; align-items: center; gap: 8px; color: var(--vd-text); font-size: 14.5px; margin-bottom: 2px; }
+.vd-start b::before { content: counter(step); display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; border-radius: 50%; background: var(--vd-primary); color: #fff; font-size: 12px; }
+
 /* Home: resume banner */
 div[class*="st-key-card_resume"] { padding: 10px 16px; background: var(--vd-tint); border-color: var(--vd-tint-border);
   box-shadow: none; }
@@ -507,6 +517,7 @@ table.vd-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
   .vd-meter { grid-template-columns: 1fr auto; }
   .vd-checks { grid-template-columns: 1fr; }
   .vd-steps { grid-template-columns: 1fr; gap: 18px; }
+  .vd-start { grid-template-columns: 1fr 1fr; }
   .vd-steps::before { display: none; }
   [data-testid="stColumn"] .vd-kpi { margin-bottom: 4px; }
   .vd-meter .bar { grid-column: 1 / -1; grid-row: 2; }

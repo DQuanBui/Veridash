@@ -59,10 +59,41 @@ def _issues(health: HealthReport) -> str:
     return f"<div>{items}</div>"
 
 
+GUIDE_KEY = "vd_hide_start_here"
+START_HERE = [
+    ("Overview", "Check the health score and issues below."),
+    ("Charts", "See what stands out."),
+    ("Insights", "Read a checked summary."),
+    ("Export", "Download a report."),
+]
+
+
+def _hide_guide() -> None:
+    st.session_state[GUIDE_KEY] = True
+
+
+def _start_here() -> None:
+    """A dismissible note on the order to explore the tabs in, for first-time visitors."""
+    if st.session_state.get(GUIDE_KEY):
+        return
+    with st.container(key="card_start_here"):
+        steps, close = st.columns([12, 1], vertical_alignment="center", gap="small")
+        steps.markdown(
+            "<ol class='vd-start'>"
+            + "".join(f"<li><b>{esc(tab)}</b><span>{esc(text)}</span></li>" for tab, text in START_HERE)
+            + "</ol>",
+            unsafe_allow_html=True,
+        )
+        close.button("", key="vd_start_here_close", icon=":material/close:", type="tertiary", on_click=_hide_guide,
+                     help="Hide this guide")
+
+
 def render(analysis: Analysis) -> None:
     """Render the Overview tab."""
     health = analysis.health
     profile = analysis.profile
+
+    _start_here()
 
     cols = st.columns(len(analysis.kpis) or 1)
     for col, kpi in zip(cols, analysis.kpis, strict=False):
