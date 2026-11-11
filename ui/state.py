@@ -79,6 +79,17 @@ def cached_analysis(
     return analyze(prepared, metric=metric, date_col=date_col, grain=grain, use_date=use_date)
 
 
+def example_trend(key: str) -> list[float]:
+    """The values of an example's trend chart (empty if it has none)."""
+    from core.loader import file_hash
+
+    ex = EXAMPLES[key]
+    data = ex.read_bytes()
+    analysis = cached_analysis(file_hash(data), ex.filename, None, None, None, None, True, data)
+    trend = next((c for c in analysis.charts if c.key == "trend"), None)
+    return [] if trend is None else [float(v) for v in trend.data[trend.y]]
+
+
 def session_api_key() -> str | None:
     """The user's own Gemini key, if they entered one (session only)."""
     key = st.session_state.get(API_KEY)

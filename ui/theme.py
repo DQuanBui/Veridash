@@ -256,6 +256,22 @@ div[class*="st-key-card-eqb"] > :last-child { margin-top: auto; }
 }
 .vd-sheet .tally { font-size: 14px; line-height: 36px; color: var(--vd-muted); margin: 0; }
 
+/* Analyze start screen */
+.vd-gets-title { font-weight: 600; font-size: 14.5px; color: var(--vd-text); margin: 14px 0 6px 0; }
+.vd-gets { list-style: none; margin: 0 !important; padding: 0 !important; }
+.vd-gets li { display: flex; align-items: center; gap: 12px; margin: 0 !important; padding: 7px 0;
+  font-size: 14.5px; color: var(--vd-muted); }
+.vd-gets .vd-icon, .vd-exrow .vd-icon { width: 32px; height: 32px; border-radius: 8px; flex: none; }
+div[class*="st-key-card_exrow"] { padding: 14px 16px; margin-bottom: 2px; }
+.vd-exrow { display: flex; gap: 12px; align-items: center; }
+.vd-exrow b { display: block; font-size: 15.5px; color: var(--vd-text); }
+.vd-exrow span:not(.vd-icon) { display: block; font-size: 13.5px; color: var(--vd-muted); line-height: 1.4; }
+.vd-spark { display: block; width: 100%; height: 34px; margin-top: 8px; }
+.vd-spark .l { fill: none; stroke: var(--vd-primary); stroke-width: 1.8; stroke-linejoin: round;
+  vector-effect: non-scaling-stroke; }
+.vd-spark .a { fill: var(--vd-tint); }
+.vd-spark .d { fill: var(--vd-primary); }
+
 /* Home: resume banner */
 div[class*="st-key-card_resume"] { padding: 10px 16px; background: var(--vd-tint); border-color: var(--vd-tint-border);
   box-shadow: none; }

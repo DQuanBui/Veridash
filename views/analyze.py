@@ -18,12 +18,14 @@ from core.profiler import ColType
 from core.recommender import GRAINS, make_selection
 from core.samples import EXAMPLES
 from core.settings import CATEGORY_LABELS_FOR_AI, MAX_FILE_MB
-from ui.components import badge_html, callout, esc, section_header
+from ui.branding import icon
+from ui.components import badge_html, callout, esc, section_header, sparkline_svg
 from ui.state import (
     API_KEY,
     Source,
     cached_analysis,
     cached_prepare,
+    example_trend,
     get_source,
     load_example,
     session_api_key,
@@ -49,22 +51,23 @@ def _start_over() -> None:
     st.session_state[UPLOAD_COUNTER] = st.session_state.get(UPLOAD_COUNTER, 0) + 1
 
 
-def _uploader() -> None:
+def _uploader(collapsed: bool = False) -> None:
     st.file_uploader(
         f"Upload a CSV or Excel file (up to {MAX_FILE_MB} MB)",
         type=["csv", "xlsx", "xls"],
         key=_uploader_key(),
         on_change=_on_upload,
         help="Processed in memory and never written to disk.",
+        label_visibility="collapsed" if collapsed else "visible",
     )
 
 
-def _example_buttons(prefix: str) -> None:
-    cols = st.columns(len(EXAMPLES), gap="small")
-    for col, ex in zip(cols, EXAMPLES.values(), strict=True):
-        with col:
-            st.button(ex.title, key=f"{prefix}_{ex.key}", on_click=load_example, args=(ex.key,),
-                      width="stretch", help=ex.rows_hint)
+GETS = [
+    ("check", "A health score, with a practical fix for every issue"),
+    ("chart", "Charts and KPIs chosen for the shape of your data"),
+    ("spark", "Insights in plain words, with every number checked"),
+    ("export", "A web report, Excel, PDF and a Power BI starter kit"),
+]
 
 
 def _empty_state() -> None:
@@ -74,15 +77,35 @@ def _empty_state() -> None:
         "from a query you can inspect.",
         top=True,
     )
-    with st.container(key="card_start"):
-        _uploader()
-        st.markdown("<p class='vd-chart-insight' style='margin:6px 0 8px 0'>No file handy? Start with an example:</p>",
+    left, right = st.columns([1.2, 1], gap="large")
+    with left, st.container(key="card_start"):
+        st.markdown(
+            "<p class='vd-chart-title'>Upload a file</p>"
+            f"<p class='vd-chart-insight'>CSV or Excel, up to {MAX_FILE_MB} MB. It stays in memory and is never "
+            "stored.</p>",
+            unsafe_allow_html=True,
+        )
+        _uploader(collapsed=True)
+        st.markdown(
+            "<p class='vd-gets-title'>What you get</p><ul class='vd-gets'>"
+            + "".join(f"<li><span class='vd-icon'>{icon(name, 18)}</span>{esc(text)}</li>" for name, text in GETS)
+            + "</ul>",
+            unsafe_allow_html=True,
+        )
+    with right:
+        st.markdown("<p class='vd-chart-title' style='margin-bottom:10px'>Or open an example</p>",
                     unsafe_allow_html=True)
-        _example_buttons("start")
-    st.caption(
-        "Works best with a tidy table: one header row and one row per record. "
-        "See the Guide for tips. Your file stays in memory and is never stored."
-    )
+        for ex in EXAMPLES.values():
+            with st.container(key=f"card_exrow_{ex.key}"):
+                text, go = st.columns([3, 1], vertical_alignment="center", gap="small")
+                text.markdown(
+                    f"<div class='vd-exrow'><span class='vd-icon'>{icon(ex.icon, 18)}</span><div>"
+                    f"<b>{esc(ex.title)}</b><span>{esc(ex.tagline)}</span></div></div>"
+                    + sparkline_svg(example_trend(ex.key), f"Trend of the {ex.title.lower()} example"),
+                    unsafe_allow_html=True,
+                )
+                go.button("Open", key=f"start_{ex.key}", on_click=load_example, args=(ex.key,), width="stretch")
+    st.caption("Works best with a tidy table: one header row and one row per record. See the Guide for tips.")
 
 
 def _sidebar(prepared, file_id: str) -> tuple[str | None, str | None, str | None, bool]:

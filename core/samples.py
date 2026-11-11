@@ -15,7 +15,8 @@ class Example:
     title: str
     filename: str
     summary: str
-    rows_hint: str
+    tagline: str
+    icon: str
 
     @property
     def file_kind(self) -> str:
@@ -34,7 +35,8 @@ EXAMPLES: dict[str, Example] = {
         filename="retail_sales.csv",
         summary="Two years of transactions from fictional stores across regions and product "
         "categories, with units, prices, discounts, revenue and cost.",
-        rows_hint="~5,000 rows · CSV",
+        tagline="Store sales by region, category and product",
+        icon="store",
     ),
     "hr": Example(
         key="hr",
@@ -42,7 +44,8 @@ EXAMPLES: dict[str, Example] = {
         filename="hr_workforce.xlsx",
         summary="A workforce snapshot for a fictional company: departments, roles, tenure, "
         "salary bands, performance, satisfaction, overtime and attrition.",
-        rows_hint="~1,500 rows · Excel, 2 sheets",
+        tagline="Departments, satisfaction and attrition",
+        icon="users",
     ),
     "portfolio": Example(
         key="portfolio",
@@ -50,7 +53,8 @@ EXAMPLES: dict[str, Example] = {
         filename="investment_portfolio.csv",
         summary="Monthly holdings across fictional tickers and sectors, with shares, price, "
         "market value, cost basis and gain or loss.",
-        rows_hint="~2,000 rows · CSV",
+        tagline="Holdings by ticker and sector, month by month",
+        icon="trend",
     ),
 }
 

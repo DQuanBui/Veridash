@@ -7,7 +7,7 @@ file names) must pass through :func:`esc` before it is placed in HTML.
 from __future__ import annotations
 
 import html
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Sequence
 
 import streamlit as st
 
@@ -112,6 +112,25 @@ def chart_card(
         if notes:
             badges(notes)
         render()
+
+
+def sparkline_svg(values: Sequence[float], label: str, width: int = 160, height: int = 40) -> str:
+    """A small trend line with a soft fill and a dot on the latest value. ``label`` describes it for screen readers."""
+    vals = [float(v) for v in values if v == v]  # drop NaN
+    if len(vals) < 2:
+        return ""
+    lo, hi = min(vals), max(vals)
+    span = (hi - lo) or 1.0
+    pts = [(2 + i * (width - 6) / (len(vals) - 1), height - 4 - (v - lo) / span * (height - 10))
+           for i, v in enumerate(vals)]
+    line = " ".join(f"{x:.1f},{y:.1f}" for x, y in pts)
+    area = f"{pts[0][0]:.1f},{height} {line} {pts[-1][0]:.1f},{height}"
+    x, y = pts[-1]
+    return (
+        f'<svg class="vd-spark" viewBox="0 0 {width} {height}" preserveAspectRatio="none" role="img" '
+        f'aria-label="{esc(label)}"><polygon class="a" points="{area}"/><polyline class="l" points="{line}"/>'
+        f'<circle class="d" cx="{x:.1f}" cy="{y:.1f}" r="2.6"/></svg>'
+    )
 
 
 def compare_table(left_title: str, right_title: str, rows: Iterable[tuple[str, str, str]]) -> None:
