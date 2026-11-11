@@ -113,3 +113,47 @@ def test_wrong_direction_is_explained(pack):
 def test_direction_words_only_apply_to_changes(pack):
     # "down" before a share (not a change) says nothing about its sign.
     assert _status("Its share is down 34.6% of the mix.", pack) == [("34.6%", True)]
+
+
+@pytest.fixture
+def groups() -> FactPack:
+    return FactPack(
+        dataset={},
+        schema=[],
+        facts=[
+            Fact("kpi.metric", "Total revenue", 785_312.4, "currency", "kpi"),
+            Fact("top.1.label", "#1 category", "Electronics", "text", "top"),
+            Fact("top.1.value", "Revenue for Electronics", 271_400.0, "currency", "top"),
+            Fact("top.1.share_pct", "Share for Electronics", 34.6, "percent", "top"),
+            Fact("top.2.label", "#2 category", "Apparel", "text", "top"),
+            Fact("top.2.value", "Revenue for Apparel", 209_100.0, "currency", "top"),
+            Fact("top.2.share_pct", "Share for Apparel", 26.6, "percent", "top"),
+            Fact("share.1.label", "#1 region", "West", "text", "share"),
+            Fact("share.1.value", "Revenue for West", 209_100.0, "currency", "share"),
+            Fact("health.missing_pct", "Missing", 26.6, "percent", "health"),
+        ],
+    )
+
+
+@pytest.mark.parametrize(
+    ("text", "ok"),
+    [
+        ("Electronics leads with $271.4K (34.6% of the total).", [True, True]),
+        ("Electronics comes to $209.1K.", [False]),  # Apparel's number
+        ("At $271.4K, Electronics leads.", [True]),  # group named after the number
+        ("Electronics and Apparel lead with $271.4K and $209.1K.", [True, True]),
+        ("Electronics leads; Apparel follows at $209.1K.", [True]),
+        ("West brought in $209.1K.", [True]),  # same number, different chart and group
+        ("Revenue reached $209.1K in total.", [True]),  # no group named
+        ("Electronics has 26.6% missing.", [True]),  # also matches a non-group fact
+        ("Revenue ranges from $209.1K (Apparel) to $271.4K (Electronics).", [True, True]),
+        ("Revenue ranges from $209.1K (Electronics) to $271.4K (Apparel).", [False, False]),
+    ],
+)
+def test_group_numbers_must_belong_to_the_named_group(groups, text, ok):
+    assert [v for _, v in _status(text, groups)] == ok
+
+
+def test_wrong_group_is_explained(groups):
+    claim = check_text("Electronics comes to $209.1K.", groups)[0]
+    assert claim.reason == "Wrong group: $209.1K is the figure for Apparel, not Electronics"

@@ -57,7 +57,10 @@ def test_example_benchmark_has_no_false_alarms(results):
 
 def test_example_benchmark_catches_most_errors(results):
     assert results["planted_errors"] > 500
-    assert results["catch_pct"] >= 75
+    assert results["catch_pct"] >= 95
+    by_type = {row["key"]: row for row in results["corrupt"]}
+    assert by_type["wrong_group"]["rate_pct"] >= 90
+    assert by_type["sign_flip"]["rate_pct"] >= 90
 
 
 def test_sql_guard_blocks_every_attack_and_runs_harmless_queries():

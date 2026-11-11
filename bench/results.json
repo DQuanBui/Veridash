@@ -5,8 +5,8 @@
     "false_alarms": 0,
     "false_alarm_pct": 0.0,
     "planted_errors": 1004,
-    "caught": 804,
-    "catch_pct": 80.1,
+    "caught": 964,
+    "catch_pct": 96.0,
     "correct": [
       {
         "key": "exact",
@@ -69,14 +69,14 @@
         "title": "Near miss",
         "example": "$785.3K changed to $785.6K",
         "cases": 234,
-        "flagged": 213,
-        "rate_pct": 91.0,
+        "flagged": 223,
+        "rate_pct": 95.3,
         "misses": [
           "[retail] Grocery comes to 3.3%.",
-          "[retail] Calm Diffuser comes to 3.3%.",
           "[retail] Correlation of units and unit_price is 0.03.",
           "[hr] Median satisfaction is 3.63.",
-          "[hr] Average satisfaction in peak quarter is 3.81."
+          "[hr] Average satisfaction in peak quarter is 3.81.",
+          "[hr] B6 comes to 3.66."
         ]
       },
       {
@@ -84,14 +84,14 @@
         "title": "10% too high",
         "example": "$785.3K changed to $863.8K",
         "cases": 234,
-        "flagged": 217,
-        "rate_pct": 92.7,
+        "flagged": 219,
+        "rate_pct": 93.6,
         "misses": [
           "[retail] Distinct category values is 6.",
           "[retail] Grocery comes to 3.3%.",
           "[retail] South comes to 26.6%.",
-          "[retail] Calm Diffuser comes to 3.3%.",
-          "[retail] Correlation of revenue and discount is -0.04."
+          "[retail] Correlation of revenue and discount is -0.04.",
+          "[retail] Correlation of units and unit_price is 0.00."
         ]
       },
       {
@@ -110,14 +110,14 @@
         "title": "Swapped digits",
         "example": "$785.3K changed to $758.3K",
         "cases": 222,
-        "flagged": 210,
-        "rate_pct": 94.6,
+        "flagged": 213,
+        "rate_pct": 95.9,
         "misses": [
           "[retail] Number of columns is 01.",
           "[hr] Attrition rate is 0.8%.",
           "[hr] Distinct role values is 12.",
           "[hr] Overall attrition rate is 0.8%.",
-          "[hr] Sales comes to 15.1%."
+          "[portfolio] The figure is 28."
         ]
       },
       {
@@ -125,14 +125,12 @@
         "title": "Another group's number",
         "example": "Electronics given Apparel's $209.1K",
         "cases": 148,
-        "flagged": 0,
-        "rate_pct": 0.0,
+        "flagged": 145,
+        "rate_pct": 98.0,
         "misses": [
-          "[retail] Electronics comes to $209.1K.",
-          "[retail] Electronics comes to 26.6%.",
-          "[retail] Apparel comes to $184.6K.",
-          "[retail] Apparel comes to 23.5%.",
-          "[retail] Home comes to $96,472."
+          "[retail] Sports comes to 3.0%.",
+          "[retail] Peak Yoga Mat comes to 3.0%.",
+          "[hr] B6 comes to 3.60."
         ]
       },
       {
