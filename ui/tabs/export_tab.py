@@ -1,4 +1,4 @@
-"""Export tab: Excel report, PDF summary and Power BI Starter Kit downloads."""
+"""Export tab: web report, Excel, PDF, Power BI Starter Kit and audit trail downloads."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ import streamlit as st
 from core.pipeline import Analysis
 from exports.audit import build_audit_csv
 from exports.excel import build_excel
+from exports.html_report import build_html_report
 from exports.pdf import build_pdf
 from exports.powerbi import build_powerbi_kit
 from ui.components import esc, source_badge_html
@@ -34,6 +35,27 @@ def render(analysis: Analysis, cache_key: str) -> None:
         f"{source_badge_html(insights.source, insights.model)}</div>",
         unsafe_allow_html=True,
     )
+    with st.container(key="card_export_html"):
+        left, right = st.columns([3, 1.2], vertical_alignment="center", gap="medium")
+        with left:
+            st.markdown(
+                "<p class='vd-chart-title'>Shareable web report <span class='vd-badge teal'>New</span></p>"
+                "<p class='vd-chart-insight'>One file that opens in any browser, no app needed. Every number in "
+                "the insights links to the fact and SQL behind it.</p>",
+                unsafe_allow_html=True,
+            )
+        with right:
+            st.download_button(
+                "Download web report",
+                data=lambda: build_html_report(analysis, insights),
+                file_name=f"{stem}_veridash_report.html",
+                mime="text/html",
+                type="primary",
+                width="stretch",
+                on_click="ignore",
+                key="dl_html",
+            )
+    st.write("")
     cols = st.columns(2, gap="medium")
     with cols[0], st.container(key="card-eqb_export_excel"):
         _export_card("Excel report",

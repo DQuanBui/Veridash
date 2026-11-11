@@ -123,3 +123,46 @@ def test_data_tab_downloads(analysis):
     assert len(lines) == 4 and lines[0].split(",")[0] == analysis.profile.columns[0].name
     if "date" in analysis.profile.df:
         assert " 00:00:00" not in text  # date-only columns keep a plain date
+
+
+def test_html_report_is_self_contained_and_verified(analysis):
+    import re
+
+    from exports.html_report import build_html_report
+
+    doc = build_html_report(analysis).decode("utf-8")
+    assert doc.startswith("<!doctype html>")
+    assert "<script" not in doc.lower()  # no JavaScript at all
+    assert not re.search(r'(src|href)="(https?:)?//(?!veridash\.streamlit\.app)', doc)  # nothing loaded from outside
+    assert doc.count("<svg") >= min(len(analysis.charts), 6)
+    total = re.search(r"Verified numbers: (\d+)/(\d+)", doc)
+    assert total and total.group(1) == total.group(2)  # rule-based text always verifies
+    # every link to a fact has a matching row
+    for target in set(re.findall(r'href="#(fact-[^"]+)"', doc)):
+        assert f'id="{target}"' in doc
+
+
+def test_html_report_escapes_file_content():
+    import pandas as pd
+
+    from core.pipeline import analyze, prepare
+    from exports.html_report import build_html_report
+
+    df = pd.DataFrame({"team<script>": ["<i>A</i>", "B", "C"] * 10, "sales": range(30)})
+    a = analyze(prepare(df.to_csv(index=False).encode(), "evil<img>.csv"))
+    doc = build_html_report(a).decode("utf-8")
+    assert "<script>" not in doc and "<img>" not in doc and "<i>A</i>" not in doc
+    assert "&lt;i&gt;A&lt;/i&gt;" in doc
+
+
+def test_html_report_marks_unverified_numbers():
+    from core.facts import Fact, FactPack
+    from exports.html_report import linked_text
+
+    pack = FactPack({}, [], [Fact("kpi.metric", "Total", 100.0, "number", "kpi")])
+    from ai.factcheck import check_text
+
+    text = "Total is 100 but not 250."
+    out = linked_text(text, check_text(text, pack), pack)
+    assert 'href="#fact-kpi-metric"' in out
+    assert 'class="bad"' in out and "(not verified)" in out

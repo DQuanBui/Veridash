@@ -51,8 +51,8 @@ def _style(ax) -> None:
     ax.set_axisbelow(True)
 
 
-def _png(spec: ChartSpec) -> bytes:
-    """Render one chart spec to PNG bytes."""
+def chart_figure(spec: ChartSpec):
+    """Draw one chart spec with Matplotlib (shared by the PDF and HTML reports)."""
     fig, ax = plt.subplots(figsize=(4.6, 2.7), dpi=170)
     df = spec.data
     if spec.kind == "line":
@@ -109,6 +109,12 @@ def _png(spec: ChartSpec) -> bytes:
     if spec.kind not in ("donut", "heatmap"):
         _style(ax)
     fig.tight_layout()
+    return fig
+
+
+def _png(spec: ChartSpec) -> bytes:
+    """Render one chart spec to PNG bytes."""
+    fig = chart_figure(spec)
     buf = io.BytesIO()
     fig.savefig(buf, format="png", facecolor="white")
     plt.close(fig)
