@@ -13,7 +13,7 @@ from core.settings import CACHE_TTL_S, MAX_FILE_MB
 from exports.compare_csv import build_compare_csv
 from ui.charts import PLOTLY_CONFIG, figure_for, sql_expander
 from ui.components import badge_html, callout, esc, kpi_card, section_header, verified_badge_html
-from ui.state import COMPARE_KEYS, Source, cached_prepare, load_compare_example
+from ui.state import COMPARE_KEYS, Source, cached_prepare, load_compare_example, notify
 
 SIDES = COMPARE_KEYS
 COUNTER = "vd_cmp_n"
@@ -35,12 +35,15 @@ def _on_upload(side: str) -> None:
     uploaded = st.session_state.get(_key(side))
     if uploaded is not None:
         st.session_state[SIDES[side]] = Source(uploaded.name, uploaded.getvalue(), "upload")
+        other = st.session_state.get(SIDES["after" if side == "before" else "before"])
+        notify(f"Loaded {uploaded.name}" + ("" if other else f". Now add the {'after' if side == 'before' else 'before'} file."))
 
 
 def _start_over() -> None:
     for key in SIDES.values():
         st.session_state.pop(key, None)
     st.session_state[COUNTER] = st.session_state.get(COUNTER, 0) + 1
+    notify("Cleared. Choose two new files.", ":material/restart_alt:")
 
 
 def _uploaders() -> None:

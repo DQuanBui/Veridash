@@ -28,6 +28,7 @@ from ui.state import (
     example_trend,
     get_source,
     load_example,
+    notify,
     session_api_key,
     set_source,
 )
@@ -44,10 +45,12 @@ def _on_upload() -> None:
     uploaded = st.session_state.get(_uploader_key())
     if uploaded is not None:
         set_source(Source(name=uploaded.name, data=uploaded.getvalue(), kind="upload"))
+        notify(f"Loaded {uploaded.name}")
 
 
 def _start_over() -> None:
     set_source(None)
+    notify("Cleared. Choose a new file or an example.", ":material/restart_alt:")
     st.session_state[UPLOAD_COUNTER] = st.session_state.get(UPLOAD_COUNTER, 0) + 1
 
 
@@ -101,7 +104,7 @@ def _empty_state() -> None:
                 text.markdown(
                     f"<div class='vd-exrow'><span class='vd-icon'>{icon(ex.icon, 18)}</span><div>"
                     f"<b>{esc(ex.title)}</b><span>{esc(ex.tagline)}</span></div></div>"
-                    + sparkline_svg(example_trend(ex.key), f"Trend of the {ex.title.lower()} example"),
+                    + sparkline_svg(example_trend(ex.key), f"Trend of the {ex.title} example"),
                     unsafe_allow_html=True,
                 )
                 go.button("Open", key=f"start_{ex.key}", on_click=load_example, args=(ex.key,), width="stretch")

@@ -139,3 +139,13 @@ def test_home_offers_to_resume_an_open_file():
     assert not at.exception, at.exception
     assert "hr_workforce.xlsx" in " ".join(m.value for m in at.markdown)
     assert any(b.key == "resume_analyze" for b in at.button)
+
+
+def test_actions_are_confirmed_with_a_toast():
+    at = _app().run()
+    at.switch_page("views/analyze.py").run()
+    at.button(key="start_portfolio").click().run()
+    assert not at.exception, at.exception
+    assert any("Opened the example: Investment portfolio" in t.value for t in at.toast)
+    at.button(key="vd_start_over").click().run()
+    assert any("Cleared" in t.value for t in at.toast)

@@ -26,6 +26,7 @@ if refresh_changed_modules(Path(__file__).resolve().parent, _code_state()):
 
 from core.settings import APP_NAME, ASSETS_DIR  # noqa: E402
 from ui.components import footer  # noqa: E402
+from ui.state import show_notices  # noqa: E402
 from ui.theme import apply_theme  # noqa: E402
 
 st.set_page_config(
@@ -36,6 +37,7 @@ st.set_page_config(
     menu_items={"Get help": None, "Report a bug": None, "About": None},
 )
 apply_theme()
+show_notices()
 st.logo(str(ASSETS_DIR / "logo.svg"), icon_image=str(ASSETS_DIR / "mark.svg"), size="large")
 
 pages = [

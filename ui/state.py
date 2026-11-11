@@ -17,6 +17,7 @@ from core.samples import EXAMPLES, compare_example_files
 from core.settings import CACHE_TTL_S
 
 SOURCE_KEY = "vd_source"
+NOTICES_KEY = "vd_notices"
 COMPARE_KEYS = {"before": "vd_cmp_before", "after": "vd_cmp_after"}
 API_KEY = "vd_api_key"
 
@@ -29,6 +30,17 @@ class Source:
     data: bytes
     kind: str  # "upload" | "example"
     example_key: str | None = None
+
+
+def notify(message: str, icon: str = ":material/check_circle:") -> None:
+    """Queue a short confirmation; it is shown as a toast on the next screen, even after a page switch."""
+    st.session_state.setdefault(NOTICES_KEY, []).append((message, icon))
+
+
+def show_notices() -> None:
+    """Show and clear queued confirmations. Called once per run from ``app.py``."""
+    for message, icon in st.session_state.pop(NOTICES_KEY, []):
+        st.toast(message, icon=icon)
 
 
 def get_source() -> Source | None:
@@ -48,6 +60,7 @@ def load_example(key: str) -> None:
     """Make a bundled example the active source."""
     ex = EXAMPLES[key]
     set_source(Source(name=ex.filename, data=ex.read_bytes(), kind="example", example_key=key))
+    notify(f"Opened the example: {ex.title}")
 
 
 def load_compare_example(key: str) -> None:
@@ -55,6 +68,7 @@ def load_compare_example(key: str) -> None:
     (name_b, data_b), (name_a, data_a) = compare_example_files(key)
     st.session_state[COMPARE_KEYS["before"]] = Source(name_b, data_b, "example", key)
     st.session_state[COMPARE_KEYS["after"]] = Source(name_a, data_a, "example", key)
+    notify(f"Comparing {name_b} with {name_a}")
 
 
 @st.cache_data(ttl=CACHE_TTL_S, max_entries=8, show_spinner=False)

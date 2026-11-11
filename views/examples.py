@@ -39,7 +39,7 @@ for col, ex in zip(cols, EXAMPLES.values(), strict=True):
         st.markdown(
             f"<div class='vd-exhead'><span class='vd-icon'>{icon(ex.icon)}</span>"
             f"<p class='vd-chart-title' style='font-size:18px'>{esc(ex.title)}</p></div>"
-            + sparkline_svg(example_trend(ex.key), f"Trend of the {ex.title.lower()} example")
+            + sparkline_svg(example_trend(ex.key), f"Trend of the {ex.title} example")
             + f"<div class='vd-badges' style='margin-top:12px'>{badge_html(ex.file_kind + ' file', 'slate')}"
             f"{badge_html(f'Health grade {health.grade}', 'teal')}</div>"
             f"<p class='vd-chart-insight'>{esc(ex.summary)}</p>"
