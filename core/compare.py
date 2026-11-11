@@ -14,6 +14,10 @@ The two typed tables are stacked into one DuckDB table, ``data``, with a
 ``_file`` column saying which file each row came from (``before`` or
 ``after``). Every comparison number comes from one SQL query on that table,
 shown to the user like everything else in Veridash.
+
+:func:`compare` runs all of it and also returns a fact pack and a short
+plain-English summary built only from those facts, so the summary passes the
+same fact-check as every other piece of text in the app.
 """
 
 from __future__ import annotations
@@ -23,9 +27,11 @@ from dataclasses import dataclass, field
 import pandas as pd
 
 from core.engine import QueryEngine, quote_ident, sql_literal
+from core.facts import Fact, FactPack
+from core.formatting import fmt_signed_pct, fmt_value, pretty
 from core.pipeline import Prepared
 from core.profiler import ColType
-from core.recommender import TOP_N, Selection, make_selection
+from core.recommender import TOP_N, ChartSpec, Selection, make_selection
 
 SIDE = "_file"
 BEFORE, AFTER = "before", "after"
@@ -240,4 +246,168 @@ def record_change(
 
     out.added_examples = examples(AFTER, BEFORE) if out.added else []
     out.removed_examples = examples(BEFORE, AFTER) if out.removed else []
+    return out
+
+
+@dataclass
+class Comparison:
+    """Everything the Compare page shows."""
+
+    before_name: str
+    after_name: str
+    before: Prepared
+    after: Prepared
+    columns: ColumnDiff
+    health: HealthDiff
+    metric: MetricChange
+    records: RecordChange | None
+    facts: FactPack
+    summary: list[str]
+
+    @property
+    def rows_before(self) -> int:
+        """Rows in the before file."""
+        return self.before.profile.n_rows
+
+    @property
+    def rows_after(self) -> int:
+        """Rows in the after file."""
+        return self.after.profile.n_rows
+
+    def chart(self) -> ChartSpec | None:
+        """The group changes as a diverging bar chart, if there are any."""
+        m = self.metric
+        if m.groups.empty or not m.group_col:
+            return None
+        sel = m.selection
+        title = f"Where the change came from, by {pretty(m.group_col).lower()}"
+        if sel.agg == "AVG":
+            title = f"Change in {sel.metric_label.lower()}, by {pretty(m.group_col).lower()}"
+        return ChartSpec("compare_groups", "bar", title, m.groups_sql, "label", "change", sel.value_kind, m.groups,
+                         meta={"category": m.group_col, "diverging": True})
+
+
+def _signed(value: float, kind: str) -> str:
+    return ("+" if value >= 0 else "-") + fmt_value(abs(value), kind)
+
+
+def _names(names: list[str]) -> str:
+    shown = ", ".join(names[:3])
+    return shown + (" and others" if len(names) > 3 else "")
+
+
+def _facts_and_summary(c: Comparison) -> tuple[FactPack, list[str]]:
+    """Facts for every number in the summary, then the summary itself."""
+    m, sel, kind = c.metric, c.metric.selection, c.metric.selection.value_kind
+    facts = [
+        Fact("files.before", "Before file", c.before_name, "text", "compare"),
+        Fact("files.after", "After file", c.after_name, "text", "compare"),
+        Fact("rows.before", "Rows in the before file", c.rows_before, "int", "compare"),
+        Fact("rows.after", "Rows in the after file", c.rows_after, "int", "compare"),
+        Fact("rows.change", "Change in rows", c.rows_after - c.rows_before, "int", "compare"),
+        Fact("columns.common", "Columns in both files", len(c.columns.common), "int", "compare"),
+        Fact("columns.added", "Columns added", len(c.columns.added), "int", "compare"),
+        Fact("columns.removed", "Columns removed", len(c.columns.removed), "int", "compare"),
+        Fact("columns.retyped", "Columns that changed type", len(c.columns.retyped), "int", "compare"),
+        Fact("health.before", "Health score of the before file", c.health.before, "int", "compare"),
+        Fact("health.after", "Health score of the after file", c.health.after, "int", "compare"),
+        Fact("health.score_max", "Maximum health score", 100, "int", "compare"),
+    ]
+    names = c.columns.added + c.columns.removed + [n for n, _, _ in c.columns.retyped]
+    facts += [Fact(f"columns.name_{i}", "Column name", n, "text", "compare") for i, n in enumerate(names)]
+    summary: list[str] = []
+
+    diff = c.rows_after - c.rows_before
+    if diff:
+        summary.append(f"{c.after_name} has {c.rows_after:,} rows, {abs(diff):,} {'more' if diff > 0 else 'fewer'} "
+                       f"than {c.before_name} ({c.rows_before:,}).")
+    else:
+        summary.append(f"Both files have {c.rows_after:,} rows.")
+
+    cols = c.columns
+    if cols.unchanged:
+        summary.append(f"Both files have the same {len(cols.common)} columns.")
+    else:
+        parts = []
+        if cols.added:
+            parts.append(f"{len(cols.added)} added ({_names(cols.added)})")
+        if cols.removed:
+            parts.append(f"{len(cols.removed)} removed ({_names(cols.removed)})")
+        if cols.retyped:
+            parts.append(f"{len(cols.retyped)} changed type ({_names([n for n, _, _ in cols.retyped])})")
+        summary.append("Columns: " + "; ".join(parts) + ".")
+
+    if m.before is not None and m.after is not None:
+        facts += [
+            Fact("metric.before", f"{sel.metric_label} in the before file", m.before, kind, "compare"),
+            Fact("metric.after", f"{sel.metric_label} in the after file", m.after, kind, "compare"),
+            Fact("metric.change", f"Change in {sel.metric_label.lower()}", m.change, kind, "compare"),
+        ]
+        text = (f"{sel.metric_label} went from {fmt_value(m.before, kind)} to {fmt_value(m.after, kind)}, "
+                f"a change of {_signed(m.change, kind)}")
+        if m.change_pct is not None:
+            facts.append(Fact("metric.change_pct", f"Change in {sel.metric_label.lower()}, %", m.change_pct,
+                              "percent", "compare"))
+            text += f" ({fmt_signed_pct(m.change_pct)})"
+        summary.append(text + ".")
+
+    if not m.groups.empty and m.group_col:
+        facts.append(Fact("groups.column", "Grouped by", m.group_col, "text", "compare"))
+        for i, row in enumerate(m.groups.itertuples(index=False), start=1):
+            facts += [
+                Fact(f"groups.{i}.label", f"#{i} mover by {m.group_col}", str(row.label), "text", "compare"),
+                Fact(f"groups.{i}.before", f"{sel.metric_label} for {row.label}, before", float(row.before), kind, "compare"),
+                Fact(f"groups.{i}.after", f"{sel.metric_label} for {row.label}, after", float(row.after), kind, "compare"),
+                Fact(f"groups.{i}.change", f"Change for {row.label}", float(row.change), kind, "compare"),
+            ]
+        top = m.groups.iloc[0]
+        text = f"By {pretty(m.group_col).lower()}, {top['label']} moved the most ({_signed(float(top['change']), kind)})"
+        if m.change:
+            against = m.groups[(m.groups["change"] > 0) != (m.change > 0)]
+            if len(against) and against.index[0] != top.name:
+                o = against.iloc[0]
+                text += f", while {o['label']} moved the other way ({_signed(float(o['change']), kind)})"
+        summary.append(text + ".")
+
+    h = c.health
+    if h.before != h.after:
+        text = f"The data health score went from {h.before} to {h.after} out of 100"
+    else:
+        text = f"The data health score is {h.after} out of 100 in both files"
+    details = []
+    if h.better:
+        details.append("better: " + ", ".join(x.lower() for x in h.better))
+    if h.worse:
+        details.append("worse: " + ", ".join(x.lower() for x in h.worse))
+    summary.append(text + (f" ({'; '.join(details)})" if details else "") + ".")
+
+    r = c.records
+    if r is not None:
+        facts += [
+            Fact("records.id_column", "Matched on", r.id_col, "text", "compare"),
+            Fact("records.added", "New records", r.added, "int", "compare"),
+            Fact("records.removed", "Records no longer present", r.removed, "int", "compare"),
+            Fact("records.kept", "Records in both files", r.kept, "int", "compare"),
+        ]
+        text = (f"Matching on {r.id_col}, {r.added:,} records are new, {r.removed:,} are gone and "
+                f"{r.kept:,} appear in both")
+        if r.changed is not None and sel.metric:
+            facts.append(Fact("records.changed", f"Kept records whose {sel.metric} changed", r.changed, "int", "compare"))
+            text += f"; {r.changed:,} of those changed {pretty(sel.metric).lower()}"
+        summary.append(text + ".")
+
+    dataset = {"before": c.before_name, "after": c.after_name, "metric": sel.metric, "aggregation": sel.agg}
+    return FactPack(dataset=dataset, schema=[], facts=facts), summary
+
+
+def compare(before: Prepared, after: Prepared, before_name: str = "Before", after_name: str = "After") -> Comparison:
+    """Compare two prepared files (see the module docstring)."""
+    cols = column_diff(before, after)
+    sel = pick_selection(after, cols)
+    with QueryEngine(stacked(before, after, cols.common)) as engine:
+        metric = metric_change(engine, sel)
+        records = record_change(engine, before, after, cols, sel)
+    out = Comparison(before_name, after_name, before, after, cols, health_diff(before, after), metric, records,
+                     FactPack({}, [], []), [])
+    out.facts, out.summary = _facts_and_summary(out)
     return out

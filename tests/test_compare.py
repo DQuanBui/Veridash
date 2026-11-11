@@ -10,6 +10,7 @@ from core.compare import (
     BEFORE,
     SIDE,
     column_diff,
+    compare,
     health_diff,
     metric_change,
     pick_selection,
@@ -137,3 +138,47 @@ def test_records_matched_by_id():
 
 def test_no_id_column_means_no_record_matching(pair):
     assert _records(*pair) is None
+
+
+def _split_example(key: str, mask_before, mask_after):
+    from core.samples import EXAMPLES
+
+    ex = EXAMPLES[key]
+    df = prepare(ex.read_bytes(), ex.filename).profile.df
+    return _prep(df[mask_before(df)], "before.csv"), _prep(df[mask_after(df)], "after.csv")
+
+
+def test_summary_numbers_all_pass_the_fact_check(pair):
+    from ai.factcheck import fact_check
+
+    c = compare(*pair, "jan_2024.csv", "feb_2024.csv")
+    report = fact_check(c.summary, c.facts)
+    assert report.total >= 8
+    assert report.verified == report.total, [x.raw for x in report.unverified]
+    assert any("1 added (channel)" in s for s in c.summary)
+    assert c.chart() is not None and c.chart().meta["diverging"]
+
+
+def test_summary_is_fact_checked_on_the_examples():
+    from ai.factcheck import fact_check
+
+    retail = _split_example("retail", lambda d: d["date"].dt.year == 2023, lambda d: d["date"].dt.year == 2024)
+    hr = _split_example("hr", lambda d: d.index < 1200, lambda d: d.index >= 300)
+    for before, after in (retail, hr):
+        c = compare(before, after, "before.csv", "after.csv")
+        report = fact_check(c.summary, c.facts)
+        assert report.verified == report.total > 0, [x.raw for x in report.unverified]
+    ids_b = set(hr[0].profile.df["employee_id"].dropna())
+    ids_a = set(hr[1].profile.df["employee_id"].dropna())
+    r = c.records
+    assert r is not None
+    assert (r.added, r.removed, r.kept) == (len(ids_a - ids_b), len(ids_b - ids_a), len(ids_a & ids_b))
+    assert r.changed is None  # the example has duplicate IDs, so values are not matched one to one
+
+
+def test_wrong_numbers_in_a_comparison_are_caught(pair):
+    from ai.factcheck import check_text
+
+    c = compare(*pair)
+    claims = check_text("Revenue went up by 25%, with 70 rows.", c.facts)
+    assert not any(x.verified for x in claims)
