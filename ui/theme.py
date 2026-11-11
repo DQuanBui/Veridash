@@ -272,6 +272,10 @@ div[class*="st-key-card_exrow"] { padding: 14px 16px; margin-bottom: 2px; }
 .vd-spark .a { fill: var(--vd-tint); }
 .vd-spark .d { fill: var(--vd-primary); }
 
+.vd-exhead { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.vd-exhead .vd-icon { flex: none; }
+.vd-exhead + .vd-spark { height: 46px; }
+
 /* Home: resume banner */
 div[class*="st-key-card_resume"] { padding: 10px 16px; background: var(--vd-tint); border-color: var(--vd-tint-border);
   box-shadow: none; }

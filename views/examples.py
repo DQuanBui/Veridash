@@ -7,8 +7,9 @@ import streamlit as st
 from core.formatting import pretty
 from core.loader import file_hash
 from core.samples import EXAMPLES
-from ui.components import SEVERITY_VARIANT, badge_html, esc, section_header
-from ui.state import cached_analysis, load_example
+from ui.branding import icon
+from ui.components import SEVERITY_VARIANT, badge_html, esc, section_header, sparkline_svg
+from ui.state import cached_analysis, example_trend, load_example
 
 MIME = {
     "csv": "text/csv",
@@ -36,8 +37,10 @@ for col, ex in zip(cols, EXAMPLES.values(), strict=True):
     metric = pretty(analysis.selection.metric) if analysis.selection.metric else "Records"
     with col, st.container(key=f"card-eqb_example_{ex.key}"):
         st.markdown(
-            f"<p class='vd-chart-title' style='font-size:18px'>{esc(ex.title)}</p>"
-            f"<div class='vd-badges'>{badge_html(ex.file_kind + ' file', 'slate')}"
+            f"<div class='vd-exhead'><span class='vd-icon'>{icon(ex.icon)}</span>"
+            f"<p class='vd-chart-title' style='font-size:18px'>{esc(ex.title)}</p></div>"
+            + sparkline_svg(example_trend(ex.key), f"Trend of the {ex.title.lower()} example")
+            + f"<div class='vd-badges' style='margin-top:12px'>{badge_html(ex.file_kind + ' file', 'slate')}"
             f"{badge_html(f'Health grade {health.grade}', 'teal')}</div>"
             f"<p class='vd-chart-insight'>{esc(ex.summary)}</p>"
             "<p style='font-weight:600;font-size:14px;margin:14px 0 6px 0'>What Veridash finds</p>"
