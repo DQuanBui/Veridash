@@ -118,9 +118,12 @@ TOUR = [
 ]
 
 
-@st.cache_data(show_spinner=False)
 def _picture(name: str, dark: bool) -> str:
-    """A tour picture as a data URI (the dark-mode capture when the visitor uses dark mode)."""
+    """A tour picture as a data URI (the dark-mode capture when the visitor uses dark mode).
+
+    Read from disk on every run (the files are small), so a deploy with new pictures shows them at once;
+    a cache keyed only on the name would keep serving the old ones.
+    """
     path = ASSETS_DIR / "tour" / f"{name}{'_dark' if dark else ''}.webp"
     return "data:image/webp;base64," + base64.b64encode(path.read_bytes()).decode("ascii")
 
