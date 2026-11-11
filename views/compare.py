@@ -10,6 +10,7 @@ from core.formatting import fmt_signed_pct, fmt_value, pretty
 from core.loader import LoadError, file_hash
 from core.samples import COMPARE_EXAMPLES, compare_example_files
 from core.settings import CACHE_TTL_S, MAX_FILE_MB
+from exports.compare_csv import build_compare_csv
 from ui.charts import PLOTLY_CONFIG, figure_for, sql_expander
 from ui.components import badge_html, callout, esc, kpi_card, section_header, verified_badge_html
 from ui.state import Source, cached_prepare
@@ -178,8 +179,16 @@ def _results(c: Comparison) -> None:
         _chart_card(c)
     with right:
         _columns_card(c)
-    st.caption("Both files are stacked into one table, data, with a _file column saying which file each row came "
-               "from. Files are processed in memory and never stored.")
+    st.write("")
+    note, dl = st.columns([4, 1.3], vertical_alignment="center", gap="medium")
+    with note:
+        st.caption("Both files are stacked into one table, data, with a _file column saying which file each row "
+                   "came from. Files are processed in memory and never stored.")
+    with dl:
+        stem = c.after_name.rsplit(".", 1)[0]
+        st.download_button("Download comparison", data=lambda: build_compare_csv(c),
+                           file_name=f"{stem}_comparison.csv", mime="text/csv", on_click="ignore",
+                           width="stretch", key="dl_compare", help="Every compared figure with its SQL, as a CSV.")
 
 
 section_header(

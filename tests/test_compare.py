@@ -218,3 +218,18 @@ def test_compare_examples_split_one_file_cleanly(key):
     assert c.metric.change is not None and c.chart() is not None
     report = fact_check(c.summary, c.facts)
     assert report.verified == report.total
+
+
+def test_comparison_csv_lists_every_figure(pair):
+    import io
+
+    from exports.compare_csv import build_compare_csv
+
+    c = compare(*pair, "jan.csv", "feb.csv")
+    data = build_compare_csv(c)
+    assert data.startswith("﻿".encode())  # BOM, so Excel reads UTF-8
+    df = pd.read_csv(io.BytesIO(data), encoding="utf-8-sig", keep_default_na=False)
+    assert list(df.columns) == ["section", "item", "before", "after", "change", "sql"]
+    assert {"Rows", "Health", "Columns", "Metric", "By region"} <= set(df["section"])
+    assert (df["item"] == "channel").any() and (df["item"] == "notes").any()
+    assert df[df["section"] == "By region"]["sql"].str.contains('"_file"').all()
