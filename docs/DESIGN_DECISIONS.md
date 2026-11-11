@@ -14,6 +14,9 @@ Each section ends with where the decision lives in the code.
 9. [Defence in depth for user SQL](#9-defence-in-depth-for-user-sql)
 10. [Explaining change only where the parts add up](#10-explaining-change-only-where-the-parts-add-up)
 11. [Other languages without weakening the fact-check](#11-other-languages-without-weakening-the-fact-check)
+12. [Measuring the safeguards with a published benchmark](#12-measuring-the-safeguards-with-a-published-benchmark)
+13. [Checking which group a number belongs to](#13-checking-which-group-a-number-belongs-to)
+14. [A web report with no JavaScript](#14-a-web-report-with-no-javascript)
 
 ---
 
@@ -74,9 +77,9 @@ product code) are recognised and skipped. Each number is highlighted green or re
 - *Reject any response with an unverified number.* Hides useful text and makes the AI path brittle.
 - *Ask a second model to check the first.* Doubles cost and still is not deterministic.
 
-**Trade-off.** The checker verifies that a number exists among the facts, not that the sentence uses it
-correctly (for example, a correct number attached to the wrong category). This is stated in the Guide's
-limitations. It is deterministic, fast and explainable, and fact-ID citations give the reader a second check.
+**Trade-off.** The checker verifies numbers, not reasoning. Since version 1.2 it also checks a stated sign or
+direction and which group a number belongs to (see sections 12 and 13), but a sentence can still draw a wrong
+conclusion from correct numbers. This is stated in the Guide's limitations. It is deterministic, fast and explainable, and fact-ID citations give the reader a second check.
 
 **In the code.** `ai/factcheck.py`. Tests in `tests/test_factcheck.py` cover rounding, sign, percent and date
 cases, and `tests/test_pipeline.py` proves that every value formatted by `core/formatting.py` round-trips
@@ -239,3 +242,68 @@ numbers would also need checking).
 and the interface stay in English.
 
 **In the code.** `ai/insights_ai.py` (`LANGUAGES`, `system_prompt`) and `tests/test_ai.py`.
+
+## 12. Measuring the safeguards with a published benchmark
+
+**Context.** Veridash's pitch is that its numbers can be trusted, but the evidence was a set of unit tests that
+I wrote while I already knew how the checker worked. That shows the code does what I intended, not how well it
+catches the mistakes a model actually makes.
+
+**Decision.** A deterministic benchmark (`bench/`) attacks the safeguards at scale. It turns every headline
+fact in the example datasets into sentences, plants six kinds of error (near misses, 10% errors, wrong units,
+swapped digits, another group's number and flipped signs) and counts how many the fact-checker catches, along
+with false alarms on correct sentences written in several formats. It also sends 38 harmful and 25 harmless
+queries through the SQL guard and the sandbox, and recomputes headline numbers with pandas. The results are
+committed, shown on the Benchmark page and verified in CI.
+
+**What it found.** The first run caught 77.9% of planted errors and none of the numbers given to the wrong
+group or written with a flipped sign. Both gaps led to new checks (section 13 and the sign rule in section 3),
+raising the catch rate to 96.0% with no false alarms.
+
+**Alternatives considered.** *Measuring with real Gemini output* (more realistic, but costs money, needs a key
+in CI and gives different scores on every run) or *hand-written test cases only* (they share the author's
+blind spots, which is exactly what the first run exposed).
+
+**Trade-off.** Planted errors are systematic, not a sample of real model mistakes, so the score is a lower
+bound on what the checker can do rather than a measured hallucination rate. Measuring Gemini directly is on
+the roadmap.
+
+**In the code.** `bench/` and `tests/test_bench.py`; the CI step in `.github/workflows/ci.yml`.
+
+## 13. Checking which group a number belongs to
+
+**Context.** "Electronics comes to $209.1K" passed the fact-check when $209.1K was Apparel's revenue, because
+the number exists. This is a likely model mistake when it reads a ranked list.
+
+**Decision.** When a number only matches per-group facts (such as `top.2.value`) and its sentence names a group
+from the same chart, the number must belong to that group. The group is the one named in brackets right after
+the number, otherwise the groups named since the previous number, otherwise the nearest one in the sentence.
+Wrong numbers are flagged with a reason, for example "Wrong group: $209.1K is the figure for Apparel, not
+Electronics".
+
+**Alternatives considered.** *Asking the AI to cite a fact ID for every number and checking the citation*
+(stricter, but brittle with free text) or *full sentence parsing* (heavy and language-specific).
+
+**Trade-off.** It is a heuristic: unusual phrasing such as "Compared with Apparel, $271.4K is the total for
+Electronics" attributes the number to the wrong name and raises a false alarm. The benchmark keeps false alarms at zero on correct sentences, and when
+a number also matches a non-group fact, the check stays out of the way.
+
+**In the code.** `ai/factcheck.py` (`_groups`, `_named_groups`) and `tests/test_factcheck.py`.
+
+## 14. A web report with no JavaScript
+
+**Context.** Results are often shared with people who will not open the app. A PDF is static and an Excel file
+needs Excel; neither lets a reader check where a number came from.
+
+**Decision.** A single HTML file with inline CSS and inline SVG charts drawn by the same code as the PDF. SQL
+sits in native collapsible blocks, and each verified number in the insights is a plain link to its row in a
+facts table. There is no JavaScript and nothing is loaded from the internet, so the file opens anywhere,
+including offline and in email attachments, and cannot run code.
+
+**Alternatives considered.** *Interactive Plotly charts* (about 3.5 MB of JavaScript per file, and scripts are
+often blocked in attachments) or *a hosted share link* (would mean storing users' results on a server).
+
+**Trade-off.** Charts are static images without hover. All file content is escaped, and a test checks that a
+file with HTML in its column names and values cannot inject markup.
+
+**In the code.** `exports/html_report.py` and `tests/test_exports.py`.

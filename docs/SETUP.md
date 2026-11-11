@@ -99,11 +99,11 @@ switch (for example to `gemini-3.8-flash` or `gemini-3.5-flash-lite`).
 ## Running tests
 
 ```bash
-pytest            # all tests, including Streamlit AppTest smoke tests (about 20 seconds)
+pytest            # all tests, including Streamlit AppTest smoke tests (about a minute and a half)
 ruff check .      # lint
 ```
 
-The same two commands run on GitHub Actions for every push and pull request (`.github/workflows/ci.yml`), and
+The same two commands, plus the benchmark check below, run on GitHub Actions for every push and pull request (`.github/workflows/ci.yml`), and
 the README badge shows the latest result. To run Ruff and a few hygiene checks automatically before each
 commit, install the optional hooks once:
 
@@ -114,6 +114,15 @@ pre-commit install
 
 Dependabot (`.github/dependabot.yml`) opens weekly pull requests for dependency updates; CI must pass before
 one is merged.
+
+To run the trust benchmark (no API key needed), which prints the scores and refreshes `bench/results.json`:
+
+```bash
+python -m bench           # run and publish the results
+python -m bench --check   # what CI runs: fails if results.json is out of date
+```
+
+Commit the updated `bench/results.json` whenever a change moves the scores; the Benchmark page reads it.
 
 To regenerate the example datasets (seeded, so the output is identical every time):
 

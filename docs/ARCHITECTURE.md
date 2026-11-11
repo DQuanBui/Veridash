@@ -26,7 +26,7 @@ flowchart TD
     end
     subgraph Out["Interface and exports"]
         UI[Streamlit views + ui/]
-        X[exports/<br/>excel.py, pdf.py, powerbi.py, audit.py]
+        X[exports/<br/>html_report.py, excel.py, pdf.py,<br/>powerbi.py, audit.py]
     end
     U --> L --> P --> H
     P --> E --> R --> F
@@ -39,6 +39,12 @@ flowchart TD
     R --> UI
     UI --> NL --> E
     UI --> X
+    subgraph Bench["Trust benchmark (bench/)"]
+        B[factcheck_bench · sql_guard_bench<br/>crosscheck · results.json]
+    end
+    B -.-> FC
+    B -.-> NL
+    B -.-> R
 ```
 
 ## Step by step
@@ -67,7 +73,12 @@ flowchart TD
    `validate_sql` checks it and adds a `LIMIT`; the engine runs it with a timeout. Users can also type SQL.
 10. **Exports** (`exports/`). Built lazily when a download button is clicked, fully in memory: an xlsxwriter
     workbook (`in_memory` mode) with native charts, an fpdf2 PDF with matplotlib images, a zip with CSV, M
-    and DAX, and an audit-trail CSV listing every fact with the SQL that produced it.
+    and DAX, an audit-trail CSV listing every fact with the SQL that produced it, and a self-contained HTML
+    report (inline SVG charts, no JavaScript) whose verified numbers link to the facts they matched.
+11. **Trust benchmark** (`bench/`, outside the app). `python -m bench` plants wrong numbers in sentences built
+    from the examples' facts and scores the fact-checker, sends harmful and harmless SQL through the guard and
+    the sandbox, and recomputes headline numbers with pandas. Results go to `bench/results.json`, which the
+    Benchmark page reads; CI runs `python -m bench --check` and fails if they are out of date.
 
 ## Module map
 
@@ -75,9 +86,10 @@ flowchart TD
 |---|---|---|
 | `core/` | Loading, typing, health, SQL engine, recommendations, facts, rule-based insights, pipeline | pandas, NumPy, DuckDB |
 | `ai/` | Gemini client, AI insights, fact-checking, natural-language SQL | `core/`, google-genai |
-| `exports/` | Excel, PDF, Power BI and audit-trail outputs | `core/`, `ai/factcheck`, xlsxwriter, fpdf2, matplotlib |
+| `exports/` | Web report, Excel, PDF, Power BI and audit-trail outputs | `core/`, `ai/factcheck`, xlsxwriter, fpdf2, matplotlib |
+| `bench/` | Trust benchmark: fact-check, SQL guard and pandas cross-check suites, published results | `core/`, `ai/` |
 | `ui/` | Theme, components, Plotly figures, session state and caching, tab views | `core/`, `ai/`, `exports/`, Streamlit, Plotly |
-| `views/` | The four pages: Home, Analyze, Examples, Guide | `ui/` |
+| `views/` | The five pages: Home, Analyze, Examples, Benchmark, Guide | `ui/`, `bench/` (published results only) |
 | `app.py` | Page config, theme injection, navigation | `ui/`, `views/` |
 
 `core/` never imports Streamlit, so the whole engine can be tested and reused without the UI. The one shared
@@ -100,7 +112,9 @@ everything that depends on the user's choices.
 - **No raw rows to the AI.** Only the fact pack, or the schema with up to 10 labels per category column.
 - **Sandboxed SQL.** `enable_external_access = false` plus a locked configuration, a parser-backed validator,
   a timeout and a row cap.
-- **Escaped HTML.** Every user-provided string placed into HTML goes through `html.escape()` in `ui/components.py`.
+- **Escaped HTML.** Every user-provided string placed into HTML goes through `html.escape()`, in
+  `ui/components.py` for the app and in `exports/html_report.py` for the downloadable report, which also
+  contains no scripts and loads nothing from the internet.
 - **Secrets.** Keys come from the sidebar, `st.secrets` or the environment; `secrets.toml` is gitignored.
 
 ## AI insights sequence
