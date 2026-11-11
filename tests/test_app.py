@@ -7,7 +7,7 @@ from streamlit.testing.v1 import AppTest
 
 from core.samples import EXAMPLES
 
-PAGES = ["views/home.py", "views/analyze.py", "views/examples.py", "views/guide.py"]
+PAGES = ["views/home.py", "views/analyze.py", "views/examples.py", "views/benchmark.py", "views/guide.py"]
 
 
 def _app() -> AppTest:
@@ -44,3 +44,14 @@ def test_change_file_menu_switches_example():
     assert any("investment_portfolio.csv" in m.value for m in at.markdown)
     at.button(key="vd_start_over").click().run()
     assert any(b.key == "start_hr" for b in at.button)
+
+
+def test_benchmark_page_shows_published_scores():
+    from bench.__main__ import load
+
+    at = _app().run()
+    at.switch_page("views/benchmark.py").run()
+    assert not at.exception, at.exception
+    html = " ".join(m.value for m in at.markdown)
+    assert f"{load()['factcheck']['catch_pct']}%" in html
+    assert "Another group&#x27;s number" in html or "Another group's number" in html

@@ -361,6 +361,25 @@ table.vd-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .vd-usecase .q { font-size: 17px; font-weight: 700; line-height: 1.4; color: var(--vd-text); margin: 6px 0 8px 0; }
 .vd-usecase ul { margin: 0 0 12px 0; padding-left: 18px; color: var(--vd-muted); font-size: 14.5px; line-height: 1.6; }
 
+/* Benchmark meters: label, bar, count */
+.vd-meter { display: grid; grid-template-columns: minmax(150px, 1.2fr) 2fr minmax(92px, auto); gap: 6px 16px;
+  align-items: center; padding: 10px 0; border-bottom: 1px solid var(--vd-divider); }
+.vd-meter:last-of-type { border-bottom: none; }
+.vd-meter .t { font-weight: 600; color: var(--vd-text); font-size: 14.5px; }
+.vd-meter .e { color: var(--vd-muted); font-size: 12.5px; margin-top: 1px; }
+.vd-meter .bar { height: 10px; border-radius: 999px; background: var(--vd-chip); overflow: hidden; }
+.vd-meter .bar > span { display: block; height: 100%; background: var(--vd-primary); border-radius: 999px; }
+.vd-meter .n { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--vd-text); font-size: 14px;
+  text-align: right; }
+
+.vd-checks { list-style: none; padding: 0 !important; margin: 4px 0 8px 0 !important; display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; }
+.vd-checks li { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0;
+  border-bottom: 1px solid var(--vd-divider); font-size: 14px; color: var(--vd-text); margin: 0 !important; }
+.vd-checks li span::before { content: "✓"; color: var(--vd-primary); font-weight: 700; margin-right: 8px; }
+.vd-checks li.bad span::before { content: "✗"; color: #EF4444; }
+.vd-checks b { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
 /* Empty and locked states */
 .vd-locked { text-align: center; padding: 36px 20px; border: 1px dashed var(--vd-faint); border-radius: var(--vd-radius);
   background: var(--vd-subtle); }
@@ -386,6 +405,10 @@ table.vd-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
   .vd-issue { grid-template-columns: 1fr; gap: 4px; }
   .vd-compare th, .vd-compare td { padding: 10px 12px; font-size: 14px; }
   div[class*="st-key-card"] { padding: 16px; }
+  .vd-meter { grid-template-columns: 1fr auto; }
+  .vd-checks { grid-template-columns: 1fr; }
+  [data-testid="stColumn"] .vd-kpi { margin-bottom: 4px; }
+  .vd-meter .bar { grid-column: 1 / -1; grid-row: 2; }
 }
 </style>
 """

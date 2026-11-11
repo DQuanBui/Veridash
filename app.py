@@ -25,6 +25,7 @@ pages = [
     st.Page("views/home.py", title="Home", default=True),
     st.Page("views/analyze.py", title="Analyze", url_path="analyze"),
     st.Page("views/examples.py", title="Examples", url_path="examples"),
+    st.Page("views/benchmark.py", title="Benchmark", url_path="benchmark"),
     st.Page("views/guide.py", title="Guide", url_path="guide"),
 ]
 
