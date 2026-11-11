@@ -69,3 +69,25 @@ def test_sql_guard_blocks_every_attack_and_runs_harmless_queries():
     assert r["harmless_ran"] == r["harmless"] >= 20
     assert r["row_cap_held"]
     assert all("{file}" not in a["sql"] for a in r["attack_rows"])
+
+
+def test_crosscheck_agrees_with_pandas():
+    from bench import crosscheck
+
+    r = crosscheck.run()
+    assert r["checked"] >= 150
+    assert r["matched"] == r["checked"]
+
+
+def test_crosscheck_catches_a_wrong_number():
+    from bench.crosscheck import cross_check
+    from core.pipeline import analyze, prepare
+    from core.samples import EXAMPLES
+
+    ex = EXAMPLES["retail"]
+    analysis = analyze(prepare(ex.read_bytes(), ex.filename))
+    top = next(c for c in analysis.charts if c.key == "top")
+    fact = next(f for f in top.facts if f.id == "top.1.value")
+    fact.value = float(fact.value) + 1.0
+    res = cross_check("retail", analysis)
+    assert [m["fact_id"] for m in res.mismatches] == ["top.1.value"]
