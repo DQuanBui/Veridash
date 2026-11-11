@@ -606,8 +606,8 @@
     ]
   },
   "crosscheck": {
-    "checked": 214,
-    "matched": 214,
+    "checked": 258,
+    "matched": 258,
     "datasets": [
       {
         "dataset": "Retail sales",
@@ -628,6 +628,20 @@
         "checked": 79,
         "matched": 79,
         "headline": 84,
+        "mismatches": []
+      },
+      {
+        "dataset": "Retail 2023 vs 2024",
+        "checked": 19,
+        "matched": 19,
+        "headline": 29,
+        "mismatches": []
+      },
+      {
+        "dataset": "Portfolio Nov vs Dec 2024",
+        "checked": 25,
+        "matched": 25,
+        "headline": 35,
         "mismatches": []
       }
     ]

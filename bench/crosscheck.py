@@ -7,7 +7,9 @@ up here as a mismatch.
 
 Covered: row and column counts, the KPIs, the trend (first, last, peak and
 change), the top and share charts (values and shares), the change breakdown,
-the rate chart, medians and every correlation.
+the rate chart, medians and every correlation. For the Compare page's
+examples it also recomputes row counts, the metric in each file, every group's
+before, after and change, and the record counts.
 """
 
 from __future__ import annotations
@@ -179,8 +181,42 @@ def cross_check(key: str, analysis: Analysis) -> CrossCheck:
     return res
 
 
+def cross_check_compare(key: str) -> CrossCheck:
+    """Recompute a Compare example's numbers with pandas, from the two files themselves."""
+    from core.compare import compare
+    from core.pipeline import prepare
+    from core.samples import COMPARE_EXAMPLES, compare_example_files
+
+    (name_b, data_b), (name_a, data_a) = compare_example_files(key)
+    before, after = prepare(data_b, name_b), prepare(data_a, name_a)
+    c = compare(before, after, name_b, name_a)
+    res = CrossCheck(COMPARE_EXAMPLES[key].title.replace(":", ""))
+    res.headline = sum(1 for f in c.facts.facts if f.is_numeric)
+    dfb, dfa = before.profile.df, after.profile.df
+    res.compare("rows.before", c.rows_before, float(len(dfb)))
+    res.compare("rows.after", c.rows_after, float(len(dfa)))
+    sel, m = c.metric.selection, c.metric
+    res.compare("metric.before", m.before, _agg(sel)(dfb))
+    res.compare("metric.after", m.after, _agg(sel)(dfa))
+    if m.group_col:
+        cat = m.group_col
+        gb = {str(k): v for k, v in _grouped(dfb[dfb[cat].notna()], cat, sel).items()}
+        ga = {str(k): v for k, v in _grouped(dfa[dfa[cat].notna()], cat, sel).items()}
+        for i, row in enumerate(m.groups.itertuples(index=False), start=1):
+            b, a = float(gb.get(row.label, 0.0)), float(ga.get(row.label, 0.0))
+            res.compare(f"groups.{i}.before", row.before, b)
+            res.compare(f"groups.{i}.after", row.after, a)
+            res.compare(f"groups.{i}.change", row.change, a - b)
+    if c.records is not None:
+        ids_b, ids_a = set(dfb[c.records.id_col].dropna()), set(dfa[c.records.id_col].dropna())
+        res.compare("records.added", c.records.added, float(len(ids_a - ids_b)))
+        res.compare("records.removed", c.records.removed, float(len(ids_b - ids_a)))
+        res.compare("records.kept", c.records.kept, float(len(ids_a & ids_b)))
+    return res
+
+
 def run() -> dict:
-    """Cross-check the three example datasets and return JSON-friendly results."""
+    """Cross-check the examples and the compare examples, and return JSON-friendly results."""
     from core.pipeline import analyze, prepare
     from core.samples import EXAMPLES
 
@@ -189,6 +225,14 @@ def run() -> dict:
         res = cross_check(ex.key, analyze(prepare(ex.read_bytes(), ex.filename)))
         rows.append({
             "dataset": ex.title, "checked": res.checked, "matched": res.matched,
+            "headline": res.headline, "mismatches": res.mismatches,
+        })
+    from core.samples import COMPARE_EXAMPLES
+
+    for key in COMPARE_EXAMPLES:
+        res = cross_check_compare(key)
+        rows.append({
+            "dataset": res.dataset, "checked": res.checked, "matched": res.matched,
             "headline": res.headline, "mismatches": res.mismatches,
         })
     return {

@@ -107,7 +107,8 @@ with right, st.container(key="card-eq_bench_cross"):
         + "".join(_meter(d["dataset"], "", d["matched"], d["checked"]) for d in cc["datasets"]),
         unsafe_allow_html=True,
     )
-    st.caption("Covered: counts, KPIs, trends, rankings, shares, the change breakdown, rates, medians and correlations.")
+    st.caption("Covered: counts, KPIs, trends, rankings, shares, the change breakdown, rates, medians, correlations "
+               "and both Compare examples.")
     st.markdown(
         "<p class='vd-chart-title' style='margin-top:18px'>Safe queries still work</p>"
         "<p class='vd-chart-insight'>Blocking is easy if you block everything. These ordinary questions, some "

@@ -102,3 +102,11 @@ def test_published_results_have_every_suite():
     r = load()
     assert {"generated", "factcheck", "sql_guard", "crosscheck"} <= set(r)
     assert "Fact-check: caught" in summary(r)
+
+
+def test_crosscheck_covers_the_compare_examples():
+    from bench.crosscheck import cross_check_compare
+
+    res = cross_check_compare("portfolio_months")
+    assert res.checked >= 10
+    assert res.matched == res.checked, res.mismatches
