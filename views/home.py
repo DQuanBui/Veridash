@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import streamlit as st
 
+from bench.__main__ import load as load_benchmark
 from core.loader import file_hash
 from core.samples import EXAMPLES
 from core.settings import SUBHEAD
@@ -144,6 +145,25 @@ section_header(
     center=True,
 )
 compare_table("Many AI dashboard tools", "Veridash", COMPARISON)
+
+# Proof, not promises: published benchmark scores, re-checked on every push.
+scores = load_benchmark()
+fc, sg = scores["factcheck"], scores["sql_guard"]
+st.write("")
+with st.container(key="card_proof"):
+    left, right = st.columns([4, 1.2], vertical_alignment="center", gap="medium")
+    with left:
+        st.markdown(
+            "<div class='vd-proof'>"
+            f"<div><b>{fc['catch_pct']}%</b><span>of planted wrong numbers caught</span></div>"
+            f"<div><b>{fc['false_alarms']}</b><span>false alarms on {fc['correct_sentences']:,} correct sentences</span></div>"
+            f"<div><b>{sg['guard_blocked']} of {sg['attacks']}</b><span>harmful queries blocked</span></div>"
+            "</div>",
+            unsafe_allow_html=True,
+        )
+    with right:
+        if st.button("See the benchmark", key="home_benchmark", width="stretch"):
+            st.switch_page("views/benchmark.py")
 
 section_header("How it works", "From raw file to a report you can share, in four steps.", kicker="Workflow", center=True)
 s1, s2, s3, s4 = st.columns(4, gap="medium")

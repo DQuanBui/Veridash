@@ -380,6 +380,12 @@ table.vd-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .vd-checks li.bad span::before { content: "✗"; color: #EF4444; }
 .vd-checks b { font-variant-numeric: tabular-nums; white-space: nowrap; }
 
+/* Home proof band */
+.vd-proof { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 24px; }
+.vd-proof b { display: block; font-size: 28px; font-weight: 800; color: var(--vd-accent); letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums; }
+.vd-proof span { display: block; color: var(--vd-muted); font-size: 14px; line-height: 1.4; margin-top: 2px; }
+
 /* Empty and locked states */
 .vd-locked { text-align: center; padding: 36px 20px; border: 1px dashed var(--vd-faint); border-radius: var(--vd-radius);
   background: var(--vd-subtle); }
@@ -407,6 +413,7 @@ table.vd-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
   div[class*="st-key-card"] { padding: 16px; }
   .vd-meter { grid-template-columns: 1fr auto; }
   .vd-checks { grid-template-columns: 1fr; }
+  .vd-proof { grid-template-columns: 1fr; }
   [data-testid="stColumn"] .vd-kpi { margin-bottom: 4px; }
   .vd-meter .bar { grid-column: 1 / -1; grid-row: 2; }
 }
