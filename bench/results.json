@@ -1,0 +1,641 @@
+{
+  "generated": "2026-11-11",
+  "factcheck": {
+    "correct_sentences": 542,
+    "false_alarms": 0,
+    "false_alarm_pct": 0.0,
+    "planted_errors": 1004,
+    "caught": 782,
+    "catch_pct": 77.9,
+    "correct": [
+      {
+        "key": "exact",
+        "title": "Exact number",
+        "example": "Revenue is $785.3K.",
+        "cases": 234,
+        "flagged": 0,
+        "rate_pct": 0.0,
+        "misses": []
+      },
+      {
+        "key": "rounded",
+        "title": "Rounded further",
+        "example": "$785.3K written as $785K",
+        "cases": 153,
+        "flagged": 0,
+        "rate_pct": 0.0,
+        "misses": []
+      },
+      {
+        "key": "spelled",
+        "title": "Scale in words",
+        "example": "$785.3K written as $785.3 thousand",
+        "cases": 78,
+        "flagged": 0,
+        "rate_pct": 0.0,
+        "misses": []
+      },
+      {
+        "key": "direction",
+        "title": "Direction word",
+        "example": "-1.1% written as fell by 1.1%",
+        "cases": 19,
+        "flagged": 0,
+        "rate_pct": 0.0,
+        "misses": []
+      },
+      {
+        "key": "signed",
+        "title": "Explicit sign",
+        "example": "+67.1% for a 67.1% rise",
+        "cases": 19,
+        "flagged": 0,
+        "rate_pct": 0.0,
+        "misses": []
+      },
+      {
+        "key": "rule_text",
+        "title": "Veridash's own insights",
+        "example": "Every sentence the rule-based insights write",
+        "cases": 39,
+        "flagged": 0,
+        "rate_pct": 0.0,
+        "misses": []
+      }
+    ],
+    "corrupt": [
+      {
+        "key": "near_miss",
+        "title": "Near miss",
+        "example": "$785.3K changed to $785.6K",
+        "cases": 234,
+        "flagged": 210,
+        "rate_pct": 89.7,
+        "misses": [
+          "[retail] Grocery comes to 3.3%.",
+          "[retail] Calm Diffuser comes to 3.3%.",
+          "[retail] Correlation of cost and discount is -0.03.",
+          "[retail] Correlation of units and unit_price is 0.03.",
+          "[retail] Correlation of units and discount is -0.03."
+        ]
+      },
+      {
+        "key": "off_10pct",
+        "title": "10% too high",
+        "example": "$785.3K changed to $863.8K",
+        "cases": 234,
+        "flagged": 217,
+        "rate_pct": 92.7,
+        "misses": [
+          "[retail] Distinct category values is 6.",
+          "[retail] Grocery comes to 3.3%.",
+          "[retail] South comes to 26.6%.",
+          "[retail] Calm Diffuser comes to 3.3%.",
+          "[retail] Correlation of revenue and discount is -0.04."
+        ]
+      },
+      {
+        "key": "wrong_unit",
+        "title": "Wrong unit",
+        "example": "$785.3K changed to $785.3M",
+        "cases": 147,
+        "flagged": 146,
+        "rate_pct": 99.3,
+        "misses": [
+          "[retail] Distinct category values is 5,000."
+        ]
+      },
+      {
+        "key": "digit_swap",
+        "title": "Swapped digits",
+        "example": "$785.3K changed to $758.3K",
+        "cases": 222,
+        "flagged": 209,
+        "rate_pct": 94.1,
+        "misses": [
+          "[retail] Number of columns is 01.",
+          "[hr] Attrition rate is 0.8%.",
+          "[hr] Distinct role values is 12.",
+          "[hr] Overall attrition rate is 0.8%.",
+          "[hr] Sales comes to 15.1%."
+        ]
+      },
+      {
+        "key": "wrong_group",
+        "title": "Another group's number",
+        "example": "Electronics given Apparel's $209.1K",
+        "cases": 148,
+        "flagged": 0,
+        "rate_pct": 0.0,
+        "misses": [
+          "[retail] Electronics comes to $209.1K.",
+          "[retail] Electronics comes to 26.6%.",
+          "[retail] Apparel comes to $184.6K.",
+          "[retail] Apparel comes to 23.5%.",
+          "[retail] Home comes to $96,472."
+        ]
+      },
+      {
+        "key": "sign_flip",
+        "title": "Flipped direction",
+        "example": "+67.1% changed to -67.1%",
+        "cases": 19,
+        "flagged": 0,
+        "rate_pct": 0.0,
+        "misses": [
+          "[retail] Latest month vs prior is -19.6%.",
+          "[retail] Change from first to last complete month is -67.1%.",
+          "[retail] The figure is -$7,279.",
+          "[retail] West comes to -$4,132.",
+          "[retail] North comes to -$2,237."
+        ]
+      }
+    ]
+  },
+  "sql_guard": {
+    "attacks": 38,
+    "guard_blocked": 38,
+    "sandbox_attacks": 17,
+    "sandbox_blocked": 17,
+    "harmless": 25,
+    "harmless_ran": 25,
+    "row_cap": 1000,
+    "row_cap_held": true,
+    "categories": [
+      {
+        "category": "Read a file",
+        "queries": 8,
+        "blocked": 8
+      },
+      {
+        "category": "Reach the internet",
+        "queries": 2,
+        "blocked": 2
+      },
+      {
+        "category": "Write a file",
+        "queries": 2,
+        "blocked": 2
+      },
+      {
+        "category": "Attach a database",
+        "queries": 1,
+        "blocked": 1
+      },
+      {
+        "category": "Load an extension",
+        "queries": 2,
+        "blocked": 2
+      },
+      {
+        "category": "Change a setting",
+        "queries": 2,
+        "blocked": 2
+      },
+      {
+        "category": "Read settings",
+        "queries": 4,
+        "blocked": 4
+      },
+      {
+        "category": "Change data",
+        "queries": 7,
+        "blocked": 7
+      },
+      {
+        "category": "Smuggle a second statement",
+        "queries": 3,
+        "blocked": 3
+      },
+      {
+        "category": "Hide code in a comment",
+        "queries": 2,
+        "blocked": 2
+      },
+      {
+        "category": "Run a transaction",
+        "queries": 2,
+        "blocked": 2
+      },
+      {
+        "category": "Call a procedure",
+        "queries": 1,
+        "blocked": 1
+      },
+      {
+        "category": "Query by text",
+        "queries": 2,
+        "blocked": 2
+      }
+    ],
+    "attack_rows": [
+      {
+        "category": "Read a file",
+        "sql": "SELECT * FROM read_csv('data.csv')",
+        "guard_blocked": true,
+        "sandbox_blocked": true
+      },
+      {
+        "category": "Read a file",
+        "sql": "SELECT * FROM 'data.csv'",
+        "guard_blocked": true,
+        "sandbox_blocked": true
+      },
+      {
+        "category": "Read a file",
+        "sql": "SELECT * FROM read_text('data.csv')",
+        "guard_blocked": true,
+        "sandbox_blocked": true
+      },
+      {
+        "category": "Read a file",
+        "sql": "SELECT * FROM read_blob('data.csv')",
+        "guard_blocked": true,
+        "sandbox_blocked": true
+      },
+      {
+        "category": "Read a file",
+        "sql": "SELECT * FROM data JOIN 'data.csv' USING (store)",
+        "guard_blocked": true,
+        "sandbox_blocked": true
+      },
+      {
+        "category": "Read a file",
+        "sql": "SELECT * FROM read_parquet('data.csv')",
+        "guard_blocked": true,
+        "sandbox_blocked": true
+      },
+      {
+        "category": "Read a file",
+        "sql": "SELECT * FROM glob('*')",
+        "guard_blocked": true,
+        "sandbox_blocked": true
+      },
+      {
+        "category": "Read a file",
+        "sql": "SELECT * FROM sniff_csv('data.csv')",
+        "guard_blocked": true,
+        "sandbox_blocked": true
+      },
+      {
+        "category": "Reach the internet",
+        "sql": "SELECT * FROM read_csv('https://example.com/data.csv')",
+        "guard_blocked": true,
+        "sandbox_blocked": true
+      },
+      {
+        "category": "Reach the internet",
+        "sql": "SELECT * FROM 'https://example.com/data.parquet'",
+        "guard_blocked": true,
+        "sandbox_blocked": true
+      },
+      {
+        "category": "Write a file",
+        "sql": "COPY (SELECT * FROM data) TO 'stolen.csv'",
+        "guard_blocked": true,
+        "sandbox_blocked": true
+      },
+      {
+        "category": "Write a file",
+        "sql": "EXPORT DATABASE 'dump'",
+        "guard_blocked": true,
+        "sandbox_blocked": true
+      },
+      {
+        "category": "Attach a database",
+        "sql": "ATTACH 'other.db' AS other",
+        "guard_blocked": true,
+        "sandbox_blocked": true
+      },
+      {
+        "category": "Load an extension",
+        "sql": "INSTALL httpfs",
+        "guard_blocked": true,
+        "sandbox_blocked": true
+      },
+      {
+        "category": "Load an extension",
+        "sql": "LOAD httpfs",
+        "guard_blocked": true,
+        "sandbox_blocked": true
+      },
+      {
+        "category": "Change a setting",
+        "sql": "SET enable_external_access = true",
+        "guard_blocked": true,
+        "sandbox_blocked": true
+      },
+      {
+        "category": "Change a setting",
+        "sql": "RESET lock_configuration",
+        "guard_blocked": true,
+        "sandbox_blocked": true
+      },
+      {
+        "category": "Read settings",
+        "sql": "SELECT * FROM duckdb_settings()",
+        "guard_blocked": true,
+        "sandbox_blocked": null
+      },
+      {
+        "category": "Read settings",
+        "sql": "SELECT current_setting('home_directory')",
+        "guard_blocked": true,
+        "sandbox_blocked": null
+      },
+      {
+        "category": "Read settings",
+        "sql": "SELECT getenv('PATH')",
+        "guard_blocked": true,
+        "sandbox_blocked": null
+      },
+      {
+        "category": "Read settings",
+        "sql": "PRAGMA version",
+        "guard_blocked": true,
+        "sandbox_blocked": null
+      },
+      {
+        "category": "Change data",
+        "sql": "DELETE FROM data",
+        "guard_blocked": true,
+        "sandbox_blocked": null
+      },
+      {
+        "category": "Change data",
+        "sql": "UPDATE data SET revenue = 0",
+        "guard_blocked": true,
+        "sandbox_blocked": null
+      },
+      {
+        "category": "Change data",
+        "sql": "INSERT INTO data SELECT * FROM data",
+        "guard_blocked": true,
+        "sandbox_blocked": null
+      },
+      {
+        "category": "Change data",
+        "sql": "DROP TABLE data",
+        "guard_blocked": true,
+        "sandbox_blocked": null
+      },
+      {
+        "category": "Change data",
+        "sql": "CREATE TABLE copy AS SELECT * FROM data",
+        "guard_blocked": true,
+        "sandbox_blocked": null
+      },
+      {
+        "category": "Change data",
+        "sql": "ALTER TABLE data RENAME TO gone",
+        "guard_blocked": true,
+        "sandbox_blocked": null
+      },
+      {
+        "category": "Change data",
+        "sql": "TRUNCATE data",
+        "guard_blocked": true,
+        "sandbox_blocked": null
+      },
+      {
+        "category": "Smuggle a second statement",
+        "sql": "SELECT 1; DROP TABLE data",
+        "guard_blocked": true,
+        "sandbox_blocked": null
+      },
+      {
+        "category": "Smuggle a second statement",
+        "sql": "SELECT * FROM data; COPY data TO 'x.csv'",
+        "guard_blocked": true,
+        "sandbox_blocked": null
+      },
+      {
+        "category": "Smuggle a second statement",
+        "sql": "WITH t AS (SELECT 1) SELECT * FROM t; DELETE FROM data",
+        "guard_blocked": true,
+        "sandbox_blocked": null
+      },
+      {
+        "category": "Hide code in a comment",
+        "sql": "SELECT * FROM data -- ; DROP TABLE data",
+        "guard_blocked": true,
+        "sandbox_blocked": null
+      },
+      {
+        "category": "Hide code in a comment",
+        "sql": "SELECT /* sneaky */ * FROM data",
+        "guard_blocked": true,
+        "sandbox_blocked": null
+      },
+      {
+        "category": "Run a transaction",
+        "sql": "BEGIN TRANSACTION",
+        "guard_blocked": true,
+        "sandbox_blocked": null
+      },
+      {
+        "category": "Run a transaction",
+        "sql": "CHECKPOINT",
+        "guard_blocked": true,
+        "sandbox_blocked": null
+      },
+      {
+        "category": "Call a procedure",
+        "sql": "CALL pragma_version()",
+        "guard_blocked": true,
+        "sandbox_blocked": null
+      },
+      {
+        "category": "Query by text",
+        "sql": "SELECT * FROM query('SELECT * FROM data')",
+        "guard_blocked": true,
+        "sandbox_blocked": null
+      },
+      {
+        "category": "Query by text",
+        "sql": "SELECT * FROM query_table('data')",
+        "guard_blocked": true,
+        "sandbox_blocked": null
+      }
+    ],
+    "harmless_rows": [
+      {
+        "sql": "SELECT * FROM data",
+        "ran": true,
+        "rows": 1000,
+        "error": null
+      },
+      {
+        "sql": "SELECT \"region\", SUM(\"revenue\") AS revenue FROM data GROUP BY 1 ORDER BY 2 DESC",
+        "ran": true,
+        "rows": 6,
+        "error": null
+      },
+      {
+        "sql": "SELECT \"category\", AVG(\"unit_price\") AS avg_price, COUNT(*) AS n FROM data GROUP BY 1",
+        "ran": true,
+        "rows": 5,
+        "error": null
+      },
+      {
+        "sql": "SELECT date_trunc('month', \"date\") AS month, SUM(\"revenue\") AS revenue FROM data GROUP BY 1 ORDER BY 1",
+        "ran": true,
+        "rows": 24,
+        "error": null
+      },
+      {
+        "sql": "WITH by_store AS (SELECT \"store\", SUM(\"revenue\") AS r FROM data GROUP BY 1) SELECT * FROM by_store ORDER BY r DESC LIMIT 3",
+        "ran": true,
+        "rows": 3,
+        "error": null
+      },
+      {
+        "sql": "SELECT \"store\", \"revenue\", RANK() OVER (ORDER BY \"revenue\" DESC) AS rnk FROM data LIMIT 10",
+        "ran": true,
+        "rows": 10,
+        "error": null
+      },
+      {
+        "sql": "SELECT \"region\", SUM(\"revenue\") FILTER (WHERE \"discount\" > 0) AS discounted FROM data GROUP BY 1",
+        "ran": true,
+        "rows": 6,
+        "error": null
+      },
+      {
+        "sql": "SELECT CASE WHEN \"revenue\" > 500 THEN 'big' ELSE 'small' END AS size, COUNT(*) FROM data GROUP BY 1",
+        "ran": true,
+        "rows": 2,
+        "error": null
+      },
+      {
+        "sql": "SELECT COUNT(*) FROM data WHERE \"product\" = 'drop shipping; delete everything'",
+        "ran": true,
+        "rows": 1,
+        "error": null
+      },
+      {
+        "sql": "SELECT COUNT(*) AS n FROM data WHERE \"category\" ILIKE '%update%'",
+        "ran": true,
+        "rows": 1,
+        "error": null
+      },
+      {
+        "sql": "SELECT \"region\" AS \"select\", COUNT(*) AS \"drop\" FROM data GROUP BY 1",
+        "ran": true,
+        "rows": 6,
+        "error": null
+      },
+      {
+        "sql": "SELECT MIN(\"date\"), MAX(\"date\") FROM data",
+        "ran": true,
+        "rows": 1,
+        "error": null
+      },
+      {
+        "sql": "SELECT \"category\", median(\"revenue\") AS med, quantile_cont(\"revenue\", 0.9) AS p90 FROM data GROUP BY 1",
+        "ran": true,
+        "rows": 5,
+        "error": null
+      },
+      {
+        "sql": "SELECT corr(\"revenue\", \"cost\") AS r FROM data",
+        "ran": true,
+        "rows": 1,
+        "error": null
+      },
+      {
+        "sql": "SELECT * FROM (SELECT \"store\", SUM(\"units\") AS u FROM data GROUP BY 1) WHERE u > 100",
+        "ran": true,
+        "rows": 10,
+        "error": null
+      },
+      {
+        "sql": "SELECT \"region\", \"category\", SUM(\"revenue\") AS r FROM data GROUP BY ALL ORDER BY r DESC LIMIT 5",
+        "ran": true,
+        "rows": 5,
+        "error": null
+      },
+      {
+        "sql": "SELECT COUNT(DISTINCT \"product\") FROM data",
+        "ran": true,
+        "rows": 1,
+        "error": null
+      },
+      {
+        "sql": "SELECT \"store\", SUM(\"revenue\") - SUM(\"cost\") AS profit FROM data GROUP BY 1 ORDER BY profit DESC",
+        "ran": true,
+        "rows": 10,
+        "error": null
+      },
+      {
+        "sql": "SELECT strftime(\"date\", '%Y') AS year, SUM(\"revenue\") FROM data GROUP BY 1 ORDER BY 1",
+        "ran": true,
+        "rows": 2,
+        "error": null
+      },
+      {
+        "sql": "SELECT * FROM data WHERE \"revenue\" IS NULL",
+        "ran": true,
+        "rows": 0,
+        "error": null
+      },
+      {
+        "sql": "SELECT * FROM data ORDER BY \"revenue\" DESC LIMIT 5000",
+        "ran": true,
+        "rows": 1000,
+        "error": null
+      },
+      {
+        "sql": "SELECT \"region\", SUM(\"revenue\") AS r FROM data GROUP BY 1 HAVING SUM(\"revenue\") > 1000;",
+        "ran": true,
+        "rows": 6,
+        "error": null
+      },
+      {
+        "sql": "SELECT \"category\", ROUND(100.0 * SUM(\"revenue\") / SUM(SUM(\"revenue\")) OVER (), 1) AS share FROM data GROUP BY 1",
+        "ran": true,
+        "rows": 5,
+        "error": null
+      },
+      {
+        "sql": "SELECT COUNT(*) - COUNT(\"discount\") AS missing_discount FROM data",
+        "ran": true,
+        "rows": 1,
+        "error": null
+      },
+      {
+        "sql": "SELECT \"region\", list_distinct(list(\"category\")) AS cats FROM data GROUP BY 1",
+        "ran": true,
+        "rows": 6,
+        "error": null
+      }
+    ]
+  },
+  "crosscheck": {
+    "checked": 214,
+    "matched": 214,
+    "datasets": [
+      {
+        "dataset": "Retail sales",
+        "checked": 74,
+        "matched": 74,
+        "headline": 80,
+        "mismatches": []
+      },
+      {
+        "dataset": "HR workforce",
+        "checked": 61,
+        "matched": 61,
+        "headline": 67,
+        "mismatches": []
+      },
+      {
+        "dataset": "Investment portfolio",
+        "checked": 79,
+        "matched": 79,
+        "headline": 84,
+        "mismatches": []
+      }
+    ]
+  }
+}

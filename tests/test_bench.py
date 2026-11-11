@@ -91,3 +91,11 @@ def test_crosscheck_catches_a_wrong_number():
     fact.value = float(fact.value) + 1.0
     res = cross_check("retail", analysis)
     assert [m["fact_id"] for m in res.mismatches] == ["top.1.value"]
+
+
+def test_published_results_have_every_suite():
+    from bench.__main__ import load, summary
+
+    r = load()
+    assert {"generated", "factcheck", "sql_guard", "crosscheck"} <= set(r)
+    assert "Fact-check: caught" in summary(r)

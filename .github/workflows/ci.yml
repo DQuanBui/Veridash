@@ -26,3 +26,5 @@ jobs:
         run: ruff check .
       - name: Test
         run: pytest
+      - name: Trust benchmark
+        run: python -m bench --check
