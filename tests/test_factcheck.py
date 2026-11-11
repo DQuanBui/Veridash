@@ -44,7 +44,12 @@ def test_verified_numbers_in_many_formats(pack):
         ("Electronics holds 35% of revenue.", True),  # rounded to a whole percent
         ("Electronics holds 34.61% of revenue.", True),
         ("Electronics holds 35.0% of revenue.", False),  # claimed precision is wrong
-        ("Satisfaction fell 1.1% overall.", True),  # sign-insensitive
+        ("Satisfaction fell 1.1% overall.", True),  # direction agrees with -1.08
+        ("Satisfaction changed by 1.1% overall.", True),  # no sign stated
+        ("Satisfaction changed -1.1%.", True),
+        ("Satisfaction changed +1.1%.", False),  # explicit sign disagrees
+        ("Satisfaction rose 1.1%.", False),  # direction word disagrees
+        ("Satisfaction rose by 1.1%.", False),
         ("Correlation r = 0.77.", True),
         ("Revenue was $790K.", False),
         ("Revenue was $785K.", True),
@@ -91,3 +96,20 @@ def test_unverified_numbers_are_announced_to_screen_readers(pack):
     out = highlight_html(text, check_text(text, pack))
     assert out.count('class="vd-sr"') == sum(not c.verified for c in check_text(text, pack)) >= 1
     assert "(not verified)" in out
+
+
+def test_ranges_are_not_signs(pack):
+    # "10-34.6" is a range, not minus 34.6; the share is positive.
+    assert _status("Shares of 10-34.6% were common.", pack)[-1] == ("34.6%", True)
+
+
+def test_wrong_direction_is_explained(pack):
+    claims = check_text("Satisfaction rose 1.1%.", pack)
+    assert not claims[0].verified
+    assert "trend.change_pct" in claims[0].reason
+    assert "Wrong direction" in highlight_html("Satisfaction rose 1.1%.", claims)
+
+
+def test_direction_words_only_apply_to_changes(pack):
+    # "down" before a share (not a change) says nothing about its sign.
+    assert _status("Its share is down 34.6% of the mix.", pack) == [("34.6%", True)]

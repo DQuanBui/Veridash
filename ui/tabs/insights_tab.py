@@ -105,7 +105,7 @@ def render_insights(insights: Insights, pack: FactPack) -> FactCheckReport:
             {
                 "Number": c.raw,
                 "Status": "Verified" if c.verified else "Unverified",
-                "Matched fact": c.fact_id or "",
+                "Matched fact": c.fact_id or c.reason,
                 "Fact value": facts[c.fact_id].display if c.fact_id in facts else "",
             }
             for c in report.claims

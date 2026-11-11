@@ -6,7 +6,12 @@ to it at the precision it was written with, for example:
 
 * ``$785.3K`` matches 785,312.4 (step 0.1K, so tolerance +/- 50)
 * ``35%`` matches 34.6 (step 1, tolerance +/- 0.5), but ``35.0%`` does not
-* ``-1.1%`` matches -1.08 (sign is ignored, so "fell 1.1%" also matches)
+* ``-1.1%`` matches -1.08, and so does "fell 1.1%"
+
+Signs are checked only when the text states one. An explicit ``+`` or ``-``
+must agree with the fact's sign, and a direction word right before a change
+("rose 1.1%", "fell by $7,279") must agree with the direction of the change.
+"1.1%" on its own matches either sign.
 
 Percent claims only match percent facts. Years and ISO dates are verified when
 they fall inside the dataset's date range. Labels that contain digits (such as
@@ -32,6 +37,10 @@ _NUMBER = re.compile(
 )
 # When several facts match equally well, prefer headline facts over penalties.
 _SOURCE_RANK = {"kpi": 0, "dataset": 0, "health": 2, "profile": 2}
+_UP = re.compile(r"\b(?:rose|rise|grew|increased|climbed|gained|added|up)\s+(?:by\s+)?$", re.IGNORECASE)
+_DOWN = re.compile(
+    r"\b(?:fell|fall|dropped|declined|decreased|lost|removed|shrank|down)\s+(?:by\s+)?$", re.IGNORECASE
+)
 _SCALES = {"k": 1e3, "thousand": 1e3, "m": 1e6, "million": 1e6, "b": 1e9, "billion": 1e9}
 
 
@@ -49,6 +58,9 @@ class NumberClaim:
     kind: str = "number"  # number | year | date
     verified: bool = False
     fact_id: str | None = None
+    sign: int = 0  # +1 or -1 when the text writes "+" or "-" right before the number
+    direction: int = 0  # +1 after "rose", "up"...; -1 after "fell", "down"...
+    reason: str = ""  # why an unverified number failed, when it is more than "not found"
 
 
 @dataclass
@@ -133,6 +145,10 @@ def extract_numbers(text: str, pack: FactPack | None = None) -> list[NumberClaim
         ):
             kind = "year"
         negative = before in "-−" or (start >= 2 and masked[start - 2 : start] in ("- ", "−"))
+        attached = start < 2 or not masked[start - 2].isalnum()  # "-5", not a range like "10-20"
+        sign = -1 if before in "-−" and attached else 1 if before == "+" and attached else 0
+        prefix = masked[max(0, start - 30) : start]
+        direction = 1 if _UP.search(prefix) else -1 if _DOWN.search(prefix) else 0
         claims.append(
             NumberClaim(
                 raw=text[start:end].strip(),
@@ -143,6 +159,8 @@ def extract_numbers(text: str, pack: FactPack | None = None) -> list[NumberClaim
                 scale=scale,
                 is_percent=is_pct,
                 kind=kind,
+                sign=sign,
+                direction=direction,
             )
         )
     return sorted(claims, key=lambda c: c.start)
@@ -157,6 +175,17 @@ def _matches(claim: NumberClaim, fact: Fact) -> bool:
     return abs(value - target) <= step / 2 + 1e-9 * max(1.0, target)
 
 
+def _sign_agrees(claim: NumberClaim, fact: Fact) -> bool:
+    """A sign or direction stated in the text must agree with the fact."""
+    value = float(fact.value)
+    if value == 0:
+        return True
+    if claim.sign and (value > 0) != (claim.sign > 0):
+        return False
+    is_change = "change" in fact.id
+    return not (claim.direction and is_change and (value > 0) != (claim.direction > 0))
+
+
 def verify(claims: list[NumberClaim], pack: FactPack) -> list[NumberClaim]:
     """Mark each claim verified or not, recording the matching fact ID."""
     numeric = pack.numeric()
@@ -169,6 +198,10 @@ def verify(claims: list[NumberClaim], pack: FactPack) -> list[NumberClaim]:
                 claim.fact_id = "dataset.date_start/date_end" if claim.verified else None
             continue
         candidates = [f for f in numeric if _matches(claim, f)]
+        signed = [f for f in candidates if _sign_agrees(claim, f)]
+        if candidates and not signed:
+            claim.reason = f"Wrong direction: {candidates[0].id} is {candidates[0].display}"
+        candidates = signed
         match = min(
             candidates,
             key=lambda f: (abs(abs(claim.value) * claim.scale - abs(float(f.value))), _SOURCE_RANK.get(f.source, 1)),
@@ -198,7 +231,7 @@ def highlight_html(text: str, claims: list[NumberClaim]) -> str:
     for c in claims:
         out.append(html.escape(text[pos : c.start]))
         cls = "vd-num-ok" if c.verified else "vd-num-bad"
-        title = f"Verified: {c.fact_id}" if c.verified else "Not found in the fact pack"
+        title = f"Verified: {c.fact_id}" if c.verified else c.reason or "Not found in the fact pack"
         note = "" if c.verified else '<span class="vd-sr"> (not verified)</span>'
         out.append(
             f'<span class="{cls}" title="{html.escape(title)}">{html.escape(text[c.start : c.end])}{note}</span>'

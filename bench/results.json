@@ -5,8 +5,8 @@
     "false_alarms": 0,
     "false_alarm_pct": 0.0,
     "planted_errors": 1004,
-    "caught": 782,
-    "catch_pct": 77.9,
+    "caught": 804,
+    "catch_pct": 80.1,
     "correct": [
       {
         "key": "exact",
@@ -69,14 +69,14 @@
         "title": "Near miss",
         "example": "$785.3K changed to $785.6K",
         "cases": 234,
-        "flagged": 210,
-        "rate_pct": 89.7,
+        "flagged": 213,
+        "rate_pct": 91.0,
         "misses": [
           "[retail] Grocery comes to 3.3%.",
           "[retail] Calm Diffuser comes to 3.3%.",
-          "[retail] Correlation of cost and discount is -0.03.",
           "[retail] Correlation of units and unit_price is 0.03.",
-          "[retail] Correlation of units and discount is -0.03."
+          "[hr] Median satisfaction is 3.63.",
+          "[hr] Average satisfaction in peak quarter is 3.81."
         ]
       },
       {
@@ -110,8 +110,8 @@
         "title": "Swapped digits",
         "example": "$785.3K changed to $758.3K",
         "cases": 222,
-        "flagged": 209,
-        "rate_pct": 94.1,
+        "flagged": 210,
+        "rate_pct": 94.6,
         "misses": [
           "[retail] Number of columns is 01.",
           "[hr] Attrition rate is 0.8%.",
@@ -140,14 +140,10 @@
         "title": "Flipped direction",
         "example": "+67.1% changed to -67.1%",
         "cases": 19,
-        "flagged": 0,
-        "rate_pct": 0.0,
+        "flagged": 18,
+        "rate_pct": 94.7,
         "misses": [
-          "[retail] Latest month vs prior is -19.6%.",
-          "[retail] Change from first to last complete month is -67.1%.",
-          "[retail] The figure is -$7,279.",
-          "[retail] West comes to -$4,132.",
-          "[retail] North comes to -$2,237."
+          "[hr] Change from first to last complete quarter is +1.1%."
         ]
       }
     ]
