@@ -3,6 +3,25 @@
 Notable changes to Veridash. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.3.0] - 2026-11-11
+
+### Added
+- **Compare two files:** a new page that lines up a before and an after file, such as two monthly exports. It
+  shows the change in rows, columns, data health and the main metric, a diverging chart and a table of the
+  groups that moved it most, and, with a shared ID column, the records that are new, gone or changed. Each
+  figure is one SQL query on the two files stacked together.
+- **Fact-checked comparison summary:** plain-English sentences built from a fact pack, so every number in them
+  passes the fact-check. Changes that round to zero are worded plainly.
+- **Comparison download:** a CSV with every compared figure, its before, after and change, and its SQL.
+- **Compare examples:** retail 2023 vs 2024 and the portfolio in November vs December 2024, one click each.
+- **Check someone else's numbers:** paste any text on the Insights tab and every number in it is checked
+  against the file, with a short status and the full reason for any that fail.
+- **Benchmark:** the pandas cross-check also recomputes both Compare examples (258 of 258 numbers agree).
+
+### Changed
+- Home shows a Compare button, a comparison-table row for a new month's file and updated use cases.
+- The Guide explains comparisons and the text checker; the README demo GIF includes both.
+
 ## [1.2.0] - 2026-11-11
 
 ### Added
@@ -61,6 +80,7 @@ versions follow [Semantic Versioning](https://semver.org/).
 - Exports: an Excel report with native charts, a PDF summary and a Power BI Starter Kit.
 - Light and dark themes, a Home page with use cases and a comparison, a Guide and an Examples page.
 
-[1.2.0]: https://github.com/DQuanBui/Veridash/compare/d7600e3...main
+[1.3.0]: https://github.com/DQuanBui/Veridash/compare/568aefc...main
+[1.2.0]: https://github.com/DQuanBui/Veridash/compare/d7600e3...568aefc
 [1.1.0]: https://github.com/DQuanBui/Veridash/compare/6e9501d...d7600e3
 [1.0.0]: https://github.com/DQuanBui/Veridash/commit/6e9501d
