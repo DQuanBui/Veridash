@@ -5,11 +5,26 @@ Run with:  streamlit run app.py
 
 from __future__ import annotations
 
+import threading
+from pathlib import Path
+
 import streamlit as st
 
-from core.settings import APP_NAME, ASSETS_DIR
-from ui.components import footer
-from ui.theme import apply_theme
+from ui.freshness import refresh_changed_modules
+
+
+@st.cache_resource
+def _code_state() -> dict:
+    """Lives for the whole server process, across reruns and sessions."""
+    return {"lock": threading.Lock()}
+
+
+# After a deploy, load the new versions of the project's modules before importing them.
+refresh_changed_modules(Path(__file__).resolve().parent, _code_state())
+
+from core.settings import APP_NAME, ASSETS_DIR  # noqa: E402
+from ui.components import footer  # noqa: E402
+from ui.theme import apply_theme  # noqa: E402
 
 st.set_page_config(
     page_title=f"{APP_NAME} · Verifiable data analysis",
