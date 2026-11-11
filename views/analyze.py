@@ -214,7 +214,14 @@ def main() -> None:
     for note in prepared.loaded.notes:
         st.caption(note)
 
-    tabs = st.tabs(["Overview", "Charts", "Insights", "Ask your data", "Data", "Export"])
+    tabs = st.tabs([
+        ":material/health_and_safety: Overview",
+        ":material/bar_chart: Charts",
+        ":material/lightbulb: Insights",
+        ":material/forum: Ask your data",
+        ":material/table_view: Data",
+        ":material/download: Export",
+    ])
     with tabs[0]:
         overview.render(analysis)
     with tabs[1]:
