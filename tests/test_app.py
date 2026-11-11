@@ -113,3 +113,18 @@ def test_home_worksheet_rechecks_an_edited_sentence():
     ).run()
     assert not at.exception, at.exception
     assert "Every number checks out." in " ".join(m.value for m in at.markdown)
+
+
+def test_home_tour_switches_and_opens_compare():
+    at = _app().run()
+    tour = at.button_group(key="home_tour") if hasattr(at, "button_group") else None
+    if tour is None:  # older AppTest: drive it through session state
+        at.session_state["home_tour"] = "Compare"
+    else:
+        tour.set_value("Compare")
+    at.run()
+    assert not at.exception, at.exception
+    assert "See what changed" in " ".join(m.value for m in at.markdown)
+    at.button(key="tour_go_compare").click().run()
+    assert not at.exception, at.exception
+    assert at.session_state["vd_cmp_after"].name == "portfolio_2024_12.csv"

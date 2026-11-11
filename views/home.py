@@ -2,16 +2,19 @@
 
 from __future__ import annotations
 
+import base64
+
 import streamlit as st
 
 from ai.factcheck import check_text
 from bench.__main__ import load as load_benchmark
 from core.loader import file_hash
 from core.samples import EXAMPLES
-from core.settings import SUBHEAD
+from core.settings import ASSETS_DIR, SUBHEAD
 from ui.branding import icon
 from ui.components import compare_table, esc, section_header, step_card
-from ui.state import cached_analysis, load_example
+from ui.state import cached_analysis, load_compare_example, load_example
+from ui.theme import theme_mode
 from ui.worksheet import worksheet_html
 
 # Use cases: the question a team asks, what Veridash answers, and a one-click demo.
@@ -56,6 +59,81 @@ USE_CASES = [
         "button": "Analyze your own file",
     },
 ]
+
+# The tour: one real screen per feature, with what it does and where to try it.
+TOUR = [
+    {
+        "name": "Health check",
+        "image": "health",
+        "title": "Know whether the file is clean",
+        "text": "A health score and grade, each issue in plain words, and a practical way to fix it. "
+                "Problems are counted, never hidden.",
+        "button": "Check the retail example",
+        "action": ("analyze", "retail"),
+    },
+    {
+        "name": "Charts",
+        "image": "charts",
+        "title": "Charts picked for your data",
+        "text": "Trends, rankings, shares and what drove the latest change, each with one clear takeaway "
+                "and the query behind it.",
+        "button": "See the charts",
+        "action": ("analyze", "retail"),
+    },
+    {
+        "name": "Insights",
+        "image": "insights",
+        "title": "Insights you can verify",
+        "text": "A short summary and key findings, written from computed results. Every number is matched "
+                "to its source; hover a dotted number to see it.",
+        "button": "Read the insights",
+        "action": ("analyze", "retail"),
+    },
+    {
+        "name": "Check any text",
+        "image": "checker",
+        "title": "Check anyone's numbers",
+        "text": "Paste a paragraph from a report, an email or an AI chat. Numbers that do not match the "
+                "file are flagged, with the reason.",
+        "button": "Try the checker",
+        "action": ("analyze", "retail"),
+    },
+    {
+        "name": "Compare",
+        "image": "compare",
+        "title": "See what changed",
+        "text": "Put last month's file next to this month's: the columns, the totals, the groups that "
+                "moved and the records that changed.",
+        "button": "Compare two months",
+        "action": ("compare", "portfolio_months"),
+    },
+    {
+        "name": "Exports",
+        "image": "exports",
+        "title": "Take it anywhere",
+        "text": "A web report anyone can open, Excel with native charts, a PDF, a Power BI starter kit and "
+                "an audit trail of every number.",
+        "button": "See the exports",
+        "action": ("analyze", "retail"),
+    },
+]
+
+
+@st.cache_data(show_spinner=False)
+def _picture(name: str, dark: bool) -> str:
+    """A tour picture as a data URI (the dark-mode capture when the visitor uses dark mode)."""
+    path = ASSETS_DIR / "tour" / f"{name}{'_dark' if dark else ''}.webp"
+    return "data:image/webp;base64," + base64.b64encode(path.read_bytes()).decode("ascii")
+
+
+def _open(action: tuple[str, str]) -> None:
+    page, key = action
+    if page == "compare":
+        load_compare_example(key)
+        st.switch_page("views/compare.py")
+    load_example(key)
+    st.switch_page("views/analyze.py")
+
 
 COMPARISON = [
     ("Where the numbers come from", "Generated or summarized by the AI",
@@ -112,6 +190,23 @@ with right:
         help="Every number is checked against what Veridash computed from the retail example.",
     )
     st.caption("Try changing $209.1K to $271.4K.")
+
+section_header("See it at work", "Real screens from the bundled examples. Pick a feature to see it.")
+names = [t["name"] for t in TOUR]
+picked = st.segmented_control("Feature", names, default=names[0], key="home_tour", label_visibility="collapsed")
+stop = next(t for t in TOUR if t["name"] == (picked or names[0]))
+shot, words = st.columns([1.75, 1], gap="large", vertical_alignment="center")
+with shot:
+    st.markdown(
+        f"<div class='vd-shot'><img src='{_picture(stop['image'], theme_mode() == 'dark')}' "
+        f"alt='{esc(stop['title'])}: a screen from Veridash'></div>",
+        unsafe_allow_html=True,
+    )
+with words:
+    st.markdown(f"<div class='vd-tour'><h3>{esc(stop['title'])}</h3><p>{esc(stop['text'])}</p></div>",
+                unsafe_allow_html=True)
+    if st.button(stop["button"], key=f"tour_go_{stop['image']}", type="primary"):
+        _open(stop["action"])
 
 section_header(
     "Answers for the questions teams actually ask",

@@ -240,6 +240,16 @@ div[class*="st-key-card-eqb"] > :last-child { margin-top: auto; }
 .vd-sheet .notes li::before { content: "✗ "; font-weight: 700; }
 .vd-sheet .tally { font-size: 14px; line-height: 36px; color: var(--vd-muted); margin: 0; }
 
+/* Home tour: a framed screen beside its description */
+.vd-shot { border-radius: 14px; border: 1px solid var(--vd-border); overflow: hidden; background: var(--vd-surface);
+  box-shadow: 0 28px 56px -34px light-dark(rgba(16, 33, 58, 0.5), rgba(0, 0, 0, 0.8)); }
+.vd-shot img { display: block; width: 100%; height: auto;
+  -webkit-mask-image: linear-gradient(to bottom, #000 80%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 80%, transparent 100%); }
+.vd-tour h3 { font-size: clamp(22px, 2.4vw, 28px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2;
+  margin: 0 0 10px 0; padding: 0; color: var(--vd-text); }
+.vd-tour p { font-size: 16px; line-height: 1.6; color: var(--vd-muted); margin: 0 0 18px 0; max-width: 30em; }
+
 /* Section header */
 .vd-section { margin: 52px 0 20px 0; }
 .vd-section.top { margin-top: 0; }

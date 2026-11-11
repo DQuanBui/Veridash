@@ -13,10 +13,11 @@ from dataclasses import dataclass
 import streamlit as st
 
 from core.pipeline import Analysis, Prepared, analyze, prepare
-from core.samples import EXAMPLES
+from core.samples import EXAMPLES, compare_example_files
 from core.settings import CACHE_TTL_S
 
 SOURCE_KEY = "vd_source"
+COMPARE_KEYS = {"before": "vd_cmp_before", "after": "vd_cmp_after"}
 API_KEY = "vd_api_key"
 
 
@@ -47,6 +48,13 @@ def load_example(key: str) -> None:
     """Make a bundled example the active source."""
     ex = EXAMPLES[key]
     set_source(Source(name=ex.filename, data=ex.read_bytes(), kind="example", example_key=key))
+
+
+def load_compare_example(key: str) -> None:
+    """Put a compare example's before and after files on the Compare page."""
+    (name_b, data_b), (name_a, data_a) = compare_example_files(key)
+    st.session_state[COMPARE_KEYS["before"]] = Source(name_b, data_b, "example", key)
+    st.session_state[COMPARE_KEYS["after"]] = Source(name_a, data_a, "example", key)
 
 
 @st.cache_data(ttl=CACHE_TTL_S, max_entries=8, show_spinner=False)

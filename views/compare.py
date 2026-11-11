@@ -8,14 +8,14 @@ from ai.factcheck import fact_check, highlight_html
 from core.compare import Comparison, compare
 from core.formatting import fmt_signed_pct, fmt_value, pretty
 from core.loader import LoadError, file_hash
-from core.samples import COMPARE_EXAMPLES, compare_example_files
+from core.samples import COMPARE_EXAMPLES
 from core.settings import CACHE_TTL_S, MAX_FILE_MB
 from exports.compare_csv import build_compare_csv
 from ui.charts import PLOTLY_CONFIG, figure_for, sql_expander
 from ui.components import badge_html, callout, esc, kpi_card, section_header, verified_badge_html
-from ui.state import Source, cached_prepare
+from ui.state import COMPARE_KEYS, Source, cached_prepare, load_compare_example
 
-SIDES = {"before": "vd_cmp_before", "after": "vd_cmp_after"}
+SIDES = COMPARE_KEYS
 COUNTER = "vd_cmp_n"
 
 
@@ -35,12 +35,6 @@ def _on_upload(side: str) -> None:
     uploaded = st.session_state.get(_key(side))
     if uploaded is not None:
         st.session_state[SIDES[side]] = Source(uploaded.name, uploaded.getvalue(), "upload")
-
-
-def _load_example(key: str) -> None:
-    (name_b, data_b), (name_a, data_a) = compare_example_files(key)
-    st.session_state[SIDES["before"]] = Source(name_b, data_b, "example", key)
-    st.session_state[SIDES["after"]] = Source(name_a, data_a, "example", key)
 
 
 def _start_over() -> None:
@@ -215,7 +209,7 @@ if before is None or after is None:
                     "an example:</p>", unsafe_allow_html=True)
         cols = st.columns(len(COMPARE_EXAMPLES), gap="small")
         for col, ex in zip(cols, COMPARE_EXAMPLES.values(), strict=True):
-            col.button(ex.title, key=f"cmp_ex_{ex.key}", on_click=_load_example, args=(ex.key,), width="stretch")
+            col.button(ex.title, key=f"cmp_ex_{ex.key}", on_click=load_compare_example, args=(ex.key,), width="stretch")
     st.caption("Works best when both files have the same layout, such as two monthly exports of one report. "
                "With a shared ID column, records are matched one by one.")
 else:
