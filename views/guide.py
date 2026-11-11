@@ -64,7 +64,7 @@ st.markdown(
 |---|---|
 | **Overview** | A health score with each issue explained, plus your key numbers. |
 | **Charts** | Four to eight charts picked for your data, each with a one-line takeaway. |
-| **Insights** | A short summary, key findings and ideas to test, with every number checked. |
+| **Insights** | A short summary, key findings and ideas to test, with every number checked. You can also paste anyone's text to check its numbers. |
 | **Ask your data** | One-click quick questions, plain-English questions with a key, or your own SQL. |
 | **Data** | Search the cleaned data, see what each column contains, and download either as a CSV. |
 | **Export** | Download a shareable web report, an Excel report, a PDF summary, a Power BI starter kit or an audit trail of every number. |
@@ -95,6 +95,13 @@ faqs = [
     ("Can I share results with someone who does not use Veridash?",
      "Yes. On the Export tab, download the web report: one file that opens in any browser, with the charts, the "
      "insights and the SQL behind every number. It needs no app, account or internet connection."),
+    ("How do I compare this month's file with last month's?",
+     "Open Compare and upload both files. You get the change in rows, columns, data health and the main metric, "
+     "the groups that moved it most and, if both files share an ID column, which records are new or gone. Every "
+     "figure shows its SQL, and the whole comparison downloads as a CSV."),
+    ("Can I check the numbers in someone else's report?",
+     "Yes. At the bottom of the Insights tab, paste a paragraph from a report, an email or an AI chat about the "
+     "same file. Each number is matched to what Veridash computed, with the reason for any that fail."),
     ("Can I change the main metric or the date grouping?",
      "Yes. Use the sidebar on the Analyze page. Charts, numbers, insights and exports all update together."),
     ("Why was my column read as text instead of numbers?",
@@ -167,6 +174,21 @@ with st.expander("How AI is used and fact-checked"):
 """
     )
 
+with st.expander("How comparisons work"):
+    st.markdown(
+        """
+- **Same pipeline:** both files are loaded, typed and health-checked exactly like a single upload.
+- **Shared columns only:** a column is compared when it has the same name and type in both files. Others are
+  listed as added, removed or retyped.
+- **One table, one query per number:** the two files are stacked into one table with a `_file` column, so each
+  figure is a single SQL query you can open.
+- **Groups:** for totals and counts, a group missing from one file counts as zero, so the changes add up; for
+  averages, only groups present in both files are compared.
+- **Records:** when both files share an ID column, records are matched on it. Value changes are counted only
+  when each ID appears once per file.
+"""
+    )
+
 with st.expander("Privacy in detail"):
     st.markdown(
         f"""
@@ -184,7 +206,8 @@ with st.expander("Privacy in detail"):
 with st.expander("Limitations"):
     st.markdown(
         f"""
-- One tidy table at a time; it does not join files or unpivot layouts.
+- One tidy table at a time; it does not join files or unpivot layouts. Compare lines up two versions of the
+  same table, and a renamed column counts as one removed and one added.
 - Ambiguous dates such as 03/04/2024 are read month first, and European number formats (1.234,56) are not supported.
 - Correlations and group differences show association, not cause, and are not significance-tested.
 - The fact-check verifies each number, its direction and which group it belongs to, not the reasoning around it.
