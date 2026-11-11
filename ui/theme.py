@@ -256,6 +256,11 @@ div[class*="st-key-card-eqb"] > :last-child { margin-top: auto; }
 }
 .vd-sheet .tally { font-size: 14px; line-height: 36px; color: var(--vd-muted); margin: 0; }
 
+/* Home: resume banner */
+div[class*="st-key-card_resume"] { padding: 10px 16px; background: var(--vd-tint); border-color: var(--vd-tint-border);
+  box-shadow: none; }
+.vd-resume { margin: 0; font-size: 15px; color: var(--vd-text); }
+
 /* Home tour: a framed screen beside its description */
 .vd-shot { border-radius: 14px; border: 1px solid var(--vd-border); overflow: hidden; background: var(--vd-surface);
   box-shadow: 0 28px 56px -34px light-dark(rgba(16, 33, 58, 0.5), rgba(0, 0, 0, 0.8)); }

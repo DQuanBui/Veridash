@@ -12,7 +12,7 @@ from core.samples import EXAMPLES
 from core.settings import ASSETS_DIR, SUBHEAD
 from ui.branding import icon
 from ui.components import compare_table, esc, section_header
-from ui.state import cached_analysis, load_compare_example, load_example
+from ui.state import COMPARE_KEYS, cached_analysis, get_source, load_compare_example, load_example
 from ui.theme import theme_mode
 from ui.worksheet import worksheet_html
 
@@ -156,6 +156,23 @@ DEMO_SENTENCE = "Revenue reached $785.3K. Electronics led with $209.1K, and reve
 ex = EXAMPLES["retail"]
 data = ex.read_bytes()
 analysis = cached_analysis(file_hash(data), ex.filename, None, None, None, None, True, data)
+
+# Pick up where the visitor left off, if a file or a comparison is already open this session.
+current = get_source()
+pair = [st.session_state.get(k) for k in COMPARE_KEYS.values()]
+if current is not None or all(pair):
+    with st.container(key="card_resume"):
+        note, go = st.columns([4, 1.3], vertical_alignment="center", gap="small")
+        if current is not None:
+            note.markdown(f"<p class='vd-resume'>You are working on <b>{esc(current.name)}</b>.</p>",
+                          unsafe_allow_html=True)
+            if go.button("Continue analysis", key="resume_analyze", icon=":material/arrow_forward:", width="stretch"):
+                st.switch_page("views/analyze.py")
+        else:
+            note.markdown(f"<p class='vd-resume'>You are comparing <b>{esc(pair[0].name)}</b> with "
+                          f"<b>{esc(pair[1].name)}</b>.</p>", unsafe_allow_html=True)
+            if go.button("Continue comparing", key="resume_compare", icon=":material/arrow_forward:", width="stretch"):
+                st.switch_page("views/compare.py")
 
 st.write("")
 left, right = st.columns([1.2, 1], gap="large", vertical_alignment="center")

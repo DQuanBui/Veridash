@@ -128,3 +128,14 @@ def test_home_tour_switches_and_opens_compare():
     at.button(key="tour_go_compare").click().run()
     assert not at.exception, at.exception
     assert at.session_state["vd_cmp_after"].name == "portfolio_2024_12.csv"
+
+
+def test_home_offers_to_resume_an_open_file():
+    at = _app().run()
+    assert not any(b.key == "resume_analyze" for b in at.button)
+    at.switch_page("views/analyze.py").run()
+    at.button(key="start_hr").click().run()
+    at.switch_page("views/home.py").run()
+    assert not at.exception, at.exception
+    assert "hr_workforce.xlsx" in " ".join(m.value for m in at.markdown)
+    assert any(b.key == "resume_analyze" for b in at.button)
