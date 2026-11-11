@@ -5,7 +5,17 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
-from core.compare import AFTER, BEFORE, SIDE, column_diff, health_diff, stacked
+from core.compare import (
+    AFTER,
+    BEFORE,
+    SIDE,
+    column_diff,
+    health_diff,
+    metric_change,
+    pick_selection,
+    stacked,
+)
+from core.engine import QueryEngine
 from core.pipeline import prepare
 
 
@@ -59,3 +69,46 @@ def test_stacked_marks_each_side(pair):
     assert list(df[SIDE].unique()) == [BEFORE, AFTER]
     assert len(df) == 120
     assert SIDE not in diff.common
+
+
+def _metric(before, after):
+    diff = column_diff(before, after)
+    sel = pick_selection(after, diff)
+    with QueryEngine(stacked(before, after, diff.common)) as engine:
+        return metric_change(engine, sel)
+
+
+def test_metric_change_overall_and_by_group(pair):
+    m = _metric(*pair)
+    assert m.selection.metric == "revenue" and m.selection.agg == "SUM"
+    assert m.before == pytest.approx(sum(100.0 + i for i in range(60)))
+    assert m.after == pytest.approx(m.before * 1.1)
+    assert m.change_pct == pytest.approx(10.0)
+    assert m.group_col == "region"
+    assert m.groups["change"].sum() == pytest.approx(m.change)  # every group shown, so they add up
+    assert "\"_file\" = 'before'" in m.sql
+
+
+def test_new_and_missing_groups_count_as_zero_for_totals():
+    before = _prep(pd.DataFrame({"team": ["A", "B", "C"] * 5, "sales": [10.0] * 15}))
+    after = _prep(pd.DataFrame({"team": ["A", "B", "D"] * 5, "sales": [10.0, 20.0, 30.0] * 5}))
+    g = _metric(before, after).groups.set_index("label")
+    assert g.loc["D", "before"] == 0 and g.loc["D", "after"] == 150
+    assert g.loc["C", "after"] == 0 and g.loc["C", "change"] == -50
+    assert "A" not in g.index  # unchanged groups are left out
+
+
+def test_averages_compare_only_groups_in_both_files():
+    before = _prep(pd.DataFrame({"team": ["A", "B", "C"] * 5, "satisfaction_score": [3.0, 4.0, 5.0] * 5}))
+    after = _prep(pd.DataFrame({"team": ["A", "B", "D"] * 5, "satisfaction_score": [3.5, 4.0, 2.0] * 5}))
+    m = _metric(before, after)
+    assert m.selection.agg == "AVG"
+    assert list(m.groups["label"]) == ["A"]
+
+
+def test_files_without_shared_numbers_compare_record_counts():
+    before = _prep(pd.DataFrame({"team": ["A", "B"] * 5}))
+    after = _prep(pd.DataFrame({"team": ["A", "B", "B"] * 5}))
+    m = _metric(before, after)
+    assert m.selection.agg == "COUNT"
+    assert (m.before, m.after) == (10, 15)
