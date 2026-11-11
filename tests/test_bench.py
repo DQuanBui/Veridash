@@ -58,3 +58,14 @@ def test_example_benchmark_has_no_false_alarms(results):
 def test_example_benchmark_catches_most_errors(results):
     assert results["planted_errors"] > 500
     assert results["catch_pct"] >= 75
+
+
+def test_sql_guard_blocks_every_attack_and_runs_harmless_queries():
+    from bench import sql_guard_bench as sg
+
+    r = sg.run()
+    assert r["guard_blocked"] == r["attacks"] >= 30
+    assert r["sandbox_blocked"] == r["sandbox_attacks"] >= 15
+    assert r["harmless_ran"] == r["harmless"] >= 20
+    assert r["row_cap_held"]
+    assert all("{file}" not in a["sql"] for a in r["attack_rows"])
