@@ -77,3 +77,14 @@ def test_compare_page_with_two_files():
     assert "What changed" in html and "Verified numbers: " in html
     assert "added (level)" in html
     assert any(m.label == "New" and m.value == "10" for m in at.metric)
+
+
+def test_compare_example_buttons():
+    at = _app().run()
+    at.switch_page("views/compare.py").run()
+    at.button(key="cmp_ex_portfolio_months").click().run()
+    assert not at.exception, at.exception
+    html = " ".join(m.value for m in at.markdown)
+    assert "portfolio_2024_12.csv" in html and "What changed" in html
+    at.button(key="cmp_reset").click().run()
+    assert any(b.key == "cmp_ex_retail_years" for b in at.button)

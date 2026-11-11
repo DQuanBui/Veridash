@@ -48,3 +48,48 @@ EXAMPLES: dict[str, Example] = {
         rows_hint="~2,000 rows · CSV",
     ),
 }
+
+
+@dataclass(frozen=True)
+class CompareExample:
+    """Two slices of one bundled example, compared on the Compare page."""
+
+    key: str
+    title: str
+    source: str  # key in EXAMPLES
+    date_col: str
+    before: str  # period prefix such as "2023" or "2024-11"
+    after: str
+    before_name: str
+    after_name: str
+
+
+COMPARE_EXAMPLES: dict[str, CompareExample] = {
+    "retail_years": CompareExample(
+        "retail_years", "Retail: 2023 vs 2024", "retail", "date", "2023", "2024",
+        "retail_sales_2023.csv", "retail_sales_2024.csv",
+    ),
+    "portfolio_months": CompareExample(
+        "portfolio_months", "Portfolio: Nov vs Dec 2024", "portfolio", "date", "2024-11", "2024-12",
+        "portfolio_2024_11.csv", "portfolio_2024_12.csv",
+    ),
+}
+
+
+def compare_example_files(key: str) -> tuple[tuple[str, bytes], tuple[str, bytes]]:
+    """The before and after files for a compare example, as CSV bytes.
+
+    Both slices come from the same bundled example, cleaned the same way an
+    upload would be, and are split on the date column.
+    """
+    from core.pipeline import prepare  # local import: pipeline imports this module's neighbours
+
+    ex = COMPARE_EXAMPLES[key]
+    source = EXAMPLES[ex.source]
+    df = prepare(source.read_bytes(), source.filename).profile.df
+    stamp = df[ex.date_col].dt.strftime("%Y-%m-%d")
+    out = []
+    for prefix, name in ((ex.before, ex.before_name), (ex.after, ex.after_name)):
+        part = df[stamp.str.startswith(prefix)]
+        out.append((name, part.to_csv(index=False, date_format="%Y-%m-%d").encode("utf-8")))
+    return out[0], out[1]

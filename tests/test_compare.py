@@ -201,3 +201,20 @@ def test_changes_that_round_to_zero_are_not_shown_as_minus_zero():
 def test_record_counts_read_naturally():
     c = compare(_prep(pd.DataFrame({"team": ["A", "B"] * 5})), _prep(pd.DataFrame({"team": ["A", "B"] * 6})))
     assert "The number of records went from 10 to 12, a change of +2 (+20.0%)." in c.summary
+
+
+@pytest.mark.parametrize("key", ["retail_years", "portfolio_months"])
+def test_compare_examples_split_one_file_cleanly(key):
+    from ai.factcheck import fact_check
+    from core.samples import COMPARE_EXAMPLES, compare_example_files
+
+    (name_b, data_b), (name_a, data_a) = compare_example_files(key)
+    ex = COMPARE_EXAMPLES[key]
+    assert (name_b, name_a) == (ex.before_name, ex.after_name)
+    before, after = prepare(data_b, name_b), prepare(data_a, name_a)
+    assert before.profile.n_rows > 0 and after.profile.n_rows > 0
+    c = compare(before, after, name_b, name_a)
+    assert c.columns.unchanged  # same file, so the same columns and types
+    assert c.metric.change is not None and c.chart() is not None
+    report = fact_check(c.summary, c.facts)
+    assert report.verified == report.total

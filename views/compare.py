@@ -8,6 +8,7 @@ from ai.factcheck import fact_check, highlight_html
 from core.compare import Comparison, compare
 from core.formatting import fmt_signed_pct, fmt_value, pretty
 from core.loader import LoadError, file_hash
+from core.samples import COMPARE_EXAMPLES, compare_example_files
 from core.settings import CACHE_TTL_S, MAX_FILE_MB
 from ui.charts import PLOTLY_CONFIG, figure_for, sql_expander
 from ui.components import badge_html, callout, esc, kpi_card, section_header, verified_badge_html
@@ -33,6 +34,12 @@ def _on_upload(side: str) -> None:
     uploaded = st.session_state.get(_key(side))
     if uploaded is not None:
         st.session_state[SIDES[side]] = Source(uploaded.name, uploaded.getvalue(), "upload")
+
+
+def _load_example(key: str) -> None:
+    (name_b, data_b), (name_a, data_a) = compare_example_files(key)
+    st.session_state[SIDES["before"]] = Source(name_b, data_b, "example", key)
+    st.session_state[SIDES["after"]] = Source(name_a, data_a, "example", key)
 
 
 def _start_over() -> None:
@@ -186,6 +193,13 @@ before, after = (st.session_state.get(SIDES[s]) for s in ("before", "after"))
 if before is None or after is None:
     with st.container(key="card_cmp_start"):
         _uploaders()
+        st.markdown("<p class='vd-chart-insight' style='margin:6px 0 8px 0'>No files handy? Compare two slices of "
+                    "an example:</p>", unsafe_allow_html=True)
+        cols = st.columns(len(COMPARE_EXAMPLES), gap="small")
+        for col, ex in zip(cols, COMPARE_EXAMPLES.values(), strict=True):
+            col.button(ex.title, key=f"cmp_ex_{ex.key}", on_click=_load_example, args=(ex.key,), width="stretch")
+    st.caption("Works best when both files have the same layout, such as two monthly exports of one report. "
+               "With a shared ID column, records are matched one by one.")
 else:
     try:
         with st.spinner("Comparing the two files..."):
