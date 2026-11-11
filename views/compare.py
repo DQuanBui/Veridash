@@ -140,6 +140,16 @@ def _columns_card(c: Comparison) -> None:
             if examples:
                 st.caption(" · ".join(examples))
             sql_expander(r.sql, label="How records were matched")
+        m = c.metric
+        if not m.groups.empty and m.group_col:
+            kind = m.selection.value_kind
+            st.markdown(f"<p class='vd-chart-title' style='margin-top:14px'>Before and after, by "
+                        f"{esc(pretty(m.group_col).lower())}</p>", unsafe_allow_html=True)
+            st.dataframe(
+                [{pretty(m.group_col): g.label, "Before": fmt_value(g.before, kind), "After": fmt_value(g.after, kind),
+                  "Change": _signed(g.change, kind)} for g in m.groups.itertuples(index=False)],
+                hide_index=True,
+            )
 
 
 def _chart_card(c: Comparison) -> None:
