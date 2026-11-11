@@ -4,7 +4,9 @@
 
 Veridash turns a clean CSV or Excel file into a health check, a column profile, recommended charts and KPIs,
 written insights and ready-to-use exports in seconds. Every number is computed by code and shown next to the
-exact query that produced it, and any AI-written sentence is fact-checked against those results.
+exact query that produced it, and any AI-written sentence is fact-checked against those results. A public
+trust benchmark measures how well those checks work: the fact-check catches 96.0% of
+1,004 planted wrong numbers with 0 false alarms.
 
 **Live demo:** [veridash.streamlit.app](https://veridash.streamlit.app)
 
@@ -42,8 +44,8 @@ exports for Excel, PDF and Power BI. It is built on three pillars:
   fact-checked number by number.
 - **Private by design:** files are processed in memory and never stored, and the AI sees only the schema and
   aggregated statistics, never raw rows.
-- **Export to your tools:** results leave the app as an Excel report with native charts, a PDF summary or a
-  Power BI Starter Kit.
+- **Export to your tools:** results leave the app as a shareable web report, an Excel report with native
+  charts, a PDF summary or a Power BI Starter Kit.
 
 ## Goals
 
@@ -52,6 +54,7 @@ exports for Excel, PDF and Power BI. It is built on three pillars:
 - **Use AI only where it adds value,** for selecting and explaining facts, never for calculating them.
 - **Respect privacy by default** by keeping files in memory and sending only summaries to the AI.
 - **Hand off cleanly** to the tools analysts already use: Excel, PDF and Power BI.
+- **Measure the safeguards** instead of just describing them, and publish the results.
 
 ---
 
@@ -81,6 +84,8 @@ exports for Excel, PDF and Power BI. It is built on three pillars:
 - **Citations:** each statement cites the computed facts it relies on.
 - **Fact-check badge:** every number in the AI's text is matched to a computed fact, allowing for rounding, and
   the badge reports the result, for example "Verified numbers: 12/12". Unverified numbers are highlighted, not hidden.
+- **Direction and group checks:** a stated direction must be right ("rose 1.1%" fails for a fall), and a group's
+  number must belong to the group named next to it ("Electronics comes to $209.1K" fails when that is Apparel's).
 - **Eight languages:** AI insights can be written in English, Spanish, French, German, Portuguese, Italian, Dutch
   or Vietnamese. Numbers keep one format in every language, so the fact-check works the same way.
 - **Works without a key:** rule-based insights with the same structure are always available.
@@ -93,7 +98,9 @@ exports for Excel, PDF and Power BI. It is built on three pillars:
 - **Transparent results:** the SQL, the result table and an automatic chart are shown together.
 - **SQL mode:** without a key, users can write their own queries under the same safety rules.
 
-### Exports: Excel, PDF, the Power BI Starter Kit and an audit trail
+### Exports: a web report, Excel, PDF, the Power BI Starter Kit and an audit trail
+- **Shareable web report:** one HTML file that opens in any browser with no app, account or internet. It has
+  the KPIs, health check, charts and insights, and every verified number links to the fact and SQL behind it.
 - **Excel report:** a summary sheet, the column profile, one sheet per chart with a native Excel chart and its
   query, and the full dataset as a filterable table.
 - **PDF summary:** a two to four page report with the health score, KPIs, top charts, insights and methodology.
@@ -120,6 +127,8 @@ exports for Excel, PDF and Power BI. It is built on three pillars:
 | ![Recommended charts](docs/screenshots/charts.png) | ![Insights with verified numbers](docs/screenshots/insights.png) |
 | **Ask your data** | **Exports** |
 | ![Ask your data](docs/screenshots/ask.png) | ![Excel, PDF and Power BI exports](docs/screenshots/exports.png) |
+| **Trust benchmark** | **Shareable web report** |
+| ![Trust benchmark scores](docs/screenshots/benchmark.png) | ![Self-contained HTML report](docs/screenshots/web_report.png) |
 
 ## How it works
 
@@ -128,7 +137,7 @@ exports for Excel, PDF and Power BI. It is built on three pillars:
 3. **Explore the recommended charts and KPIs,** and open any of them to see how it was calculated.
 4. **Read the insights,** written by AI when a key is available or by rules otherwise, with every number checked.
 5. **Ask follow-up questions** in plain English or write your own query.
-6. **Export the results** to Excel, PDF or Power BI and continue the work in your usual tools.
+6. **Export the results** as a web report, or to Excel, PDF or Power BI, and continue in your usual tools.
 
 ## Architecture
 
@@ -136,8 +145,9 @@ Veridash is organised in four layers. The **interface** handles pages, navigatio
 **analysis engine** loads the file, detects column types, scores data health, and runs every calculation as
 SQL in an in-memory database that cannot read or write files. The **AI layer** receives only a "fact pack" of
 results the engine has already computed, writes insights or a query, and has every number in its output
-checked. The **exports** layer turns the same results into Excel, PDF and Power BI files without writing
-anything to disk.
+checked. The **exports** layer turns the same results into a web report and Excel, PDF and Power BI files
+without writing anything to disk. Alongside the app, a **trust benchmark** attacks the fact-check and the
+query guard and recomputes every headline number without SQL; it runs on every push.
 
 ```mermaid
 flowchart LR
@@ -150,9 +160,11 @@ flowchart LR
     F --> G
     G --> H[Streamlit interface]
     C --> H
-    H --> I[Excel · PDF · Power BI kit]
+    H --> I[Web report · Excel · PDF · Power BI kit]
     H --> J[Ask your data<br/>validated SQL]
     J --> C
+    K[Trust benchmark<br/>runs in CI] -.-> G
+    K -.-> J
 ```
 
 ## Key design decisions
@@ -168,6 +180,9 @@ flowchart LR
   personal and sensitive records private and keeps prompts small and fast.
 - **A Power BI kit instead of a .pbix.** The .pbix format cannot be generated reliably outside Power BI Desktop,
   so Veridash produces plain Power Query and DAX that any analyst can read, review and paste in minutes.
+- **Safeguards are measured, not just claimed.** The benchmark plants wrong numbers and harmful queries and
+  publishes how many are caught. Its first run caught 77.9% and exposed two blind spots, numbers given to the
+  wrong group and flipped signs, which led to the checks that now catch them.
 - **A transparent health score.** The score uses one published formula and one set of weights, shown in full in
   the Guide, so a grade can always be explained and challenged.
 
@@ -179,19 +194,20 @@ flowchart LR
 | Analysis engine | pandas, NumPy, DuckDB |
 | AI | Google Gen AI SDK with Gemini, structured JSON output |
 | Exports | xlsxwriter for Excel, fpdf2 and matplotlib for PDF, Power Query and DAX for Power BI |
-| Quality | pytest with Streamlit AppTest, Ruff |
+| Quality | pytest with Streamlit AppTest, Ruff, GitHub Actions, a deterministic trust benchmark |
 
 ## Project structure
 
 | Part | What it does |
 |---|---|
-| App entry point | Sets up the page, theme, navigation between the four pages and the site footer. |
-| Pages | Home (use cases and how Veridash differs), Analyze, Examples and Guide. |
+| App entry point | Sets up the page, theme, navigation between the five pages and the site footer. |
+| Pages | Home (use cases and how Veridash differs), Analyze, Examples, Benchmark and Guide. |
 | Analysis engine | Loads files, detects types, scores health, runs sandboxed SQL, picks charts and KPIs, builds the fact pack and writes rule-based insights. |
 | AI layer | Connects to Gemini, writes AI insights, fact-checks numbers and turns questions into validated SQL. |
-| Exports | Builds the Excel report, the PDF summary and the Power BI Starter Kit. |
+| Exports | Builds the web report, the Excel report, the PDF summary, the Power BI Starter Kit and the audit trail. |
 | Interface kit | The theme, chart styling and reusable components such as cards, badges and callouts. |
 | Sample data | Three synthetic datasets and the seeded script that generates them. |
+| Trust benchmark | Plants errors and harmful queries, recomputes numbers with pandas and publishes the scores. |
 | Tests | Automated checks for every module, every page and all three examples end to end. |
 | Documentation | Setup and deployment guide, architecture notes and design decisions. |
 
@@ -202,12 +218,32 @@ flowchart LR
 | File loading | CSV and Excel, encodings, delimiters, empty, headerless and oversized files |
 | Type detection and health | Every column type, currency and percent parsing, scoring formula, caps and grades |
 | Charts and KPIs | Every recommended query runs, returns data and matches an independent calculation |
-| Fact-checking | Verified, unverified and rounding cases, labels, years and dates |
+| Fact-checking | Verified, unverified and rounding cases, signs and directions, group labels, years and dates |
 | Query safety | Writes, multiple statements, file access and blocked functions are all rejected |
-| Exports | The Excel file opens with all sheets, the PDF has two to four pages, the Power BI kit has every file |
+| Exports | The Excel file opens with all sheets, the PDF has two to four pages, the Power BI kit has every file, the web report is self-contained and escaped |
 | App | Every page renders, all three examples run end to end without a key, and edge-case files do not break |
 
-All 217 automated tests pass on every push (GitHub Actions), and the codebase is lint-clean under Ruff.
+All 252 automated tests pass on every push (GitHub Actions), and the codebase is lint-clean under Ruff.
+
+### Trust benchmark
+
+The benchmark runs on the three example datasets with no randomness and no AI calls, and the build fails if
+its published results go out of date. The same scores are shown on the app's Benchmark page.
+
+| Check | Result |
+|---|---|
+| Planted wrong numbers caught by the fact-check | 964 of 1,004 (96.0%) |
+| Correct sentences wrongly flagged | 0 of 542 |
+| Near misses, such as $785.3K written as $785.6K | 223 of 234 caught |
+| Another group's number | 145 of 148 caught |
+| Flipped direction | 18 of 19 caught |
+| Harmful queries blocked by the query guard | 38 of 38 |
+| File, network and setting attacks blocked by the sandbox alone | 17 of 17 |
+| Harmless queries that still run | 25 of 25 |
+| Headline numbers matching an independent pandas recomputation | 214 of 214 |
+
+Every remaining miss is a wrong number that happens to equal another real figure in the same file, which no
+number check can tell apart.
 
 ## Roadmap
 
@@ -215,7 +251,7 @@ All 217 automated tests pass on every push (GitHub Actions), and the codebase is
 - **Joining related files,** such as orders and customers, with a guided key picker.
 - **Significance tests** for group differences, reported alongside the existing hypotheses.
 - **Saved analysis recipes** that re-run the same checks on next month's file.
-- **Dark mode and an accessibility review** of colors and keyboard navigation.
+- **Benchmark the AI itself:** measure how often Gemini's insights pass the fact-check across many files.
 
 ## Conclusion
 
@@ -227,6 +263,8 @@ numbers.
 Building it taught me how much of a tool's credibility comes from transparency. Showing the query behind each
 chart, publishing the health formula and flagging unverified numbers took more work than hiding them, but those
 choices are what make the results something I would be comfortable presenting to a manager or a client.
+Measuring my own fact-checker was the most humbling step: it missed whole kinds of errors I had assumed it
+caught, and fixing them made the tool better than any amount of reasoning about it would have.
 
 For setup and deployment instructions, see the [Setup Guide](docs/SETUP.md). For what changed in each version,
 see the [Changelog](CHANGELOG.md).
