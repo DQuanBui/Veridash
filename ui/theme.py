@@ -238,6 +238,22 @@ div[class*="st-key-card-eqb"] > :last-child { margin-top: auto; }
 .vd-sheet .notes { list-style: none; margin: 0 !important; padding: 0 !important; }
 .vd-sheet .notes li { font-size: 14.5px; line-height: 36px; color: var(--vd-red-pen); margin: 0 !important; }
 .vd-sheet .notes li::before { content: "✗ "; font-weight: 700; }
+/* One orchestrated moment: ticks draw in, the red circle lands, the note follows */
+.vd-sheet .tk path { stroke-dasharray: 24; stroke-dashoffset: 24;
+  animation: vd-draw 0.42s ease-out forwards; animation-delay: calc(var(--i, 0) * 0.32s + 0.25s); }
+.vd-sheet .bad::after { opacity: 0; animation: vd-ring 0.45s cubic-bezier(.2, .9, .3, 1.2) forwards;
+  animation-delay: calc(var(--i, 0) * 0.32s + 0.25s); }
+.vd-sheet .notes li { opacity: 0; animation: vd-rise 0.4s ease-out forwards;
+  animation-delay: calc(var(--i, 0) * 0.32s + 0.35s); }
+@keyframes vd-draw { to { stroke-dashoffset: 0; } }
+@keyframes vd-ring { from { opacity: 0; transform: rotate(-9deg) scale(1.35); }
+  to { opacity: 1; transform: rotate(-3deg) scale(1); } }
+@keyframes vd-rise { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .vd-sheet .tk path { animation: none; stroke-dashoffset: 0; }
+  .vd-sheet .bad::after { animation: none; opacity: 1; }
+  .vd-sheet .notes li { animation: none; opacity: 1; }
+}
 .vd-sheet .tally { font-size: 14px; line-height: 36px; color: var(--vd-muted); margin: 0; }
 
 /* Home tour: a framed screen beside its description */

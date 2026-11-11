@@ -1,7 +1,8 @@
 """The auditor's worksheet: a sentence marked up the way a reviewer checks a report.
 
 Verified numbers get a green tick, a number that fails is circled in red pen,
-and the reason is written in the margin underneath. Used by the Home hero to
+and the reason is written in the margin underneath. The marks are drawn in one
+after another when the sheet appears (instantly for reduced motion). Used by the Home hero to
 show the fact-check working on a sentence the visitor can edit.
 """
 
@@ -28,18 +29,19 @@ def _note(claim: NumberClaim) -> str:
 def worksheet_html(text: str, claims: list[NumberClaim], source: str) -> str:
     """The marked-up sentence, its margin notes and a one-line tally. ``text`` is escaped."""
     out, pos = [], 0
-    for c in claims:
+    for i, c in enumerate(claims):
         out.append(html.escape(text[pos : c.start]))
         raw = html.escape(text[c.start : c.end])
+        step = f' style="--i:{i}"'  # staggers the drawing of each mark
         if c.verified:
-            out.append(f'<span class="ok">{raw}{TICK}<span class="vd-sr"> (verified)</span></span>')
+            out.append(f'<span class="ok"{step}>{raw}{TICK}<span class="vd-sr"> (verified)</span></span>')
         else:
-            out.append(f'<span class="bad">{raw}<span class="vd-sr"> (not verified)</span></span>')
+            out.append(f'<span class="bad"{step}>{raw}<span class="vd-sr"> (not verified)</span></span>')
         pos = c.end
     out.append(html.escape(text[pos:]))
 
     bad = [c for c in claims if not c.verified]
-    notes = "".join(f"<li>{html.escape(_note(c))}</li>" for c in bad)
+    notes = "".join(f'<li style="--i:{len(claims) + k}">{html.escape(_note(c))}</li>' for k, c in enumerate(bad))
     ok = len(claims) - len(bad)
     if not claims:
         tally = "No numbers to check yet. Type one in."
