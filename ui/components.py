@@ -148,5 +148,5 @@ def footer() -> None:
         f'<a href="mailto:{esc(AUTHOR_EMAIL)}">{esc(AUTHOR_EMAIL)}</a>'
         f'<a href="{esc(LINKEDIN_URL)}" target="_blank" rel="noopener">LinkedIn</a>'
         f'<a href="{esc(GITHUB_URL)}" target="_blank" rel="noopener">GitHub</a>'
-        f'</nav></div><div class="credit">Built by {esc(AUTHOR_NAME)} · 2026</div></div>'
+        f'</nav></div><div class="credit">Built by {esc(AUTHOR_NAME)}</div></div>'
     )
