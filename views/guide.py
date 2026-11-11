@@ -5,6 +5,7 @@ from __future__ import annotations
 import pandas as pd
 import streamlit as st
 
+from bench.__main__ import load as load_benchmark
 from core.health import GRADE_BANDS, HEALTH_WEIGHTS, OUTLIER_SHARE_THRESHOLD
 from core.recommender import AVG_HINTS, MAX_CHARTS, METRIC_PRIORITY, TOP_N
 from core.settings import (
@@ -28,7 +29,7 @@ with c1:
 with c2:
     step_card(2, "search", "Read the Overview", "Check the health score and issues first, then explore Charts and Insights.")
 with c3:
-    step_card(3, "export", "Take it with you", "Ask follow-up questions, then download Excel, PDF or a Power BI kit.")
+    step_card(3, "export", "Take it with you", "Ask follow-up questions, then download a web report, Excel, PDF or a Power BI kit.")
 
 st.markdown("### Prepare your file")
 left, right = st.columns([3, 2], gap="large")
@@ -66,7 +67,7 @@ st.markdown(
 | **Insights** | A short summary, key findings and ideas to test, with every number checked. |
 | **Ask your data** | One-click quick questions, plain-English questions with a key, or your own SQL. |
 | **Data** | Search the cleaned data, see what each column contains, and download either as a CSV. |
-| **Export** | Download an Excel report, a PDF summary, a Power BI starter kit or an audit trail of every number. |
+| **Export** | Download a shareable web report, an Excel report, a PDF summary, a Power BI starter kit or an audit trail of every number. |
 """
 )
 
@@ -78,6 +79,7 @@ callout(
 )
 
 st.markdown("### Common questions")
+bench = load_benchmark()["factcheck"]
 faqs = [
     ("Do I need an API key?",
      "No. Without a key you get the health check, charts, KPIs, rule-based insights, quick questions, the SQL box "
@@ -86,6 +88,13 @@ faqs = [
     ("Why does a number show as unverified?",
      "The AI wrote a number that does not match anything Veridash calculated, for example a difference it worked out "
      "itself. It is flagged in red instead of hidden, so you can judge it."),
+    ("How do I know the fact-check works?",
+     f"It is measured. The Benchmark page plants {bench['planted_errors']:,} wrong numbers in sentences and counts how "
+     f"many are caught ({bench['catch_pct']}% at the last run) and how often correct numbers are wrongly flagged "
+     f"({bench['false_alarms']} of {bench['correct_sentences']:,}). It re-runs on every code change."),
+    ("Can I share results with someone who does not use Veridash?",
+     "Yes. On the Export tab, download the web report: one file that opens in any browser, with the charts, the "
+     "insights and the SQL behind every number. It needs no app, account or internet connection."),
     ("Can I change the main metric or the date grouping?",
      "Yes. Use the sidebar on the Analyze page. Charts, numbers, insights and exports all update together."),
     ("Why was my column read as text instead of numbers?",
@@ -151,7 +160,8 @@ with st.expander("How AI is used and fact-checked"):
 2. **The AI only picks and explains** those numbers. It is told to cite them, avoid inventing causes and
    phrase recommendations as ideas to test.
 3. **Every number it writes is checked** against the calculated results, allowing for rounding: "35%" matches
-   34.6, but "35.0%" does not. Anything unmatched is underlined in red.
+   34.6, but "35.0%" does not. A stated direction must be right ("rose 1.1%" fails for a fall), and a
+   group's number must belong to the group named next to it. Anything unmatched is underlined in red.
 4. **If anything goes wrong,** Veridash falls back to rule-based insights. Each session gets
    {MAX_AI_CALLS_PER_SESSION} AI calls, and results are reused for the same file.
 """
@@ -177,7 +187,7 @@ with st.expander("Limitations"):
 - One tidy table at a time; it does not join files or unpivot layouts.
 - Ambiguous dates such as 03/04/2024 are read month first, and European number formats (1.234,56) are not supported.
 - Correlations and group differences show association, not cause, and are not significance-tested.
-- The fact-check confirms each number exists in the results, not that the sentence uses it correctly.
+- The fact-check verifies each number, its direction and which group it belongs to, not the reasoning around it.
 - Ask your data returns at most {ASK_MAX_ROWS:,} rows and stops queries after {QUERY_TIMEOUT_S:g} seconds.
 - The Power BI kit is a starting point, not a finished report.
 """
