@@ -21,7 +21,7 @@ from core.settings import (
 )
 from ui.components import callout, section_header, step_card
 
-section_header("Guide", "Everything you need for a great result, in a two-minute read.", kicker="Guide", top=True)
+section_header("Guide", "Everything you need for a great result, in a two-minute read.", top=True)
 
 c1, c2, c3 = st.columns(3, gap="medium")
 with c1:

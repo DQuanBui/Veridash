@@ -24,7 +24,7 @@ import plotly.io as pio
 import streamlit as st
 
 PRIMARY = "#0D9488"
-FONT_STACK = "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+FONT_STACK = "'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
 
 # Categorical palettes: same hue order in both modes so a category keeps its color.
 # Both are validated for lightness band, chroma, CVD separation and contrast.
@@ -153,7 +153,7 @@ _CSS = """
 <style>
 :root {
   --vd-primary: #0D9488;
-  --vd-text: light-dark(#0F172A, #E2E8F0);
+  --vd-text: light-dark(#10213A, #E4EAF2);
   --vd-muted: light-dark(#64748B, #94A3B8);
   --vd-faint: light-dark(#CBD5E1, #334155);
   --vd-border: light-dark(#E2E8F0, #243045);
@@ -170,9 +170,16 @@ _CSS = """
   --vd-warn-bg: light-dark(#FFFBEB, rgba(245, 158, 11, 0.10));
   --vd-error-bg: light-dark(#FEF2F2, rgba(239, 68, 68, 0.10));
   --vd-radius: 12px;
+  --vd-display: 'Bricolage Grotesque', 'IBM Plex Sans', sans-serif;
+  --vd-body: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --vd-mist: light-dark(#F2F6F8, #0F1A2C);
+  --vd-red-pen: light-dark(#C8281E, #FF7A6E);
   --vd-shadow: 0 1px 2px var(--vd-shadow-color), 0 1px 3px var(--vd-shadow-color);
 }
-html, body, [class*="css"] { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+html, body { font-family: var(--vd-body); }
+h1, h2, h3, h4, .vd-hero h1, .vd-section h2, .vd-chart-title, .vd-kpi .value, .vd-wordmark {
+  font-family: var(--vd-display); font-optical-sizing: auto; }
+.stApp { font-variant-numeric: tabular-nums; }
 .block-container { max-width: 1200px; padding-top: 4.75rem; padding-bottom: 4rem; }
 footer, [data-testid="stAppDeployButton"], [data-testid="stStatusWidget"] { display: none !important; }
 h1, h2, h3 { letter-spacing: -0.02em; }
@@ -222,9 +229,10 @@ div[class*="st-key-card-eqb"] > :last-child { margin-top: auto; }
 /* Section header */
 .vd-section { margin: 52px 0 20px 0; }
 .vd-section.top { margin-top: 0; }
-.vd-section .vd-kicker { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+.vd-section .vd-kicker { font-size: 14px; font-weight: 600;
   color: var(--vd-accent); margin-bottom: 6px; }
-.vd-section h2 { font-size: clamp(24px, 3vw, 30px); font-weight: 700; margin: 0 0 6px 0; padding: 0; }
+.vd-section h2 { font-size: clamp(26px, 3.2vw, 34px); font-weight: 700; letter-spacing: -0.025em; line-height: 1.15;
+  margin: 0 0 8px 0; padding: 0; }
 .vd-section p { color: var(--vd-muted); margin: 0; font-size: 16px; max-width: 720px; }
 .vd-section.center { text-align: center; }
 .vd-section.center p { margin: 0 auto; }
@@ -241,8 +249,7 @@ div[class*="st-key-card-eqb"] > :last-child { margin-top: auto; }
 /* KPI card */
 .vd-kpi { background: var(--vd-surface); border: 1px solid var(--vd-border); border-radius: var(--vd-radius);
   padding: 16px 18px; box-shadow: var(--vd-shadow); height: 100%; min-height: 124px; }
-.vd-kpi .label { font-size: 12px; font-weight: 600; color: var(--vd-muted); text-transform: uppercase;
-  letter-spacing: 0.06em; }
+.vd-kpi .label { font-size: 13.5px; font-weight: 500; color: var(--vd-muted); }
 .vd-kpi .value { font-size: 28px; font-weight: 700; color: var(--vd-text); margin-top: 6px;
   letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
 .vd-kpi .sub { font-size: 13px; color: var(--vd-muted); margin-top: 4px; }
@@ -273,7 +280,7 @@ div[class*="st-key-card-eqb"] > :last-child { margin-top: auto; }
 .vd-step .num { position: absolute; top: 18px; right: 20px; font-size: 13px; font-weight: 700; color: var(--vd-faint); }
 
 /* Chart card text */
-.vd-chart-title { font-size: 16px; font-weight: 700; color: var(--vd-text); margin: 0; }
+.vd-chart-title { font-size: 17px; font-weight: 650; letter-spacing: -0.01em; color: var(--vd-text); margin: 0; }
 .vd-chart-insight { font-size: 14px; color: var(--vd-muted); margin: 4px 0 4px 0; line-height: 1.5; }
 
 /* File bar on Analyze */
@@ -347,7 +354,7 @@ table.vd-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .vd-compare th, .vd-compare td { padding: 14px 18px; text-align: left; vertical-align: top;
   border-bottom: 1px solid var(--vd-divider); line-height: 1.5; }
 .vd-compare tr:last-child th, .vd-compare tr:last-child td { border-bottom: none; }
-.vd-compare thead th { font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--vd-muted);
+.vd-compare thead th { font-size: 14px; font-weight: 600; color: var(--vd-muted);
   background: var(--vd-subtle); }
 .vd-compare tbody th { font-weight: 600; width: 22%; }
 .vd-compare td { color: var(--vd-muted); width: 39%; }
@@ -356,7 +363,7 @@ table.vd-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .vd-compare td.ours::before { content: "✓"; color: var(--vd-primary); font-weight: 700; margin-right: 8px; }
 
 /* Use case cards */
-.vd-usecase .who { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+.vd-usecase .who { font-size: 14px; font-weight: 600;
   color: var(--vd-accent); margin-top: 12px; }
 .vd-usecase .q { font-size: 17px; font-weight: 700; line-height: 1.4; color: var(--vd-text); margin: 6px 0 8px 0; }
 .vd-usecase ul { margin: 0 0 12px 0; padding-left: 18px; color: var(--vd-muted); font-size: 14.5px; line-height: 1.6; }

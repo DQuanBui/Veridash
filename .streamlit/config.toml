@@ -1,8 +1,8 @@
 # Veridash theme. Light and dark follow the visitor's system setting by default;
 # visitors can switch in the app menu (top right) > Settings.
 [theme]
-font = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap, sans-serif"
-headingFont = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap, sans-serif"
+font = "IBM Plex Sans:https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap, sans-serif"
+headingFont = "Bricolage Grotesque:https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&display=swap, sans-serif"
 codeFont = "monospace"
 baseRadius = "10px"
 buttonRadius = "8px"
@@ -14,7 +14,7 @@ base = "light"
 primaryColor = "#0D9488"
 backgroundColor = "#FFFFFF"
 secondaryBackgroundColor = "#F8FAFC"
-textColor = "#0F172A"
+textColor = "#10213A"
 borderColor = "#E2E8F0"
 linkColor = "#0F766E"
 chartCategoricalColors = ["#0D9488", "#6366F1", "#F59E0B", "#EC4899", "#0EA5E9", "#84CC16", "#8B5CF6", "#F97316"]
@@ -25,7 +25,7 @@ backgroundColor = "#F8FAFC"
 [theme.dark]
 base = "dark"
 primaryColor = "#0D9488"
-backgroundColor = "#0B1220"
+backgroundColor = "#0B1424"
 secondaryBackgroundColor = "#131C2E"
 textColor = "#E2E8F0"
 borderColor = "#243045"

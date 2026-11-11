@@ -83,13 +83,13 @@ _CSS = """
 body { margin: 0; background: var(--subtle); color: var(--text); line-height: 1.55;
   font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 main { max-width: 980px; margin: 0 auto; padding: 32px 16px 56px; }
-header .brand { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+header .brand { font-size: 14px; font-weight: 600; color: var(--accent); }
 h1 { font-size: clamp(26px, 4vw, 36px); margin: 6px 0 4px; letter-spacing: -.02em; }
 h2 { font-size: 20px; margin: 36px 0 12px; letter-spacing: -.01em; }
 .meta { color: var(--muted); font-size: 14px; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
-.kpi .label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.kpi .label { font-size: 13px; font-weight: 500; color: var(--muted); }
 .kpi .value { font-size: 26px; font-weight: 700; margin-top: 4px; font-variant-numeric: tabular-nums; }
 .kpi .sub { font-size: 13px; color: var(--muted); }
 .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr)); gap: 14px; }
@@ -112,7 +112,7 @@ span.bad { color: var(--bad); background: var(--bad-bg); border-radius: 4px; pad
 .health { display: grid; grid-template-columns: 140px 1fr; gap: 20px; align-items: start; }
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
 th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
-th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+th { color: var(--muted); font-weight: 600; font-size: 13px; }
 td code { font-size: 12px; color: var(--muted); word-break: break-all; }
 td a { color: var(--accent); }
 .all { margin-top: 14px; }

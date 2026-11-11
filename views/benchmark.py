@@ -35,7 +35,6 @@ section_header(
     "Trust benchmark",
     "Veridash claims its numbers can be trusted, so we tried to break it: over a thousand planted "
     "errors and dozens of harmful queries. These are the results.",
-    kicker="Benchmark",
     top=True,
 )
 k1, k2, k3, k4 = st.columns(4, gap="small")
@@ -123,7 +122,6 @@ section_header(
     "Why this matters",
     "An AI that writes about your data can be fluent and wrong. Veridash never lets the AI calculate, "
     "and this benchmark measures how well it catches the AI when it gets a number wrong.",
-    kicker="Method",
 )
 c1, c2, c3 = st.columns(3, gap="medium")
 for col, (title, text) in zip(

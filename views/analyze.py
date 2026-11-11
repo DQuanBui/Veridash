@@ -72,7 +72,6 @@ def _empty_state() -> None:
         "Analyze your data",
         "Upload a file and get a health check, charts, insights and exports. Every number comes "
         "from a query you can inspect.",
-        kicker="Analyze",
         top=True,
     )
     with st.container(key="card_start"):

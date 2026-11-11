@@ -19,7 +19,6 @@ section_header(
     "Example datasets",
     "Three realistic, synthetic datasets with fictional names. Each has a few planted data issues "
     "so you can see the health check at work. The findings below are computed live.",
-    kicker="Examples",
     top=True,
 )
 

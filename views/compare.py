@@ -205,7 +205,6 @@ section_header(
     "Compare two files",
     "Last month against this month, before and after a cleanup: see what changed in the columns, the "
     "numbers and the records, with every figure computed by a query you can inspect.",
-    kicker="Compare",
     top=True,
 )
 before, after = (st.session_state.get(SIDES[s]) for s in ("before", "after"))

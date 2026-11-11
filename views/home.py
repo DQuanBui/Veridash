@@ -124,7 +124,6 @@ with st.container(key="card_preview"):
 section_header(
     "Answers for the questions teams actually ask",
     "Start from a realistic example in one click, or bring your own file.",
-    kicker="Use cases",
     center=True,
 )
 for row in (USE_CASES[:2], USE_CASES[2:]):
@@ -146,7 +145,6 @@ for row in (USE_CASES[:2], USE_CASES[2:]):
 section_header(
     "What makes Veridash different",
     "Most AI data tools ask you to trust their numbers. Veridash shows its work.",
-    kicker="Why Veridash",
     center=True,
 )
 compare_table("Many AI dashboard tools", "Veridash", COMPARISON)
@@ -170,7 +168,7 @@ with st.container(key="card_proof"):
         if st.button("See the benchmark", key="home_benchmark", width="stretch"):
             st.switch_page("views/benchmark.py")
 
-section_header("How it works", "From raw file to a report you can share, in four steps.", kicker="Workflow", center=True)
+section_header("How it works", "From raw file to a report you can share, in four steps.", center=True)
 s1, s2, s3, s4 = st.columns(4, gap="medium")
 with s1:
     step_card(1, "upload", "Upload", "Drop in a CSV or Excel file, or pick an example.")
