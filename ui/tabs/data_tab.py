@@ -100,7 +100,7 @@ def render(analysis: Analysis) -> None:
     profile = analysis.profile
     df = profile.df
     st.markdown("<p class='vd-chart-title'>Preview</p>", unsafe_allow_html=True)
-    term = st.text_input("Search all columns", placeholder="Type to filter rows, e.g. a product or region",
+    term = st.text_input("Search all columns", placeholder="Type to filter rows, for example a product or region",
                          key="vd_search", label_visibility="collapsed")
     view = df
     if len(df) > HEAVY_VISUAL_ROW_LIMIT:

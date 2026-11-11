@@ -280,7 +280,7 @@ def generate_rule_insights(
             Recommendation(
                 hypothesis="Fixing the flagged data issues may change some of these figures.",
                 evidence=f"The health score is {_v(f, 'health.score')}/{_v(f, 'health.score_max')} with "
-                f"{_v(f, 'health.issues')} issue(s) flagged.",
+                f"{_v(f, 'health.issues')} {'issue' if f['health.issues'].value == 1 else 'issues'} flagged.",
                 how_to_validate="Resolve the issues listed on the Overview tab, re-upload the file and compare the results.",
                 fact_ids=["health.score", "health.issues"],
             ),

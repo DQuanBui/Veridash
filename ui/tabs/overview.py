@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 
 import streamlit as st
 
-from core.formatting import fmt_value, human_bytes
+from core.formatting import fmt_value, human_bytes, plural
 from core.health import HealthReport
 from core.pipeline import Analysis
 from ui.components import SEVERITY_VARIANT, TYPE_BADGE_VARIANT, badge_html, esc, kpi_card
@@ -23,8 +23,8 @@ def _score_ring(health: HealthReport) -> str:
         f'<div class="ring" role="img" aria-label="Data health score {health.score} out of 100, grade {health.grade}" '
         f'style="background: conic-gradient({color} {health.score * 3.6}deg, var(--vd-border) 0);">'
         f'<div class="inner"><div class="n" style="color:{color}">{health.score}</div>'
-        f'<div class="g">GRADE {health.grade}</div></div></div>'
-        f'<div><div class="title">Data health</div><div class="meta">{issues} issue(s) found. '
+        f'<div class="g">Grade {health.grade}</div></div></div>'
+        f'<div><div class="title">Data health</div><div class="meta">{plural(issues, "issue")} found. '
         "The score starts at 100 and loses capped points per check.</div></div></div>"
     )
 

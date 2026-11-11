@@ -8,6 +8,7 @@ from ai.client import GeminiClient, resolve_api_key, resolve_model
 from ai.factcheck import FactCheckReport, check_text, fact_check, highlight_html
 from ai.insights_ai import DEFAULT_LANGUAGE, LANGUAGES, generate_ai_insights
 from core.facts import FactPack
+from core.formatting import plural
 from core.insights_rules import Insights
 from core.pipeline import Analysis
 from ui.components import callout, esc, source_badge_html, verified_badge_html
@@ -57,7 +58,7 @@ def render_insights(insights: Insights, pack: FactPack) -> FactCheckReport:
     if report.unverified:
         raws = ", ".join(sorted({c.raw for c in report.unverified}))
         callout(
-            f"{len(report.unverified)} number(s) could not be matched to a computed fact: {raws}. "
+            f"{plural(len(report.unverified), 'number')} could not be matched to a computed fact: {raws}. "
             "They are underlined in red below. Treat them with caution.",
             title="Some numbers are unverified",
             kind="warn",
@@ -141,7 +142,7 @@ def render(analysis: Analysis, cache_key: str) -> None:
             else:
                 st.markdown("**Want them in another language?** Pick one and write them again.")
             src = "your session key" if key_source == "session" else "the app's configured key"
-            st.caption(f"Using {src} · model {client.model} · {client.calls_left} AI call(s) left this session")
+            st.caption(f"Using {src} · model {client.model} · {plural(client.calls_left, 'AI call')} left this session")
         with mid:
             current = cached.language if cached is not None and cached.source == "ai" else DEFAULT_LANGUAGE
             language = st.selectbox("Language", list(LANGUAGES), index=list(LANGUAGES).index(current),

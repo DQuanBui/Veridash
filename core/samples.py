@@ -17,6 +17,11 @@ class Example:
     summary: str
     rows_hint: str
 
+    @property
+    def file_kind(self) -> str:
+        """``CSV`` or ``Excel``, for labels."""
+        return "Excel" if self.filename.endswith((".xlsx", ".xls")) else "CSV"
+
     def read_bytes(self) -> bytes:
         """Return the raw file bytes (loaded like any upload)."""
         return (SAMPLES_DIR / self.filename).read_bytes()
@@ -27,7 +32,7 @@ EXAMPLES: dict[str, Example] = {
         key="retail",
         title="Retail sales",
         filename="retail_sales.csv",
-        summary="Two years of transactions across 10 fictional stores, 5 regions and 5 product "
+        summary="Two years of transactions from fictional stores across regions and product "
         "categories, with units, prices, discounts, revenue and cost.",
         rows_hint="~5,000 rows · CSV",
     ),
@@ -43,8 +48,8 @@ EXAMPLES: dict[str, Example] = {
         key="portfolio",
         title="Investment portfolio",
         filename="investment_portfolio.csv",
-        summary="Monthly holding lots across 12 fictional tickers and 7 sectors, with shares, "
-        "price, market value, cost basis and gain or loss.",
+        summary="Monthly holdings across fictional tickers and sectors, with shares, price, "
+        "market value, cost basis and gain or loss.",
         rows_hint="~2,000 rows · CSV",
     ),
 }

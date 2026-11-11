@@ -7,6 +7,7 @@ import streamlit as st
 from ai.client import GeminiClient, resolve_api_key, resolve_model
 from ai.nl2sql import AskResult, Starter, ask, example_questions, run_validated, starter_queries
 from core.engine import QueryEngine
+from core.formatting import plural
 from core.pipeline import Analysis
 from core.settings import ASK_MAX_ROWS, CATEGORY_LABELS_FOR_AI
 from ui.branding import icon
@@ -29,7 +30,7 @@ def _render_result(res: AskResult, key: str) -> None:
         if res.error:
             callout(res.error, title="The query did not run", kind="error")
             return
-        meta = [f"{len(res.data):,} row(s)", f"{res.elapsed_ms:,.0f} ms"]
+        meta = [plural(len(res.data), "row"), f"{res.elapsed_ms:,.0f} ms"]
         if res.truncated:
             meta.append(f"truncated to {ASK_MAX_ROWS:,} rows")
         st.markdown("<div class='vd-badges'>" + "".join(badge_html(m, "slate") for m in meta) + "</div>",
@@ -94,7 +95,7 @@ def render(analysis: Analysis, file_key: str) -> None:
                                      key="vd_question")
             submitted = st.form_submit_button("Ask", type="primary", disabled=client.calls_left <= 0)
         st.caption(f"Gemini writes one SELECT query; Veridash validates it and runs it on DuckDB. "
-                   f"{client.calls_left} AI call(s) left this session.")
+                   f"{plural(client.calls_left, 'AI call')} left this session.")
         if submitted and question.strip():
             with st.spinner("Writing and checking the query..."), QueryEngine(analysis.profile.df) as engine:
                 history.insert(0, ask(client, engine, analysis.profile, question.strip()))

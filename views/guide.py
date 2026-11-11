@@ -5,7 +5,6 @@ from __future__ import annotations
 import pandas as pd
 import streamlit as st
 
-from bench.__main__ import load as load_benchmark
 from core.health import GRADE_BANDS, HEALTH_WEIGHTS, OUTLIER_SHARE_THRESHOLD
 from core.recommender import AVG_HINTS, MAX_CHARTS, METRIC_PRIORITY, TOP_N
 from core.settings import (
@@ -79,7 +78,6 @@ callout(
 )
 
 st.markdown("### Common questions")
-bench = load_benchmark()["factcheck"]
 faqs = [
     ("Do I need an API key?",
      "No. Without a key you get the health check, charts, KPIs, rule-based insights, quick questions, the SQL box "
@@ -89,9 +87,9 @@ faqs = [
      "The AI wrote a number that does not match anything Veridash calculated, for example a difference it worked out "
      "itself. It is flagged in red instead of hidden, so you can judge it."),
     ("How do I know the fact-check works?",
-     f"It is measured. The Benchmark page plants {bench['planted_errors']:,} wrong numbers in sentences and counts how "
-     f"many are caught ({bench['catch_pct']}% at the last run) and how often correct numbers are wrongly flagged "
-     f"({bench['false_alarms']} of {bench['correct_sentences']:,}). It re-runs on every code change."),
+     "It is measured. The Benchmark page plants over a thousand wrong numbers in sentences and shows how many "
+     "the fact-check catches, and how often it flags a correct number by mistake. It re-runs on every code "
+     "change."),
     ("Can I share results with someone who does not use Veridash?",
      "Yes. On the Export tab, download the web report: one file that opens in any browser, with the charts, the "
      "insights and the SQL behind every number. It needs no app, account or internet connection."),

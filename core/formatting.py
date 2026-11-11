@@ -90,6 +90,11 @@ def metric_kind(name: str, unit: str | None = None) -> str:
     return "number"
 
 
+def plural(n: int, word: str, many: str | None = None) -> str:
+    """``1 issue``, ``4 issues``: a count with the right form of the word."""
+    return f"{n:,} {word if n == 1 else (many or word + 's')}"
+
+
 def pretty(name: str) -> str:
     """Turn a column name into a readable label: ``unit_price`` -> ``Unit price``."""
     text = str(name).replace("_", " ").strip()

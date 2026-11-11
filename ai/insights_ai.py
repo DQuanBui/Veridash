@@ -12,6 +12,7 @@ from typing import Any
 
 from ai.client import AIError, GeminiClient
 from core.facts import FactPack
+from core.formatting import plural
 from core.insights_rules import Insights, Recommendation, Statement
 
 _STATEMENT = {
@@ -141,7 +142,8 @@ def parse_insights(payload: dict[str, Any], pack: FactPack, model: str) -> Insig
     if not insights.summary or not insights.findings:
         raise AIError("Gemini's response was missing required sections.")
     if unknown:
-        insights.notice = f"{len(unknown)} citation(s) referred to facts that do not exist and were removed."
+        insights.notice = (f"{plural(len(unknown), 'citation')} referred to facts that do not exist "
+                           "and were removed.")
     return insights
 
 

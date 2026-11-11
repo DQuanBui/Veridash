@@ -13,6 +13,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from core.formatting import plural
 from core.profiler import ColType, Profile
 
 HEALTH_WEIGHTS: dict[str, dict[str, Any]] = {
@@ -187,7 +188,8 @@ def assess_health(profile: Profile) -> HealthReport:
             Issue(
                 _severity(penalty_of["missing_cells"]),
                 f"{measures['missing_cells']:.1f}% of cells are missing",
-                f"{len(missing_cols)} column(s) have gaps: {_fmt_cols(missing_cols)}.",
+                f"{plural(len(missing_cols), 'column')} {'has' if len(missing_cols) == 1 else 'have'} gaps: "
+                f"{_fmt_cols(missing_cols)}.",
                 WHY["missing_cells"],
                 "missing_cells",
                 [n for n, _ in missing_cols],
@@ -204,12 +206,14 @@ def assess_health(profile: Profile) -> HealthReport:
             )
         )
     for col in mixed:
-        n = f"{col.n_unparsed:,} value(s)" if col.n_unparsed else "Some values"
+        n = plural(col.n_unparsed, "value") if col.n_unparsed else "Some values"
+        kind = {"number": "numbers", "date": "dates", "boolean": "yes or no values"}.get(str(col.col_type),
+                                                                                          str(col.col_type))
         issues.append(
             Issue(
                 _severity(HEALTH_WEIGHTS["mixed_types"]["points_per_unit"]),
                 f"Mixed types in '{col.name}'",
-                f"{n} could not be read as {col.col_type}; they are treated as missing.",
+                f"{n} could not be read as {kind}, so {'it is' if col.n_unparsed == 1 else 'they are'} treated as missing.",
                 WHY["mixed_types"],
                 "mixed_types",
                 [col.name],
@@ -219,7 +223,7 @@ def assess_health(profile: Profile) -> HealthReport:
         issues.append(
             Issue(
                 _severity(penalty_of["constant_columns"]),
-                f"{len(constant)} constant column(s)",
+                f"{plural(len(constant), 'constant column')}",
                 "Only one distinct value: " + ", ".join(c.name for c in constant[:5]) + ".",
                 WHY["constant_columns"],
                 "constant_columns",
@@ -231,7 +235,7 @@ def assess_health(profile: Profile) -> HealthReport:
         issues.append(
             Issue(
                 _severity(penalty_of["outlier_columns"]),
-                f"High outlier share in {len(outlier_cols)} column(s)",
+                f"High outlier share in {plural(len(outlier_cols), 'column')}",
                 f"Values outside 1.5 x IQR: {_fmt_cols(items)}.",
                 WHY["outlier_columns"],
                 "outlier_columns",
@@ -243,7 +247,7 @@ def assess_health(profile: Profile) -> HealthReport:
         issues.append(
             Issue(
                 "info",
-                f"{len(ids)} identifier column(s) excluded from charts",
+                f"{plural(len(ids), 'identifier column')} excluded from charts",
                 ", ".join(ids[:5]) + ".",
                 WHY["id_columns"],
                 "id_columns",

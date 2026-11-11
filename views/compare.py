@@ -155,10 +155,10 @@ def _chart_card(c: Comparison) -> None:
                         unsafe_allow_html=True)
             sql_expander(c.metric.sql)
             return
-        n = len(spec.data)
+        group = pretty(c.metric.group_col).lower()
         st.markdown(f"<p class='vd-chart-title'>{esc(spec.title)}</p><p class='vd-chart-insight'>"
-                    f"The {n} {pretty(c.metric.group_col).lower()} value{'s' if n != 1 else ''} that moved most, "
-                    "after minus before.</p>", unsafe_allow_html=True)
+                    f"Each {esc(group)} that moved, from the before file to the after file, largest first.</p>",
+                    unsafe_allow_html=True)
         st.plotly_chart(figure_for(spec), theme=None, config=PLOTLY_CONFIG, key="cmp_chart")
         sql_expander(c.metric.sql + ";\n\n" + spec.sql, spec.data)
 
