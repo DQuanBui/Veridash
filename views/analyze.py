@@ -35,6 +35,7 @@ from ui.state import (
 from ui.tabs import ask_tab, charts_tab, data_tab, export_tab, insights_tab, overview
 
 UPLOAD_COUNTER = "vd_upload_n"
+JUST_UPLOADED = "vd_just_uploaded"
 
 
 def _uploader_key() -> str:
@@ -45,7 +46,7 @@ def _on_upload() -> None:
     uploaded = st.session_state.get(_uploader_key())
     if uploaded is not None:
         set_source(Source(name=uploaded.name, data=uploaded.getvalue(), kind="upload"))
-        notify(f"Loaded {uploaded.name}")
+        st.session_state[JUST_UPLOADED] = uploaded.name  # confirmed only once it loads without errors
 
 
 def _start_over() -> None:
@@ -212,6 +213,18 @@ def _file_bar(source: Source, analysis, sheets: list[str], sheet_key: str) -> st
     return sheet
 
 
+def _load_failed(message: str) -> None:
+    """Explain why the file failed and offer the next steps."""
+    callout(message, title="This file could not be loaded", kind="error")
+    a, b, c = st.columns([1.2, 1.4, 1.2], gap="small", vertical_alignment="center")
+    a.button("Choose another file", on_click=_start_over, type="primary", icon=":material/upload_file:",
+             width="stretch", key="vd_fail_retry")
+    b.button("Open an example instead", on_click=load_example, args=("retail",), icon=":material/dataset:",
+             width="stretch", key="vd_fail_example")
+    with c:
+        st.page_link("views/guide.py", label="File tips in the Guide", icon=":material/menu_book:")
+
+
 def main() -> None:
     """Render the page. Returns early (rather than st.stop) so the site footer still renders."""
     requested = st.query_params.get("example")
@@ -227,8 +240,8 @@ def main() -> None:
         try:
             sheets = list_excel_sheets(source.data, source.name)
         except LoadError as exc:
-            callout(str(exc), title="This file could not be loaded", kind="error")
-            st.button("Choose another file", on_click=_start_over)
+            st.session_state.pop(JUST_UPLOADED, None)
+            _load_failed(str(exc))
             return
         sheets = sheets if len(sheets) > 1 else []
     sheet_key = f"vd_sheet_{file_hash(source.data)}"
@@ -239,9 +252,11 @@ def main() -> None:
         with st.spinner("Profiling your data..."):
             prepared = cached_prepare(fid, source.name, sheet, source.data)
     except LoadError as exc:
-        callout(str(exc), title="This file could not be loaded", kind="error")
-        st.button("Choose another file", on_click=_start_over)
+        st.session_state.pop(JUST_UPLOADED, None)
+        _load_failed(str(exc))
         return
+    if name := st.session_state.pop(JUST_UPLOADED, None):
+        st.toast(f"Loaded {name}", icon=":material/check_circle:")
 
     metric, date_col, grain, use_date = _sidebar(prepared, fid)
     cache_key = f"{fid}|{metric}|{date_col}|{grain}"

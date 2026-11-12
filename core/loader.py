@@ -75,7 +75,9 @@ def decode_text(data: bytes) -> tuple[str, str]:
         if enc == "utf-8" and text.startswith("﻿"):
             return text[1:], "utf-8-sig"
         return text, enc
-    raise LoadError("Could not read the file's text encoding.")  # pragma: no cover
+    raise LoadError(
+        "The text in this file could not be read. In Excel, choose File, Save As, CSV UTF-8, then upload it again."
+    )  # pragma: no cover
 
 
 def sniff_delimiter(text: str) -> str:
@@ -160,8 +162,8 @@ def read_csv_bytes(data: bytes) -> tuple[pd.DataFrame, str, str]:
         raise LoadError("The file is empty. Please upload a file with a header row and data.") from exc
     except pd.errors.ParserError as exc:
         raise LoadError(
-            "Some rows have a different number of fields than the header. "
-            "Check for unquoted delimiters inside values."
+            "Some rows have more or fewer values than there are columns, often because a value contains a comma. "
+            "Save the file again from Excel as CSV, which puts quotes around such values."
         ) from exc
     return df, encoding, delimiter
 
@@ -188,7 +190,7 @@ def read_excel_bytes(data: bytes, filename: str, sheet: str | None = None) -> tu
     try:
         df = pd.read_excel(io.BytesIO(data), sheet_name=chosen, engine=_excel_engine(filename))
     except Exception as exc:
-        raise LoadError(f"Sheet '{chosen}' could not be read.") from exc
+        raise LoadError(f"Sheet '{chosen}' could not be read. Pick another sheet, or save it as a CSV file.") from exc
     return df, chosen, sheets
 
 

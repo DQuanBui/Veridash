@@ -187,3 +187,15 @@ def test_guide_questions_can_be_searched():
     assert any("Where does my file go" in e.label for e in at.expander)
     at.text_input(key="vd_faq_search").input("zzzz").run()
     assert any("No question matches" in c.value for c in at.caption)
+
+
+def test_a_broken_file_explains_what_to_do_next():
+    from ui.state import Source
+
+    at = _app().run()
+    at.session_state["vd_source"] = Source("empty.csv", b"", "upload")
+    at.switch_page("views/analyze.py").run()
+    assert not at.exception, at.exception
+    assert "This file could not be loaded" in " ".join(m.value for m in at.markdown)
+    at.button(key="vd_fail_example").click().run()
+    assert at.session_state["vd_source"].name == "retail_sales.csv"
