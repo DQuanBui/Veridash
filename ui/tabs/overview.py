@@ -61,7 +61,7 @@ def _issues(health: HealthReport) -> str:
 
 GUIDE_KEY = "vd_hide_start_here"
 START_HERE = [
-    ("Overview", "Check the health score and issues below."),
+    ("Overview", "Check the health score."),
     ("Charts", "See what stands out."),
     ("Insights", "Read a checked summary."),
     ("Export", "Download a report."),

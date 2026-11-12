@@ -155,10 +155,10 @@ def test_start_here_guide_can_be_dismissed():
     at = _app().run()
     at.switch_page("views/analyze.py").run()
     at.button(key="start_retail").click().run()
-    assert "Check the health score and issues below." in " ".join(m.value for m in at.markdown)
+    assert "Check the health score." in " ".join(m.value for m in at.markdown)
     at.button(key="vd_start_here_close").click().run()
     assert not at.exception, at.exception
-    assert "Check the health score and issues below." not in " ".join(m.value for m in at.markdown)
+    assert "Check the health score." not in " ".join(m.value for m in at.markdown)
 
 
 def test_sidebar_settings_reset_to_automatic():
