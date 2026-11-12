@@ -42,21 +42,35 @@ def _reference_line(fig: go.Figure, tk: ChartTokens, x: float, text: str) -> Non
     fig.add_annotation(x=x, y=1.04, yref="paper", text=text, showarrow=False, font={"color": tk.muted, "size": 12})
 
 
+def _rgba(hex_color: str, alpha: float) -> str:
+    h = hex_color.lstrip("#")
+    r, g, b = (int(h[i : i + 2], 16) for i in (0, 2, 4))
+    return f"rgba({r},{g},{b},{alpha})"
+
+
 def _line(spec: ChartSpec, tk: ChartTokens) -> go.Figure:
     df = spec.data
+    top = 0.26 if tk.mode == "dark" else 0.18
     fig = go.Figure(
         go.Scatter(
             x=df[spec.x],
             y=df[spec.y],
             mode="lines+markers" if len(df) <= 36 else "lines",
-            line={"color": tk.primary, "width": 2},
+            line={"color": tk.primary, "width": 2.4},  # straight segments: no curve past the real values
             marker={"size": 6, "color": tk.primary, "line": {"color": tk.surface, "width": 1.5}},
             fill="tozeroy",
-            fillcolor=tk.fill,
+            # A tint that fades toward the axis, instead of a flat wash
+            fillgradient={"type": "vertical",
+                          "colorscale": [[0, _rgba(tk.primary, 0)], [1, _rgba(tk.primary, top)]]},
             customdata=_labels(df[spec.y], spec.value_kind),
             hovertemplate="%{x|%b %d, %Y}<br><b>%{customdata}</b><extra></extra>",
         )
     )
+    if len(df):  # mark the latest value so the eye lands on "now"
+        fig.add_trace(go.Scatter(
+            x=[df[spec.x].iloc[-1]], y=[df[spec.y].iloc[-1]], mode="markers", hoverinfo="skip", showlegend=False,
+            marker={"size": 11, "color": tk.primary, "line": {"color": tk.surface, "width": 2.5}},
+        ))
     fig.update_yaxes(rangemode="tozero", **_axis_format(spec.value_kind))
     fig.update_layout(hovermode="x unified")
     return _base(fig, tk)
