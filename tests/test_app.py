@@ -173,3 +173,17 @@ def test_sidebar_settings_reset_to_automatic():
     assert not at.exception, at.exception
     assert next(sb for sb in at.selectbox if sb.key and sb.key.startswith("vd_grain_")).value == auto
     assert not any(b.key and b.key.startswith("vd_reset_") for b in at.button)
+
+
+def test_guide_questions_can_be_searched():
+    at = _app().run()
+    at.switch_page("views/guide.py").run()
+    total = len(at.expander)
+    at.text_input(key="vd_faq_search").input("compare").run()
+    assert not at.exception, at.exception
+    labels = [e.label for e in at.expander]
+    assert len(labels) < total and any("compare" in label.lower() for label in labels)
+    at.text_input(key="vd_faq_search").input("privacy").run()
+    assert any("Where does my file go" in e.label for e in at.expander)
+    at.text_input(key="vd_faq_search").input("zzzz").run()
+    assert any("No question matches" in c.value for c in at.caption)

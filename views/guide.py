@@ -21,6 +21,15 @@ from core.settings import (
 from ui.components import callout, section_header, step_card
 
 section_header("Guide", "Everything you need for a great result, in a two-minute read.", top=True)
+st.markdown(
+    "<nav class='vd-jump' aria-label='On this page'>"
+    + "".join(f"<a href='#{anchor}'>{label}</a>" for anchor, label in [
+        ("prepare", "Prepare your file"), ("tabs", "The tabs"), ("privacy", "Privacy"),
+        ("questions", "Questions"), ("under-the-hood", "Under the hood"),
+    ])
+    + "</nav>",
+    unsafe_allow_html=True,
+)
 
 c1, c2, c3 = st.columns(3, gap="medium")
 with c1:
@@ -30,7 +39,7 @@ with c2:
 with c3:
     step_card(3, "export", "Take it with you", "Ask follow-up questions, then download a web report, Excel, PDF or a Power BI kit.")
 
-st.markdown("### Prepare your file")
+st.subheader("Prepare your file", anchor="prepare")
 left, right = st.columns([3, 2], gap="large")
 with left:
     st.markdown(
@@ -56,7 +65,7 @@ with right:
         hide_index=True,
     )
 
-st.markdown("### What each tab does")
+st.subheader("What each tab does", anchor="tabs")
 st.markdown(
     """
 | Tab | What you get |
@@ -70,14 +79,14 @@ st.markdown(
 """
 )
 
-st.markdown("### Your privacy")
+st.subheader("Your privacy", anchor="privacy")
 callout(
     "Your file is processed in memory and never stored. The AI never sees your rows: only column names, "
     f"summary results and, for questions, up to {CATEGORY_LABELS_FOR_AI} example labels per column.",
     title="The short version",
 )
 
-st.markdown("### Common questions")
+st.subheader("Common questions", anchor="questions")
 faqs = [
     ("Do I need an API key?",
      "No. Without a key you get the health check, charts, KPIs, rule-based insights, quick questions, the SQL box "
@@ -113,11 +122,33 @@ faqs = [
     ("Where does my file go when I close the tab?",
      "Nowhere. Your session's memory is released, and cached results expire from server memory within an hour."),
 ]
-for question, answer in faqs:
-    with st.expander(question):
+query = st.text_input("Search the questions", key="vd_faq_search", placeholder="Search, for example: key, privacy, compare",
+                      icon=":material/search:", label_visibility="collapsed").strip().lower()
+# Extra words people search with, so a question is found even if its text uses different words.
+KEYWORDS = {
+    "Do I need an API key?": "key gemini ai free cost price sign-up account",
+    "Why does a number show as unverified?": "fact-check red wrong error unverified checked",
+    "How do I know the fact-check works?": "benchmark accuracy test trust proof",
+    "Can I share results with someone who does not use Veridash?": "share send report html web export download",
+    "How do I compare this month's file with last month's?": "compare month difference change two files diff",
+    "Can I check the numbers in someone else's report?": "check paste text report colleague chatgpt",
+    "Can I change the main metric or the date grouping?": "settings sidebar metric date grain week month quarter",
+    "Why was my column read as text instead of numbers?": "type number text column error parse",
+    "Can the insights be in my language?": "language translate spanish french german vietnamese",
+    "Is there a dark mode?": "theme dark light colors",
+    "Where does my file go when I close the tab?": "privacy private security stored delete data safe",
+}
+words = query.split()
+shown = [(q, a) for q, a in faqs if all(w in f"{q} {a} {KEYWORDS.get(q, '')}".lower() for w in words)]
+if words and not shown:
+    st.caption("No question matches that. Try a shorter word, or browse the sections below.")
+elif words:
+    st.caption(f"Showing {len(shown)} of {len(faqs)} questions.")
+for question, answer in shown:
+    with st.expander(question, expanded=bool(words) and len(shown) <= 2):
         st.write(answer)
 
-st.markdown("### Under the hood")
+st.subheader("Under the hood", anchor="under-the-hood")
 st.caption("For the curious: exactly how Veridash scores, chooses and checks.")
 
 with st.expander("How the health score is calculated"):

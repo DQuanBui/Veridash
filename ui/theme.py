@@ -286,6 +286,12 @@ div[class*="st-key-card_start_here"] { padding: 12px 14px 12px 18px; background:
 .vd-start b::before { content: counter(step); display: inline-flex; align-items: center; justify-content: center;
   width: 20px; height: 20px; border-radius: 50%; background: var(--vd-primary); color: #fff; font-size: 12px; }
 
+/* Guide: jump links */
+.vd-jump { display: flex; flex-wrap: wrap; gap: 8px; margin: -6px 0 18px 0; }
+.vd-jump a { font-size: 14px; color: var(--vd-text); text-decoration: none; padding: 6px 12px; border-radius: 999px;
+  border: 1px solid var(--vd-border); background: var(--vd-surface); }
+.vd-jump a:hover { border-color: var(--vd-primary); color: var(--vd-accent); }
+
 /* Home: resume banner */
 div[class*="st-key-card_resume"] { padding: 10px 16px; background: var(--vd-tint); border-color: var(--vd-tint-border);
   box-shadow: none; }
