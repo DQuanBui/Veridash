@@ -11,11 +11,28 @@ from core.loader import LoadError, file_hash
 from core.samples import COMPARE_EXAMPLES
 from core.settings import CACHE_TTL_S, MAX_FILE_MB
 from exports.compare_csv import build_compare_csv
+from ui.branding import icon
 from ui.charts import PLOTLY_CONFIG, figure_for, sql_expander
 from ui.components import badge_html, callout, esc, kpi_card, section_header, verified_badge_html
 from ui.state import COMPARE_KEYS, Source, cached_prepare, load_compare_example, notify
 
 SIDES = COMPARE_KEYS
+SEES = [
+    ("table", "Columns that were added, removed or changed type"),
+    ("trend", "How the totals moved, and which groups moved them"),
+    ("users", "Records that are new, gone or changed, by ID"),
+]
+# Two small sheets: rows kept in grey, a removed row in red on the left, an added row in green on the right.
+DIFF_PICTURE = """<svg class="vd-diffpic" viewBox="0 0 300 120" role="img"
+ aria-label="Two files side by side: one row removed from the first, one row added to the second">
+ <g class="sheet"><rect x="8" y="8" width="118" height="104" rx="10"/>
+  <rect class="row" x="20" y="24" width="94" height="10" rx="3"/><rect class="row out" x="20" y="42" width="94" height="10" rx="3"/>
+  <rect class="row" x="20" y="60" width="94" height="10" rx="3"/><rect class="row" x="20" y="78" width="70" height="10" rx="3"/></g>
+ <path class="arrow" d="M138 60 h26 m-8 -7 l8 7 l-8 7"/>
+ <g class="sheet"><rect x="176" y="8" width="118" height="104" rx="10"/>
+  <rect class="row" x="188" y="24" width="94" height="10" rx="3"/><rect class="row" x="188" y="42" width="94" height="10" rx="3"/>
+  <rect class="row" x="188" y="60" width="70" height="10" rx="3"/><rect class="row in" x="188" y="78" width="94" height="10" rx="3"/></g>
+</svg>"""
 COUNTER = "vd_cmp_n"
 
 
@@ -206,13 +223,22 @@ section_header(
 )
 before, after = (st.session_state.get(SIDES[s]) for s in ("before", "after"))
 if before is None or after is None:
-    with st.container(key="card_cmp_start"):
+    left, right = st.columns([1.35, 1], gap="large")
+    with left, st.container(key="card_cmp_start"):
         _uploaders()
         st.markdown("<p class='vd-chart-insight' style='margin:6px 0 8px 0'>No files handy? Compare two slices of "
                     "an example:</p>", unsafe_allow_html=True)
         cols = st.columns(len(COMPARE_EXAMPLES), gap="small")
         for col, ex in zip(cols, COMPARE_EXAMPLES.values(), strict=True):
             col.button(ex.title, key=f"cmp_ex_{ex.key}", on_click=load_compare_example, args=(ex.key,), width="stretch")
+    with right:
+        st.markdown(
+            DIFF_PICTURE
+            + "<p class='vd-gets-title'>What you will see</p><ul class='vd-gets'>"
+            + "".join(f"<li><span class='vd-icon'>{icon(name, 18)}</span>{esc(text)}</li>" for name, text in SEES)
+            + "</ul>",
+            unsafe_allow_html=True,
+        )
     st.caption("Works best when both files have the same layout, such as two monthly exports of one report. "
                "With a shared ID column, records are matched one by one.")
 else:

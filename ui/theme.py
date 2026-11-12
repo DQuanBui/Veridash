@@ -292,6 +292,14 @@ div[class*="st-key-card_start_here"] { padding: 12px 14px 12px 18px; background:
   border: 1px solid var(--vd-border); background: var(--vd-surface); }
 .vd-jump a:hover { border-color: var(--vd-primary); color: var(--vd-accent); }
 
+/* Compare start screen picture */
+.vd-diffpic { display: block; width: 100%; max-width: 360px; height: auto; margin: 4px 0 6px 0; }
+.vd-diffpic .sheet > rect:first-child { fill: var(--vd-surface); stroke: var(--vd-border); stroke-width: 1.5; }
+.vd-diffpic .row { fill: var(--vd-chip); }
+.vd-diffpic .row.out { fill: light-dark(#FEE2E2, rgba(239, 68, 68, 0.35)); stroke: var(--vd-red-pen); stroke-width: 1; }
+.vd-diffpic .row.in { fill: light-dark(#DCFCE7, rgba(34, 197, 94, 0.3)); stroke: var(--vd-primary); stroke-width: 1; }
+.vd-diffpic .arrow { fill: none; stroke: var(--vd-muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
 /* Home: resume banner */
 div[class*="st-key-card_resume"] { padding: 10px 16px; background: var(--vd-tint); border-color: var(--vd-tint-border);
   box-shadow: none; }
