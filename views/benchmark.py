@@ -28,6 +28,17 @@ def _meter(title: str, example: str, flagged: int, cases: int, good_when_high: b
     )
 
 
+def in_short(fc: dict, sg: dict, cc: dict) -> str:
+    """The results in plain words, for readers who want the conclusion before the numbers."""
+    caught = ("almost every" if fc["catch_pct"] >= 95 else "most" if fc["catch_pct"] >= 80 else "many")
+    parts = [f"the fact-check caught {caught} wrong number we planted"]
+    parts.append("never flagged a correct one" if fc["false_alarms"] == 0 else "rarely flagged a correct one")
+    blocked = "blocked every harmful query" if sg["guard_blocked"] == sg["attacks"] else "blocked most harmful queries"
+    matched = ("every number matched a second, independent calculation" if cc["matched"] == cc["checked"]
+               else "nearly every number matched a second, independent calculation")
+    return f"In short: {parts[0]} and {parts[1]}. The query guard {blocked}, and {matched}."
+
+
 r = _results()
 fc, sg, cc = r["factcheck"], r["sql_guard"], r["crosscheck"]
 
@@ -37,6 +48,9 @@ section_header(
     "errors and dozens of harmful queries. These are the results.",
     top=True,
 )
+
+
+st.markdown(f"<p class='vd-inshort'>{esc(in_short(fc, sg, cc))}</p>", unsafe_allow_html=True)
 k1, k2, k3, k4 = st.columns(4, gap="small")
 with k1:
     kpi_card("Wrong numbers caught", f"{fc['catch_pct']}%", f"{fc['caught']:,} of {fc['planted_errors']:,} planted")

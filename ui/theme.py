@@ -481,6 +481,11 @@ div[class*="st-key-vd_footer"] [data-testid="stPageLink"] a:hover p { color: var
 .vd-meter .e { color: var(--vd-muted); font-size: 12.5px; margin-top: 1px; }
 .vd-meter .bar { height: 10px; border-radius: 999px; background: var(--vd-chip); overflow: hidden; }
 .vd-meter .bar > span { display: block; height: 100%; background: var(--vd-primary); border-radius: 999px; }
+.vd-meter .bar > span { transform-origin: left center; animation: vd-grow 0.9s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes vd-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@media (prefers-reduced-motion: reduce) { .vd-meter .bar > span { animation: none; } }
+.vd-inshort { font-size: 17px; line-height: 1.6; color: var(--vd-text); margin: -4px 0 18px 0; max-width: 46em;
+  padding-left: 14px; border-left: 3px solid var(--vd-primary); }
 .vd-meter .n { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--vd-text); font-size: 14px;
   text-align: right; }
 

@@ -208,3 +208,11 @@ def test_each_chart_offers_its_data_as_csv():
     assert not at.exception, at.exception
     ids = " ".join(el.proto.id for el in at.get("download_button"))
     assert "dl_chart_chart_trend" in ids and "dl_chart_chart_top" in ids
+
+
+def test_benchmark_page_summarizes_in_words():
+    at = _app().run()
+    at.switch_page("views/benchmark.py").run()
+    assert not at.exception, at.exception
+    summary = next(m.value for m in at.markdown if "In short:" in m.value)
+    assert "never flagged a correct one" in summary and "blocked every harmful query" in summary
