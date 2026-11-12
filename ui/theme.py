@@ -414,13 +414,16 @@ table.vd-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .vd-author .r { color: var(--vd-muted); }
 
 /* Footer: brand and links on one row, author credit centered underneath */
-.vd-footer { margin-top: 72px; padding: 24px 0 4px 0; border-top: 1px solid var(--vd-border);
-  color: var(--vd-muted); font-size: 14px; }
-.vd-footer .row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-.vd-footer nav { display: flex; flex-wrap: wrap; gap: 6px 20px; }
-.vd-footer a { color: var(--vd-muted); text-decoration: none; }
-.vd-footer a:hover { color: var(--vd-accent); }
-.vd-footer .credit { text-align: center; font-size: 13px; margin-top: 18px; color: var(--vd-muted); }
+div[class*="st-key-vd_footer"] { margin-top: 72px; padding-top: 28px; border-top: 1px solid var(--vd-border); }
+.vd-footer-brand p { color: var(--vd-muted); font-size: 14px; line-height: 1.55; margin: 10px 0 0 0; max-width: 26em; }
+.vd-footer-h { font-weight: 600; font-size: 14px; color: var(--vd-text); margin: 0 0 6px 0; }
+div[class*="st-key-vd_footer"] [data-testid="stPageLink"] a { padding: 4px 0; min-height: 0; background: none; }
+div[class*="st-key-vd_footer"] [data-testid="stPageLink"] p { color: var(--vd-muted); font-size: 14px; }
+div[class*="st-key-vd_footer"] [data-testid="stPageLink"] a:hover p { color: var(--vd-accent); }
+.vd-footer-links { display: flex; flex-direction: column; gap: 7px; margin-top: 6px; }
+.vd-footer-links a { color: var(--vd-muted); text-decoration: none; font-size: 14px; }
+.vd-footer-links a:hover { color: var(--vd-accent); }
+.vd-footer-credit { text-align: center; font-size: 13px; margin-top: 22px; color: var(--vd-muted); }
 
 /* Comparison table (Home) */
 .vd-compare { border: 1px solid var(--vd-border); border-radius: var(--vd-radius); overflow: hidden;
@@ -490,7 +493,7 @@ table.vd-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
 /* Accessibility */
 .vd-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
   clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-.vd-footer a:focus-visible, .vd-fix summary:focus-visible, .stApp a:focus-visible {
+.vd-footer-links a:focus-visible, .vd-fix summary:focus-visible, .stApp a:focus-visible {
   outline: 2px solid var(--vd-primary); outline-offset: 2px; border-radius: 4px; }
 .stButton button:focus-visible, .stDownloadButton button:focus-visible {
   outline: 2px solid var(--vd-primary); outline-offset: 2px; }

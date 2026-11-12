@@ -147,12 +147,35 @@ def compare_table(left_title: str, right_title: str, rows: Iterable[tuple[str, s
     )
 
 
+FOOTER_PAGES = [
+    ("views/analyze.py", "Analyze"),
+    ("views/compare.py", "Compare"),
+    ("views/examples.py", "Examples"),
+    ("views/benchmark.py", "Benchmark"),
+    ("views/guide.py", "Guide"),
+]
+
+
 def footer() -> None:
-    """Site footer: brand and contact links, with the author credit underneath."""
-    _md(
-        f'<div class="vd-footer"><div class="row"><div>{wordmark(22)}</div><nav aria-label="Contact">'
-        f'<a href="mailto:{esc(AUTHOR_EMAIL)}">{esc(AUTHOR_EMAIL)}</a>'
-        f'<a href="{esc(LINKEDIN_URL)}" target="_blank" rel="noopener">LinkedIn</a>'
-        f'<a href="{esc(GITHUB_URL)}" target="_blank" rel="noopener">GitHub</a>'
-        f'</nav></div><div class="credit">Built by {esc(AUTHOR_NAME)}</div></div>'
-    )
+    """Site footer: what Veridash is, links to every page and contact links, with the credit underneath.
+
+    Page links use ``st.page_link`` so they switch pages inside the app and keep the visitor's open file.
+    """
+    with st.container(key="vd_footer"):
+        brand, pages, contact = st.columns([2.2, 1, 1], gap="large")
+        with brand:
+            _md(f'<div class="vd-footer-brand">{wordmark(22)}<p>Verifiable data analysis: every number is '
+                "computed by code, shown with its query and checked before you see it.</p></div>")
+        with pages:
+            _md('<p class="vd-footer-h">Product</p>')
+            with st.container(gap=None):
+                for path, label in FOOTER_PAGES:
+                    st.page_link(path, label=label)
+        with contact:
+            _md(
+                '<p class="vd-footer-h">Contact</p><nav class="vd-footer-links" aria-label="Contact">'
+                f'<a href="mailto:{esc(AUTHOR_EMAIL)}">Email</a>'
+                f'<a href="{esc(LINKEDIN_URL)}" target="_blank" rel="noopener">LinkedIn</a>'
+                f'<a href="{esc(GITHUB_URL)}" target="_blank" rel="noopener">GitHub</a></nav>'
+            )
+        _md(f'<div class="vd-footer-credit">Built by {esc(AUTHOR_NAME)}</div>')
