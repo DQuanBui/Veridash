@@ -253,7 +253,7 @@ div[class*="st-key-vd_hero_band"] [data-testid="stTooltipIcon"] button,
 div[class*="st-key-vd_hero_band"] [data-testid="stTooltipIcon"] svg { color: rgba(226, 234, 242, 0.7) !important;
   stroke: rgba(226, 234, 242, 0.7) !important; }
 div[class*="st-key-vd_hero_band"] [data-testid="stCaptionContainer"] { opacity: 1; }
-div[class*="st-key-vd_hero_band"] .vd-hero h1 { font-size: clamp(36px, 4.1vw, 54px); }
+div[class*="st-key-vd_hero_band"] .vd-hero h1 { font-size: clamp(34px, 3.9vw, 52px); }
 div[class*="st-key-vd_hero_band"] .stButton button[kind="secondary"] { background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.22); color: #FFFFFF; }
 div[class*="st-key-vd_hero_band"] .stButton button[kind="secondary"]:hover { background: rgba(255, 255, 255, 0.12);

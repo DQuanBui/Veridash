@@ -177,7 +177,7 @@ if current is not None or all(pair):
 st.write("")
 # The hero sits on a deep navy band (grid texture, soft glows); the worksheet is the paper on it.
 with st.container(key="vd_hero_band"):
-    left, right = st.columns([1.2, 1], gap="large", vertical_alignment="center")
+    left, right = st.columns([1.3, 1], gap="large", vertical_alignment="center")
     with left:
         st.markdown(
             "<div class='vd-hero'><h1>Drop your data.<br>Trust every number.</h1>"
