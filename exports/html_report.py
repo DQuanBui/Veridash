@@ -73,17 +73,23 @@ def linked_text(text: str, claims: list[NumberClaim], pack: FactPack) -> str:
 
 
 _CSS = """
-:root { color-scheme: light dark; --text: #0F172A; --muted: #64748B; --border: #E2E8F0; --surface: #FFFFFF;
-  --subtle: #F8FAFC; --accent: #0F766E; --primary: #0D9488; --tint: #F0FDFA; --bad: #B91C1C; --bad-bg: #FEE2E2; }
+:root { color-scheme: light dark; --text: #10213A; --muted: #64748B; --border: #DCE4EC; --surface: #FFFFFF;
+  --subtle: #F5F8FA; --accent: #0F766E; --primary: #0D9488; --tint: #F0FDFA; --bad: #B91C1C; --bad-bg: #FEE2E2; }
 @media (prefers-color-scheme: dark) {
-  :root { --text: #E2E8F0; --muted: #94A3B8; --border: #243045; --surface: #111A2C; --subtle: #0B1220;
+  :root { --text: #E4EAF2; --muted: #94A3B8; --border: #22304A; --surface: #111A2C; --subtle: #0A1322;
     --accent: #5EEAD4; --tint: rgba(20,184,166,0.12); --bad: #FCA5A5; --bad-bg: rgba(239,68,68,0.22); }
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--subtle); color: var(--text); line-height: 1.55;
   font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 main { max-width: 980px; margin: 0 auto; padding: 32px 16px 56px; }
-header .brand { font-size: 14px; font-weight: 600; color: var(--accent); }
+header { color: #FFFFFF; border-radius: 20px; padding: 28px 30px 24px; margin-bottom: 8px;
+  background: radial-gradient(520px 260px at 100% 0%, rgba(20, 184, 166, 0.30), transparent 62%),
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px) 0 0 / 30px 30px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px) 0 0 / 30px 30px, #0B1B33; }
+header .brand { font-size: 14px; font-weight: 600; color: #5EEAD4; }
+header h1 { color: #FFFFFF; }
+header .meta { color: rgba(226, 234, 242, 0.75); }
 h1 { font-size: clamp(26px, 4vw, 36px); margin: 6px 0 4px; letter-spacing: -.02em; }
 h2 { font-size: 20px; margin: 36px 0 12px; letter-spacing: -.01em; }
 .meta { color: var(--muted); font-size: 14px; }
