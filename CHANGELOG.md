@@ -3,6 +3,31 @@
 Notable changes to Veridash. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.5.0] - 2026-11-11
+
+### Added
+- **Icons** in the site menu and on every Analyze tab.
+- **The worksheet draws itself:** on the Home page each tick draws in, the red circle lands and the margin
+  note fades in, once, after the sentence appears or is edited.
+- **Pick up where you left off:** Home offers to continue an open file or comparison.
+- **A new Analyze start screen:** an upload card that says what you get, beside the three examples, each with
+  a small trend line from its data. The Examples page cards gain the same icons and trend lines.
+- **Confirmations:** short toasts when an example opens, a file loads, a comparison starts or a file is
+  cleared.
+- **A start-here guide** at the top of the Overview tab, dismissible with one click.
+- **Reset to automatic** in the sidebar once a setting has been changed.
+- **A fuller footer** with links to every page, which keep an open file.
+- **Guide search and jump links:** filter the common questions as you type, or jump to a section.
+- **An illustrated Compare start screen** that shows what a comparison reveals.
+- **Download the data behind any chart** from its How this was calculated section.
+- **Benchmark in plain words:** an In short summary above the scores, and bars that grow in once.
+
+### Changed
+- Switching features in the Home tour fades the new screen in, and buttons press in slightly.
+- Load errors offer three ways forward (another file, an example, the file tips), and the encoding,
+  uneven-row and sheet errors name the fix. The Loaded toast only appears once a file has loaded.
+- All motion is off for visitors who prefer reduced motion.
+
 ## [1.4.0] - 2026-11-11
 
 ### Added
@@ -104,7 +129,8 @@ versions follow [Semantic Versioning](https://semver.org/).
 - Exports: an Excel report with native charts, a PDF summary and a Power BI Starter Kit.
 - Light and dark themes, a Home page with use cases and a comparison, a Guide and an Examples page.
 
-[1.4.0]: https://github.com/DQuanBui/Veridash/compare/5460983...main
+[1.5.0]: https://github.com/DQuanBui/Veridash/compare/12f3c7b...main
+[1.4.0]: https://github.com/DQuanBui/Veridash/compare/5460983...12f3c7b
 [1.3.0]: https://github.com/DQuanBui/Veridash/compare/568aefc...5460983
 [1.2.0]: https://github.com/DQuanBui/Veridash/compare/d7600e3...568aefc
 [1.1.0]: https://github.com/DQuanBui/Veridash/compare/6e9501d...d7600e3

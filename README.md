@@ -240,7 +240,7 @@ flowchart LR
 | Comparison | Column, health, metric and record changes, groups missing from one file, rounding, and a fully verified summary |
 | App | Every page renders, all three examples run end to end without a key, and edge-case files do not break |
 
-All 286 automated tests pass on every push (GitHub Actions), and the codebase is lint-clean under Ruff.
+All 294 automated tests pass on every push (GitHub Actions), and the codebase is lint-clean under Ruff.
 
 ### Trust benchmark
 
