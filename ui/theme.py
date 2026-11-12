@@ -198,10 +198,12 @@ div[class*="st-key-card"] {
 div[class*="st-key-card-eq"] { flex: 1 1 auto; align-self: stretch; box-sizing: border-box; }
 div[class*="st-key-card-eqb"] > :last-child { margin-top: auto; }
 
-/* Tabs */
-.stTabs [data-baseweb="tab-list"] { gap: 8px; border-bottom: 1px solid var(--vd-border); }
-.stTabs [data-baseweb="tab"] { font-weight: 600; padding: 10px 4px; color: var(--vd-muted); }
-.stTabs [aria-selected="true"] { color: var(--vd-text); }
+/* Tabs (Streamlit 1.6x builds them with react-aria: role="tablist" and data-testid="stTab") */
+.stTabs [role="tablist"] { gap: 20px; border-bottom: 1px solid var(--vd-border); }
+.stTabs [data-testid="stTab"] { padding: 10px 2px; }
+.stTabs [data-testid="stTab"] p { font-weight: 600; color: var(--vd-muted); }
+.stTabs [data-testid="stTab"][aria-selected="true"] p { color: var(--vd-text); }
+.stTabs [data-testid="stTab"]:hover p { color: var(--vd-text); }
 
 /* Code blocks (SQL) */
 [data-testid="stCode"] pre { border: 1px solid var(--vd-border); border-radius: 10px; }
@@ -534,6 +536,11 @@ div[class*="st-key-vd_footer"] [data-testid="stPageLink"] a:hover p { color: var
 }
 
 @media (max-width: 640px) {
+  /* All six analysis tabs fit on one line: no icons, a little tighter */
+  .stTabs [role="tablist"] { gap: 8px; }
+  .stTabs [data-testid="stTab"] { padding: 10px 1px; }
+  .stTabs [data-testid="stTab"] p > span[role="img"] { display: none !important; }
+  .stTabs [data-testid="stTab"] p { font-size: 13px; }
   .block-container { padding-top: 4rem; }
   .vd-hero { padding: 32px 0 24px 0; }
   .vd-issue { grid-template-columns: 1fr; gap: 4px; }
