@@ -491,7 +491,22 @@ table.vd-table.fit .cap { color: var(--vd-muted); }
 .vd-author .r { color: var(--vd-muted); }
 
 /* Footer: brand and links on one row, author credit centered underneath */
-div[class*="st-key-vd_footer"] { margin-top: 72px; padding-top: 28px; border-top: 1px solid var(--vd-border); }
+div[class*="st-key-vd_footer"] { margin-top: 72px; padding: 34px 36px 22px; border-radius: 22px;
+  background:
+    radial-gradient(520px 240px at 100% 0%, rgba(20, 184, 166, 0.20), transparent 62%),
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px) 0 0 / 34px 34px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px) 0 0 / 34px 34px,
+    light-dark(#0B1B33, #0E1E38);
+  border: 1px solid light-dark(transparent, rgba(255, 255, 255, 0.07)); }
+div[class*="st-key-vd_footer"] .vd-wordmark { color: #FFFFFF; }
+div[class*="st-key-vd_footer"] .vd-footer-brand p,
+div[class*="st-key-vd_footer"] .vd-footer-credit,
+div[class*="st-key-vd_footer"] .vd-footer-links a,
+div[class*="st-key-vd_footer"] [data-testid="stPageLink"] p { color: rgba(226, 234, 242, 0.72) !important; }
+div[class*="st-key-vd_footer"] .vd-footer-h { color: #FFFFFF; }
+div[class*="st-key-vd_footer"] .vd-footer-links a:hover,
+div[class*="st-key-vd_footer"] [data-testid="stPageLink"] a:hover p { color: #5EEAD4 !important; }
+div[class*="st-key-vd_footer"] .vd-footer-credit { border-top: 1px solid rgba(255, 255, 255, 0.10); padding-top: 16px; }
 .vd-footer-brand p { color: var(--vd-muted); font-size: 14px; line-height: 1.55; margin: 10px 0 0 0; max-width: 26em; }
 .vd-footer-h { font-weight: 600; font-size: 14px; color: var(--vd-text); margin: 0 0 6px 0; }
 div[class*="st-key-vd_footer"] [data-testid="stPageLink"] a { padding: 4px 0; min-height: 0; background: none; }
@@ -585,6 +600,7 @@ div[class*="st-key-vd_footer"] [data-testid="stPageLink"] a:hover p { color: var
 }
 
 @media (max-width: 640px) {
+  div[class*="st-key-vd_footer"] { padding: 26px 20px 18px; border-radius: 18px; margin-top: 48px; }
   div[class*="st-key-vd_hero_band"] { padding: 26px 18px 18px; border-radius: 18px; }
   /* Headline numbers two per row instead of one per screen */
   [data-testid="stHorizontalBlock"]:has(> [data-testid="stColumn"] .vd-kpi) { flex-direction: row !important;
