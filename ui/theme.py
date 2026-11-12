@@ -232,6 +232,36 @@ div[class*="st-key-card-eqb"] > :last-child { margin-top: auto; }
 .vd-trust { display: flex; flex-wrap: wrap; gap: 6px 20px; margin-top: 14px; color: var(--vd-muted); font-size: 14px; }
 .vd-trust span::before { content: "✓"; color: var(--vd-primary); font-weight: 700; margin-right: 6px; }
 
+/* Home hero band: deep navy with a faint ledger grid and two soft glows; the worksheet is the paper on it */
+div[class*="st-key-vd_hero_band"] { position: relative; overflow: hidden; border-radius: 24px; padding: 40px 44px 30px;
+  background:
+    radial-gradient(640px 340px at 88% 0%, rgba(20, 184, 166, 0.30), transparent 62%),
+    radial-gradient(560px 300px at 0% 100%, rgba(99, 102, 241, 0.22), transparent 60%),
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px) 0 0 / 34px 34px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px) 0 0 / 34px 34px,
+    light-dark(#0B1B33, #0E1E38);
+  border: 1px solid light-dark(transparent, rgba(255, 255, 255, 0.07));
+  box-shadow: 0 40px 70px -46px light-dark(rgba(11, 27, 51, 0.75), rgba(0, 0, 0, 0.9)); }
+div[class*="st-key-vd_hero_band"] .vd-hero h1 { color: #FFFFFF; }
+div[class*="st-key-vd_hero_band"] .vd-hero p { color: rgba(226, 234, 242, 0.78); }
+div[class*="st-key-vd_hero_band"] .vd-trust { color: rgba(226, 234, 242, 0.72); }
+div[class*="st-key-vd_hero_band"] .vd-trust span::before { color: #5EEAD4; }
+div[class*="st-key-vd_hero_band"] [data-testid="stWidgetLabel"] p,
+div[class*="st-key-vd_hero_band"] [data-testid="stCaptionContainer"],
+div[class*="st-key-vd_hero_band"] [data-testid="stCaptionContainer"] p { color: rgba(226, 234, 242, 0.78); }
+div[class*="st-key-vd_hero_band"] [data-testid="stTooltipIcon"] button,
+div[class*="st-key-vd_hero_band"] [data-testid="stTooltipIcon"] svg { color: rgba(226, 234, 242, 0.7) !important;
+  stroke: rgba(226, 234, 242, 0.7) !important; }
+div[class*="st-key-vd_hero_band"] [data-testid="stCaptionContainer"] { opacity: 1; }
+div[class*="st-key-vd_hero_band"] .vd-hero h1 { font-size: clamp(36px, 4.1vw, 54px); }
+div[class*="st-key-vd_hero_band"] .stButton button[kind="secondary"] { background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.22); color: #FFFFFF; }
+div[class*="st-key-vd_hero_band"] .stButton button[kind="secondary"]:hover { background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(94, 234, 212, 0.6); color: #FFFFFF; }
+div[class*="st-key-vd_hero_band"] .stButton button[kind="primary"] { box-shadow: 0 10px 26px -10px rgba(20, 184, 166, 0.8); }
+div[class*="st-key-vd_hero_band"] .vd-sheet { border-color: light-dark(#CFE3DC, rgba(94, 234, 212, 0.25));
+  box-shadow: 0 28px 50px -24px rgba(0, 0, 0, 0.55); }
+
 /* The worksheet: ruled paper with a red margin line, green ticks and red-pen circles */
 .vd-sheet { position: relative; margin: 0 0 10px 0; padding: 18px 22px 16px 46px; border-radius: 4px 4px 16px 4px;
   border: 1px solid light-dark(#CFE3DC, #24413D);
@@ -555,6 +585,7 @@ div[class*="st-key-vd_footer"] [data-testid="stPageLink"] a:hover p { color: var
 }
 
 @media (max-width: 640px) {
+  div[class*="st-key-vd_hero_band"] { padding: 26px 18px 18px; border-radius: 18px; }
   /* Headline numbers two per row instead of one per screen */
   [data-testid="stHorizontalBlock"]:has(> [data-testid="stColumn"] .vd-kpi) { flex-direction: row !important;
     flex-wrap: wrap !important; gap: 8px !important; }

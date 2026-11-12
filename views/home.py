@@ -175,40 +175,42 @@ if current is not None or all(pair):
                 st.switch_page("views/compare.py")
 
 st.write("")
-left, right = st.columns([1.2, 1], gap="large", vertical_alignment="center")
-with left:
-    st.markdown(
-        "<div class='vd-hero'><h1>Drop your data.<br>Trust every number.</h1>"
-        f"<p>{esc(SUBHEAD)}</p></div>",
-        unsafe_allow_html=True,
-    )
-    b1, b2, b3 = st.columns(3, gap="small")
-    with b1:
-        if st.button("Analyze your data", type="primary", width="stretch"):
-            st.switch_page("views/analyze.py")
-    with b2:
-        if st.button("Compare two files", width="stretch"):
-            st.switch_page("views/compare.py")
-    with b3:
-        if st.button("Try an example", width="stretch"):
-            st.switch_page("views/examples.py")
-    st.markdown(
-        "<div class='vd-trust'><span>No sign-up</span><span>Files never stored</span>"
-        "<span>Works without an AI key</span></div>",
-        unsafe_allow_html=True,
-    )
-with right:
-    sentence = st.session_state.get("home_demo", DEMO_SENTENCE)
-    st.markdown(worksheet_html(sentence, check_text(sentence, analysis.facts), "the retail example"),
-                unsafe_allow_html=True)
-    st.text_input(
-        "Edit the sentence, then press Enter",
-        value=DEMO_SENTENCE,
-        key="home_demo",
-        max_chars=240,
-        help="Every number is checked against what Veridash computed from the retail example.",
-    )
-    st.caption("Try changing $209.1K to $271.4K.")
+# The hero sits on a deep navy band (grid texture, soft glows); the worksheet is the paper on it.
+with st.container(key="vd_hero_band"):
+    left, right = st.columns([1.2, 1], gap="large", vertical_alignment="center")
+    with left:
+        st.markdown(
+            "<div class='vd-hero'><h1>Drop your data.<br>Trust every number.</h1>"
+            f"<p>{esc(SUBHEAD)}</p></div>",
+            unsafe_allow_html=True,
+        )
+        b1, b2, b3 = st.columns(3, gap="small")
+        with b1:
+            if st.button("Analyze your data", type="primary", width="stretch"):
+                st.switch_page("views/analyze.py")
+        with b2:
+            if st.button("Compare two files", width="stretch"):
+                st.switch_page("views/compare.py")
+        with b3:
+            if st.button("Try an example", width="stretch"):
+                st.switch_page("views/examples.py")
+        st.markdown(
+            "<div class='vd-trust'><span>No sign-up</span><span>Files never stored</span>"
+            "<span>Works without an AI key</span></div>",
+            unsafe_allow_html=True,
+        )
+    with right:
+        sentence = st.session_state.get("home_demo", DEMO_SENTENCE)
+        st.markdown(worksheet_html(sentence, check_text(sentence, analysis.facts), "the retail example"),
+                    unsafe_allow_html=True)
+        st.text_input(
+            "Edit the sentence, then press Enter",
+            value=DEMO_SENTENCE,
+            key="home_demo",
+            max_chars=240,
+            help="Every number is checked against what Veridash computed from the retail example.",
+        )
+        st.caption("Try changing $209.1K to $271.4K.")
 
 section_header("See it at work", "Real screens from the bundled examples. Pick a feature to see it.")
 names = [t["name"] for t in TOUR]
