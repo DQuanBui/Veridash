@@ -3,6 +3,31 @@
 Notable changes to Veridash. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.6.0] - 2026-11-12
+
+### Added
+- **A deep navy hero band** on Home with a faint ledger grid and soft teal and indigo glows; the checked
+  worksheet sits on it like a sheet of paper.
+- **A matching navy footer band**, so every page closes the way Home opens.
+- **Page titles with an icon tile** and a patch of the ledger grid fading out behind them.
+- **A cool page background with depth:** an off-white (deep navy in dark mode) with two soft glows, white cards
+  with a longer shadow, and a frosted top bar.
+
+### Changed
+- Primary buttons have a gentle teal gradient and a defined edge; secondary buttons turn teal on hover.
+- Use-case icons are gradient tiles, and the Tested, not just promised note sits on a soft teal to indigo wash.
+- Trend charts fill with a tint that fades toward the axis and mark the latest value.
+- The downloadable web report opens on the same navy band and uses the site's colors.
+
+### Fixed
+- Tab styling had silently stopped applying after a Streamlit update; it is restored, and on phones all six
+  analysis tabs now fit on one line instead of Data and Export being cut off.
+- Headline numbers on phones sit two per row instead of one per screen.
+- The health checks table hid its Penalty column behind a sideways scroll; it now wraps to fit, and in very
+  narrow cards the Weight column steps aside.
+- An empty strip under framed tables (the Home comparison and the health table) is gone.
+- The Home headline stays on two lines at every desktop width.
+
 ## [1.5.0] - 2026-11-11
 
 ### Added
@@ -129,7 +154,8 @@ versions follow [Semantic Versioning](https://semver.org/).
 - Exports: an Excel report with native charts, a PDF summary and a Power BI Starter Kit.
 - Light and dark themes, a Home page with use cases and a comparison, a Guide and an Examples page.
 
-[1.5.0]: https://github.com/DQuanBui/Veridash/compare/12f3c7b...main
+[1.6.0]: https://github.com/DQuanBui/Veridash/compare/9511c51...main
+[1.5.0]: https://github.com/DQuanBui/Veridash/compare/12f3c7b...9511c51
 [1.4.0]: https://github.com/DQuanBui/Veridash/compare/5460983...12f3c7b
 [1.3.0]: https://github.com/DQuanBui/Veridash/compare/568aefc...5460983
 [1.2.0]: https://github.com/DQuanBui/Veridash/compare/d7600e3...568aefc
