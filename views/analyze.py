@@ -111,12 +111,18 @@ def _empty_state() -> None:
     st.caption("Works best with a tidy table: one header row and one row per record. See the Guide for tips.")
 
 
+def _reset_settings(file_id: str) -> None:
+    for name in ("metric", "date", "grain"):
+        st.session_state.pop(f"vd_{name}_{file_id}", None)
+    notify("Settings are back to automatic.", ":material/restart_alt:")
+
+
 def _sidebar(prepared, file_id: str) -> tuple[str | None, str | None, str | None, bool]:
     """Render settings; returns (metric, date_col, grain, use_date)."""
     profile = prepared.profile
     auto = make_selection(profile)
     with st.sidebar:
-        st.markdown("#### Analysis settings")
+        st.markdown("#### :material/tune: Analysis settings")
         numerics = [c.name for c in profile.columns if c.col_type == ColType.NUMBER and not c.is_constant]
         metric = None
         if numerics:
@@ -146,9 +152,15 @@ def _sidebar(prepared, file_id: str) -> tuple[str | None, str | None, str | None
             disabled=not use_date,
             format_func=str.title,
         )
+        changed = (metric != auto.metric) or (date_choice != (auto.date_col or none_label)) or (grain != auto.grain)
+        if changed:
+            st.button("Reset to automatic", key=f"vd_reset_{file_id}", icon=":material/restart_alt:",
+                      type="tertiary", on_click=_reset_settings, args=(file_id,))
+        else:
+            st.caption("Chosen automatically. Charts, insights and exports update when you change them.")
 
         st.divider()
-        st.markdown("#### AI features")
+        st.markdown("#### :material/auto_awesome: AI features")
         st.text_input(
             "Gemini API key",
             type="password",
@@ -166,7 +178,7 @@ def _sidebar(prepared, file_id: str) -> tuple[str | None, str | None, str | None
 
         st.divider()
         st.caption(
-            "**Privacy.** Your file is processed in memory and never stored. AI sees only column "
+            ":material/lock: **Privacy.** Your file is processed in memory and never stored. AI sees only column "
             f"names, aggregated results and up to {CATEGORY_LABELS_FOR_AI} labels per category, never your rows."
         )
     return metric, (date_choice if use_date else None), grain, use_date

@@ -159,3 +159,17 @@ def test_start_here_guide_can_be_dismissed():
     at.button(key="vd_start_here_close").click().run()
     assert not at.exception, at.exception
     assert "Check the health score and issues below." not in " ".join(m.value for m in at.markdown)
+
+
+def test_sidebar_settings_reset_to_automatic():
+    at = _app().run()
+    at.switch_page("views/analyze.py").run()
+    at.button(key="start_retail").click().run()
+    grain = next(sb for sb in at.selectbox if sb.key and sb.key.startswith("vd_grain_"))
+    auto = grain.value
+    grain.set_value("quarter" if auto != "quarter" else "week").run()
+    reset = next(b for b in at.button if b.key and b.key.startswith("vd_reset_"))
+    reset.click().run()
+    assert not at.exception, at.exception
+    assert next(sb for sb in at.selectbox if sb.key and sb.key.startswith("vd_grain_")).value == auto
+    assert not any(b.key and b.key.startswith("vd_reset_") for b in at.button)
