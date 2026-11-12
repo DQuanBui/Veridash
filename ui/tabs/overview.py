@@ -32,13 +32,13 @@ def _score_ring(health: HealthReport) -> str:
 def _checks_table(health: HealthReport) -> str:
     rows = "".join(
         f"<tr><td>{esc(c.label)}</td><td class='num'>{c.measure:,.1f}</td>"
-        f"<td class='num'>x{c.points_per_unit:g}, cap {c.cap:g}</td>"
+        f"<td class='num wcol'>x{c.points_per_unit:g}<span class='cap'>, cap {c.cap:g}</span></td>"
         f"<td class='num'><b>{f'-{c.penalty:g}' if c.penalty else '0'}</b></td></tr>"
         for c in health.checks
     )
     return (
-        "<div class='vd-table-wrap' style='margin-top:16px'><table class='vd-table'><thead><tr>"
-        "<th>Check</th><th style='text-align:right'>Measure</th><th style='text-align:right'>Weight</th>"
+        "<div class='vd-table-wrap' style='margin-top:16px'><table class='vd-table fit'><thead><tr>"
+        "<th>Check</th><th style='text-align:right'>Measure</th><th class='wcol' style='text-align:right'>Weight</th>"
         f"<th style='text-align:right'>Penalty</th></tr></thead><tbody>{rows}</tbody></table></div>"
     )
 

@@ -435,6 +435,13 @@ table.vd-table th { position: sticky; top: 0; background: var(--vd-subtle); text
   color: var(--vd-muted); padding: 10px 12px; border-bottom: 1px solid var(--vd-border); }
 table.vd-table td { padding: 9px 12px; border-bottom: 1px solid var(--vd-divider); vertical-align: top; }
 table.vd-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+/* Tables inside half-width cards (the health checks) wrap instead of hiding columns behind a scroll */
+table.vd-table.fit th, table.vd-table.fit td { white-space: normal; padding: 8px 10px; }
+table.vd-table.fit td.num { white-space: nowrap; }
+table.vd-table.fit .cap { color: var(--vd-muted); }
+.vd-table-wrap:has(> table.vd-table.fit) { container-type: inline-size; }
+@container (max-width: 330px) { table.vd-table.fit .wcol { display: none; }
+  table.vd-table.fit th, table.vd-table.fit td { padding: 8px 7px; } }
 
 /* Author card */
 .vd-author { display: flex; gap: 16px; align-items: center; }
