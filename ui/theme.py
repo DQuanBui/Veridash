@@ -590,6 +590,14 @@ div[class*="st-key-vd_footer"] [data-testid="stPageLink"] a:hover p { color: var
 .vd-checks.plain li { align-items: center; }
 .vd-checks.plain li span::before { content: none; }
 
+/* Home section accents: gradient icon tiles on the use cases, a soft wash behind the tested note */
+.vd-usecase .vd-icon { background: linear-gradient(135deg, #14B8A6, #0F766E); color: #FFFFFF;
+  box-shadow: 0 10px 20px -12px rgba(13, 148, 136, 0.8); }
+div[class*="st-key-card_tested"] { border-color: light-dark(#C9ECE3, rgba(94, 234, 212, 0.22));
+  background: linear-gradient(115deg, light-dark(#ECFBF7, rgba(20, 184, 166, 0.10)) 0%,
+                                     light-dark(#EEF1FF, rgba(99, 102, 241, 0.10)) 100%); }
+.vd-shot { position: relative; }
+
 /* Home: the tested note and the four-step timeline */
 .vd-tested { font-size: 16.5px; line-height: 1.6; color: var(--vd-muted); margin: 0; max-width: 48em; }
 .vd-tested b { color: var(--vd-text); font-family: var(--vd-display); font-size: 18px; margin-right: 4px; }
