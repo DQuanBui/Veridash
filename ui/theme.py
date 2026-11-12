@@ -536,6 +536,13 @@ div[class*="st-key-vd_footer"] [data-testid="stPageLink"] a:hover p { color: var
 }
 
 @media (max-width: 640px) {
+  /* Headline numbers two per row instead of one per screen */
+  [data-testid="stHorizontalBlock"]:has(> [data-testid="stColumn"] .vd-kpi) { flex-direction: row !important;
+    flex-wrap: wrap !important; gap: 8px !important; }
+  [data-testid="stColumn"]:has(.vd-kpi):not(:has([data-testid="stHorizontalBlock"])) {
+    flex: 1 1 calc(50% - 4px) !important; width: calc(50% - 4px) !important; min-width: calc(50% - 4px) !important; }
+  .vd-kpi { min-height: 0; padding: 12px 14px; }
+  .vd-kpi .value { font-size: 22px; }
   /* All six analysis tabs fit on one line: no icons, a little tighter */
   .stTabs [role="tablist"] { gap: 8px; }
   .stTabs [data-testid="stTab"] { padding: 10px 1px; }
