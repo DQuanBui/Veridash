@@ -215,13 +215,14 @@ names = [t["name"] for t in TOUR]
 picked = st.segmented_control("Feature", names, default=names[0], key="home_tour", label_visibility="collapsed")
 stop = next(t for t in TOUR if t["name"] == (picked or names[0]))
 shot, words = st.columns([1.75, 1], gap="large", vertical_alignment="center")
-with shot:
+# Keyed by the feature, so switching builds fresh elements and the fade-in plays.
+with shot, st.container(key=f"tour_shot_{stop['image']}"):
     st.markdown(
         f"<div class='vd-shot'><img src='{_picture(stop['image'], theme_mode() == 'dark')}' "
         f"alt='{esc(stop['title'])}: a screen from Veridash'></div>",
         unsafe_allow_html=True,
     )
-with words:
+with words, st.container(key=f"tour_words_{stop['image']}"):
     st.markdown(f"<div class='vd-tour'><h3>{esc(stop['title'])}</h3><p>{esc(stop['text'])}</p></div>",
                 unsafe_allow_html=True)
     if st.button(stop["button"], key=f"tour_go_{stop['image']}", type="primary"):

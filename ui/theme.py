@@ -315,6 +315,18 @@ div[class*="st-key-card_resume"] { padding: 10px 16px; background: var(--vd-tint
   margin: 0 0 10px 0; padding: 0; color: var(--vd-text); }
 .vd-tour p { font-size: 16px; line-height: 1.6; color: var(--vd-muted); margin: 0 0 18px 0; max-width: 30em; }
 
+/* Feedback that answers an action: the tour's new screen fades in, buttons press in slightly */
+.vd-shot, .vd-tour { animation: vd-swap 0.32s ease-out; }
+@keyframes vd-swap { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.stButton button, .stDownloadButton button { transition: transform 0.08s ease, box-shadow 0.15s ease; }
+.stButton button:active, .stDownloadButton button:active { transform: translateY(1px) scale(0.985); }
+.stButton button[kind="primary"]:hover, .stDownloadButton button[kind="primary"]:hover {
+  box-shadow: 0 6px 16px -8px rgba(13, 148, 136, 0.55); }
+@media (prefers-reduced-motion: reduce) {
+  .vd-shot, .vd-tour { animation: none; }
+  .stButton button:active, .stDownloadButton button:active { transform: none; }
+}
+
 /* Section header */
 .vd-section { margin: 52px 0 20px 0; }
 .vd-section.top { margin-top: 0; }
