@@ -545,6 +545,8 @@ div[class*="st-key-vd_footer"] [data-testid="stPageLink"] a:hover p { color: var
 .vd-compare { border: 1px solid var(--vd-border); border-radius: var(--vd-radius); overflow: hidden;
   background: var(--vd-surface); box-shadow: var(--vd-shadow); }
 .vd-compare table { width: 100%; border-collapse: collapse; font-size: 15px; color: var(--vd-text); }
+/* Streamlit gives markdown tables a bottom margin; inside a framed table it shows as an empty strip */
+.vd-compare table, .vd-table-wrap table { margin: 0 !important; }
 .vd-compare th, .vd-compare td { padding: 14px 18px; text-align: left; vertical-align: top;
   border-bottom: 1px solid var(--vd-divider); line-height: 1.5; }
 .vd-compare tr:last-child th, .vd-compare tr:last-child td { border-bottom: none; }
