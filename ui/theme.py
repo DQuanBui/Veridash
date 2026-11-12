@@ -359,6 +359,18 @@ div[class*="st-key-card_resume"] { padding: 10px 16px; background: var(--vd-tint
   margin: 0 0 10px 0; padding: 0; color: var(--vd-text); }
 .vd-tour p { font-size: 16px; line-height: 1.6; color: var(--vd-muted); margin: 0 0 18px 0; max-width: 30em; }
 
+/* Buttons: a gently lit teal primary with a defined edge; quiet secondaries that turn teal on hover */
+.stButton button[kind="primary"], .stDownloadButton button[kind="primary"],
+[data-testid="stBaseButton-primary"] {
+  background: linear-gradient(180deg, #13A596 0%, #0D8C80 100%) !important; border: 1px solid #0B7A70 !important;
+  color: #FFFFFF !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 1px 2px rgba(11, 27, 51, 0.12); }
+.stButton button[kind="primary"]:hover, .stDownloadButton button[kind="primary"]:hover,
+[data-testid="stBaseButton-primary"]:hover {
+  background: linear-gradient(180deg, #16B4A4 0%, #0E978A 100%) !important; }
+.stButton button[kind="secondary"], .stDownloadButton button[kind="secondary"] { background: var(--vd-surface); }
+.stButton button[kind="secondary"]:hover, .stDownloadButton button[kind="secondary"]:hover {
+  border-color: var(--vd-primary); color: var(--vd-accent); }
+
 /* Feedback that answers an action: the tour's new screen fades in, buttons press in slightly */
 .vd-shot, .vd-tour { animation: vd-swap 0.32s ease-out; }
 @keyframes vd-swap { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
