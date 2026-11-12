@@ -80,6 +80,7 @@ def _empty_state() -> None:
         "Upload a file and get a health check, charts, insights and exports. Every number comes "
         "from a query you can inspect.",
         top=True,
+    icon_name="chart",
     )
     left, right = st.columns([1.2, 1], gap="large")
     with left, st.container(key="card_start"):

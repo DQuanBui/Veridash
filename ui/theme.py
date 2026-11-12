@@ -373,7 +373,19 @@ div[class*="st-key-card_resume"] { padding: 10px 16px; background: var(--vd-tint
 
 /* Section header */
 .vd-section { margin: 52px 0 20px 0; }
-.vd-section.top { margin-top: 0; }
+.vd-section.top { margin-top: 0; position: relative; isolation: isolate; padding-top: 6px; }
+/* Page titles: a faint patch of the ledger grid behind them, fading out */
+.vd-section.top::before { content: ""; position: absolute; z-index: -1; inset: -40px -28px auto -28px; height: 210px;
+  background:
+    linear-gradient(light-dark(rgba(13, 148, 136, 0.09), rgba(94, 234, 212, 0.07)) 1px, transparent 1px) 0 0 / 30px 30px,
+    linear-gradient(90deg, light-dark(rgba(13, 148, 136, 0.09), rgba(94, 234, 212, 0.07)) 1px, transparent 1px) 0 0 / 30px 30px;
+  -webkit-mask-image: radial-gradient(70% 100% at 0% 0%, #000 30%, transparent 75%);
+  mask-image: radial-gradient(70% 100% at 0% 0%, #000 30%, transparent 75%); }
+.vd-title { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+.vd-title .vd-icon { width: 44px; height: 44px; border-radius: 12px; flex: none;
+  background: linear-gradient(135deg, #14B8A6, #0F766E); color: #FFFFFF;
+  box-shadow: 0 10px 22px -12px rgba(13, 148, 136, 0.8); }
+.vd-section .vd-title h2 { margin: 0; }
 .vd-section .vd-kicker { font-size: 14px; font-weight: 600;
   color: var(--vd-accent); margin-bottom: 6px; }
 .vd-section h2 { font-size: clamp(26px, 3.2vw, 34px); font-weight: 700; letter-spacing: -0.025em; line-height: 1.15;

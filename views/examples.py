@@ -21,6 +21,7 @@ section_header(
     "Three realistic, synthetic datasets with fictional names. Each has a few planted data issues "
     "so you can see the health check at work. The findings below are computed live.",
     top=True,
+    icon_name="table",
 )
 
 cols = st.columns(3, gap="medium")

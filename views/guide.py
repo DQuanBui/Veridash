@@ -20,7 +20,7 @@ from core.settings import (
 )
 from ui.components import callout, section_header, step_card
 
-section_header("Guide", "Everything you need for a great result, in a two-minute read.", top=True)
+section_header("Guide", "Everything you need for a great result, in a two-minute read.", top=True, icon_name="spark")
 st.markdown(
     "<nav class='vd-jump' aria-label='On this page'>"
     + "".join(f"<a href='#{anchor}'>{label}</a>" for anchor, label in [

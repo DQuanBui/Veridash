@@ -47,6 +47,7 @@ section_header(
     "Veridash claims its numbers can be trusted, so we tried to break it: over a thousand planted "
     "errors and dozens of harmful queries. These are the results.",
     top=True,
+    icon_name="check",
 )
 
 

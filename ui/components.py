@@ -64,12 +64,19 @@ def verified_badge_html(verified: int, total: int) -> str:
 
 
 
-def section_header(title: str, subtitle: str = "", kicker: str = "", center: bool = False, top: bool = False) -> None:
-    """Section heading with optional kicker line and subtitle. ``top`` removes the top margin."""
+def section_header(title: str, subtitle: str = "", kicker: str = "", center: bool = False, top: bool = False,
+                   icon_name: str | None = None) -> None:
+    """Section heading with optional kicker line and subtitle.
+
+    ``top`` marks a page title (no top margin, a faint grid behind it); ``icon_name`` adds an icon tile beside it.
+    """
     cls = "vd-section" + (" center" if center else "") + (" top" if top else "")
     k = f'<div class="vd-kicker">{esc(kicker)}</div>' if kicker else ""
     s = f"<p>{esc(subtitle)}</p>" if subtitle else ""
-    _md(f'<div class="{cls}">{k}<h2>{esc(title)}</h2>{s}</div>')
+    heading = f"<h2>{esc(title)}</h2>"
+    if icon_name:
+        heading = f'<div class="vd-title"><span class="vd-icon">{icon(icon_name, 22)}</span>{heading}</div>'
+    _md(f'<div class="{cls}">{k}{heading}{s}</div>')
 
 
 def kpi_card(label: str, value: str, sub: str = "") -> None:

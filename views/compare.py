@@ -220,6 +220,7 @@ section_header(
     "Last month against this month, before and after a cleanup: see what changed in the columns, the "
     "numbers and the records, with every figure computed by a query you can inspect.",
     top=True,
+    icon_name="trend",
 )
 before, after = (st.session_state.get(SIDES[s]) for s in ("before", "after"))
 if before is None or after is None:
