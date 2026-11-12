@@ -264,14 +264,26 @@ def number_columns(df: pd.DataFrame) -> dict:
     }
 
 
-def sql_expander(sql: str, data: pd.DataFrame | None = None, label: str = "How this was calculated") -> None:
-    """Show the exact SQL that ran, plus the result table it returned."""
+def sql_expander(sql: str, data: pd.DataFrame | None = None, label: str = "How this was calculated",
+                 download_name: str | None = None) -> None:
+    """Show the exact SQL that ran and the result table it returned, with an optional CSV download of that table."""
     with st.expander(label):
         st.caption("The exact DuckDB SQL that produced the numbers above. The table is named data.")
         st.code(sql, language="sql")
         if data is not None:
             st.dataframe(data, hide_index=True, height=min(320, 36 * (len(data) + 1) + 2),
                          column_config=number_columns(data))
+            if download_name:
+                st.download_button(
+                    "Download this data",
+                    data=lambda: data.round(4).to_csv(index=False).encode("utf-8-sig"),
+                    file_name=f"{download_name}.csv",
+                    mime="text/csv",
+                    icon=":material/download:",
+                    type="tertiary",
+                    on_click="ignore",
+                    key=f"dl_chart_{download_name}",
+                )
 
 
 def render_chart_card(spec: ChartSpec, key_prefix: str = "chart") -> None:
@@ -279,7 +291,7 @@ def render_chart_card(spec: ChartSpec, key_prefix: str = "chart") -> None:
 
     def body() -> None:
         st.plotly_chart(figure_for(spec), theme=None, config=PLOTLY_CONFIG, key=f"{key_prefix}_{spec.key}")
-        sql_expander(spec.sql, spec.data)
+        sql_expander(spec.sql, spec.data, download_name=f"{key_prefix}_{spec.key}")
 
     chart_card(spec.title, spec.insight, body, key=f"{key_prefix}_{spec.key}", notes=[(n, "slate") for n in spec.notes])
 

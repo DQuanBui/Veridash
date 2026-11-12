@@ -180,7 +180,7 @@ def _chart_card(c: Comparison) -> None:
                     f"Each {esc(group)} that moved, from the before file to the after file, largest first.</p>",
                     unsafe_allow_html=True)
         st.plotly_chart(figure_for(spec), theme=None, config=PLOTLY_CONFIG, key="cmp_chart")
-        sql_expander(c.metric.sql + ";\n\n" + spec.sql, spec.data)
+        sql_expander(c.metric.sql + ";\n\n" + spec.sql, spec.data, download_name="comparison_by_group")
 
 
 def _results(c: Comparison) -> None:
