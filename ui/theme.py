@@ -156,14 +156,17 @@ _CSS = """
   --vd-text: light-dark(#10213A, #E4EAF2);
   --vd-muted: light-dark(#64748B, #94A3B8);
   --vd-faint: light-dark(#CBD5E1, #334155);
-  --vd-border: light-dark(#E2E8F0, #243045);
+  --vd-border: light-dark(#DCE4EC, #22304A);
   --vd-divider: light-dark(#F1F5F9, #1A2438);
   --vd-surface: light-dark(#FFFFFF, #111A2C);
-  --vd-subtle: light-dark(#F8FAFC, #131C2E);
+  --vd-subtle: light-dark(#F7FAFC, #131D30);
   --vd-accent: light-dark(#0F766E, #5EEAD4);
   --vd-tint: light-dark(#F0FDFA, rgba(20, 184, 166, 0.12));
   --vd-tint-border: light-dark(#CCFBF1, rgba(45, 212, 191, 0.28));
-  --vd-shadow-color: light-dark(rgba(15, 23, 42, 0.07), rgba(0, 0, 0, 0.35));
+  --vd-shadow-color: light-dark(rgba(16, 33, 58, 0.07), rgba(0, 0, 0, 0.35));
+  --vd-page: light-dark(#F5F8FA, #0A1322);
+  --vd-ink: #0B1B33;
+  --vd-indigo: light-dark(#4F46E5, #818CF8);
   --vd-chip: light-dark(#F1F5F9, #1E293B);
   --vd-ok: light-dark(#15803D, #4ADE80);
   --vd-bad-bg: light-dark(#FEE2E2, rgba(239, 68, 68, 0.22));
@@ -174,9 +177,18 @@ _CSS = """
   --vd-body: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --vd-mist: light-dark(#F2F6F8, #0F1A2C);
   --vd-red-pen: light-dark(#C8281E, #FF7A6E);
-  --vd-shadow: 0 1px 2px var(--vd-shadow-color), 0 1px 3px var(--vd-shadow-color);
+  --vd-shadow: 0 1px 2px var(--vd-shadow-color), 0 10px 28px -18px light-dark(rgba(16, 33, 58, 0.28), rgba(0, 0, 0, 0.6));
 }
 html, body { font-family: var(--vd-body); }
+/* The page: a cool off-white with two soft glows at the top, so white cards have depth */
+.stApp { background:
+  radial-gradient(1100px 520px at 88% -8%, light-dark(rgba(13, 148, 136, 0.10), rgba(20, 184, 166, 0.10)), transparent 62%),
+  radial-gradient(900px 460px at -6% 2%, light-dark(rgba(79, 70, 229, 0.06), rgba(99, 102, 241, 0.08)), transparent 60%),
+  var(--vd-page) !important; }
+/* A frosted top bar that stays readable over the content as you scroll */
+header[data-testid="stHeader"] { background: color-mix(in srgb, var(--vd-page) 78%, transparent) !important;
+  backdrop-filter: saturate(160%) blur(12px); -webkit-backdrop-filter: saturate(160%) blur(12px);
+  border-bottom: 1px solid color-mix(in srgb, var(--vd-border) 70%, transparent); }
 h1, h2, h3, h4, .vd-hero h1, .vd-section h2, .vd-chart-title, .vd-kpi .value, .vd-wordmark {
   font-family: var(--vd-display); font-optical-sizing: auto; }
 .stApp { font-variant-numeric: tabular-nums; }

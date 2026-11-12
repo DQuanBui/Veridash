@@ -12,28 +12,28 @@ showSidebarBorder = true
 [theme.light]
 base = "light"
 primaryColor = "#0D9488"
-backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F8FAFC"
+backgroundColor = "#F5F8FA"
+secondaryBackgroundColor = "#FFFFFF"
 textColor = "#10213A"
-borderColor = "#E2E8F0"
+borderColor = "#DCE4EC"
 linkColor = "#0F766E"
 chartCategoricalColors = ["#0D9488", "#6366F1", "#F59E0B", "#EC4899", "#0EA5E9", "#84CC16", "#8B5CF6", "#F97316"]
 
 [theme.light.sidebar]
-backgroundColor = "#F8FAFC"
+backgroundColor = "#EDF2F7"
 
 [theme.dark]
 base = "dark"
 primaryColor = "#0D9488"
-backgroundColor = "#0B1424"
-secondaryBackgroundColor = "#131C2E"
+backgroundColor = "#0A1322"
+secondaryBackgroundColor = "#121D31"
 textColor = "#E2E8F0"
 borderColor = "#243045"
 linkColor = "#5EEAD4"
 chartCategoricalColors = ["#0D9488", "#6366F1", "#D97706", "#DB2777", "#0284C7", "#65A30D", "#7C3AED", "#EA580C"]
 
 [theme.dark.sidebar]
-backgroundColor = "#0F1729"
+backgroundColor = "#0D1729"
 
 [client]
 toolbarMode = "viewer"
