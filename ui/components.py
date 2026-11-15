@@ -79,13 +79,38 @@ def section_header(title: str, subtitle: str = "", kicker: str = "", center: boo
     _md(f'<div class="{cls}">{k}{heading}{s}</div>')
 
 
-def kpi_card(label: str, value: str, sub: str = "") -> None:
-    """A single KPI tile."""
-    s = f'<div class="sub">{esc(sub)}</div>' if sub else ""
+ARROWS = {"up": ("▲", "up"), "down": ("▼", "down")}
+
+
+def kpi_card(label: str, value: str, sub: str = "", value_tone: str | None = None, sub_tone: str | None = None,
+             spark: str = "") -> None:
+    """A single KPI tile.
+
+    ``value_tone`` / ``sub_tone`` ("up" or "down") color a change green or red with an arrow, and say the
+    direction to screen readers; ``spark`` is optional sparkline markup shown under the value.
+    """
+    def toned(text: str, tone: str | None) -> tuple[str, str]:
+        if tone not in ARROWS:
+            return esc(text), ""
+        arrow, word = ARROWS[tone]
+        return f'<span class="arrow" aria-hidden="true">{arrow}</span>{esc(text)}<span class="vd-sr"> ({word})</span>', f" {tone}"
+
+    v, v_cls = toned(value, value_tone)
+    s = ""
+    if sub:
+        sub_html, s_cls = toned(sub, sub_tone)
+        s = f'<div class="sub{s_cls}">{sub_html}</div>'
     _md(
         f'<div class="vd-kpi"><div class="label">{esc(label)}</div>'
-        f'<div class="value">{esc(value)}</div>{s}</div>'
+        f'<div class="value{v_cls}">{v}</div>{s}{spark}</div>'
     )
+
+
+def tone_of(value: float | None) -> str | None:
+    """``up`` for a rise, ``down`` for a fall, ``None`` for no change or no value."""
+    if value is None or value == 0:
+        return None
+    return "up" if value > 0 else "down"
 
 
 

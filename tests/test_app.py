@@ -216,3 +216,15 @@ def test_benchmark_page_summarizes_in_words():
     assert not at.exception, at.exception
     summary = next(m.value for m in at.markdown if "In short:" in m.value)
     assert "never flagged a correct one" in summary and "blocked every harmful query" in summary
+
+
+def test_headline_numbers_show_direction_and_a_trend():
+    from ui.components import tone_of
+
+    assert (tone_of(19.6), tone_of(-3.2), tone_of(0), tone_of(None)) == ("up", "down", None, None)
+    at = _app().run()
+    at.switch_page("views/analyze.py").run()
+    at.button(key="start_retail").click().run()
+    html = " ".join(m.value for m in at.markdown)
+    assert 'class="value up"' in html and "(up)" in html  # direction is also read out
+    assert 'class="vd-spark"' in html

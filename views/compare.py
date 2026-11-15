@@ -13,7 +13,15 @@ from core.settings import CACHE_TTL_S, MAX_FILE_MB
 from exports.compare_csv import build_compare_csv
 from ui.branding import icon
 from ui.charts import PLOTLY_CONFIG, figure_for, sql_expander
-from ui.components import badge_html, callout, esc, kpi_card, section_header, verified_badge_html
+from ui.components import (
+    badge_html,
+    callout,
+    esc,
+    kpi_card,
+    section_header,
+    tone_of,
+    verified_badge_html,
+)
 from ui.state import COMPARE_KEYS, Source, cached_prepare, load_compare_example, notify
 
 SIDES = COMPARE_KEYS
@@ -93,12 +101,15 @@ def _kpis(c: Comparison) -> None:
                 if m.change_pct is not None:
                     sub += f" ({fmt_signed_pct(m.change_pct)})"
                 sub += " vs before"
-            kpi_card(sel.metric_label, fmt_value(m.after, sel.value_kind), sub)
+            visible = sub != "No visible change"
+            kpi_card(sel.metric_label, fmt_value(m.after, sel.value_kind), sub,
+                     sub_tone=tone_of(m.change) if visible else None)
         else:
             kpi_card(sel.metric_label, "n/a", "Not available in both files")
     with k3:
         h = c.health
-        kpi_card("Data health", f"{h.after}/100", f"{h.after - h.before:+d} vs {h.before} before" if h.after != h.before
+        kpi_card("Data health", f"{h.after}/100", sub_tone=tone_of(h.after - h.before),
+                 sub=f"{h.after - h.before:+d} vs {h.before} before" if h.after != h.before
                  else "Same as before")
     with k4:
         cols = c.columns

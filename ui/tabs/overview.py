@@ -10,7 +10,15 @@ import streamlit as st
 from core.formatting import fmt_value, human_bytes, plural
 from core.health import HealthReport
 from core.pipeline import Analysis
-from ui.components import SEVERITY_VARIANT, TYPE_BADGE_VARIANT, badge_html, esc, kpi_card
+from ui.components import (
+    SEVERITY_VARIANT,
+    TYPE_BADGE_VARIANT,
+    badge_html,
+    esc,
+    kpi_card,
+    sparkline_svg,
+    tone_of,
+)
 
 _GRADE_COLOR = {"A": "#0D9488", "B": "#0D9488", "C": "#D97706", "D": "#DC2626", "F": "#DC2626"}
 
@@ -95,10 +103,15 @@ def render(analysis: Analysis) -> None:
 
     _start_here()
 
+    trend = next((c for c in analysis.charts if c.key == "trend"), None)
     cols = st.columns(len(analysis.kpis) or 1)
     for col, kpi in zip(cols, analysis.kpis, strict=False):
         with col:
-            kpi_card(kpi.label, kpi.display, kpi.note)
+            spark = ""
+            if kpi.key == "metric" and trend is not None:  # the main total, with its trend underneath
+                spark = sparkline_svg(trend.data[trend.y].tolist(), f"Trend of {kpi.label.lower()}")
+            tone = tone_of(kpi.value) if kpi.key == "period_change" else None
+            kpi_card(kpi.label, kpi.display, kpi.note, value_tone=tone, spark=spark)
     with st.expander("How these KPIs were calculated"):
         st.caption("Each KPI is computed on the full dataset by the DuckDB query shown.")
         for kpi in analysis.kpis:

@@ -422,6 +422,13 @@ div[class*="st-key-card_resume"] { padding: 10px 16px; background: var(--vd-tint
 .vd-kpi .value { font-size: 28px; font-weight: 700; color: var(--vd-text); margin-top: 6px;
   letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
 .vd-kpi .sub { font-size: 13px; color: var(--vd-muted); margin-top: 4px; }
+/* Changes: green with an up arrow, red with a down arrow */
+.vd-kpi .up { color: var(--vd-ok); }
+.vd-kpi .down { color: var(--vd-red-pen); }
+.vd-kpi .arrow { font-size: 0.55em; vertical-align: 0.22em; margin-right: 5px; }
+.vd-kpi .sub .arrow { font-size: 0.8em; vertical-align: 0.05em; margin-right: 3px; }
+.vd-kpi .vd-spark { height: 28px; margin-top: 8px; }
+.vd-kpi { min-height: 148px; }  /* room for a sparkline, so a row of cards stays even */
 
 /* Badges */
 .vd-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600;
