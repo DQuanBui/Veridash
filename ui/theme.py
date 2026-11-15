@@ -516,6 +516,15 @@ table.vd-table.fit .cap { color: var(--vd-muted); }
 @container (max-width: 330px) { table.vd-table.fit .wcol { display: none; }
   table.vd-table.fit th, table.vd-table.fit td { padding: 8px 7px; } }
 
+/* Column profile: how complete each column is */
+.vd-complete { display: flex; align-items: center; gap: 8px; min-width: 120px; }
+.vd-complete .bar { flex: 1; height: 6px; border-radius: 999px; background: var(--vd-chip); overflow: hidden; }
+.vd-complete .bar > span { display: block; height: 100%; border-radius: 999px; background: var(--vd-primary); }
+.vd-complete.warn .bar > span { background: #F59E0B; }
+.vd-complete.bad .bar > span { background: var(--vd-red-pen); }
+.vd-complete .pct { font-variant-numeric: tabular-nums; font-size: 13px; color: var(--vd-muted); min-width: 44px;
+  text-align: right; }
+
 /* Author card */
 .vd-author { display: flex; gap: 16px; align-items: center; }
 .vd-author .n { font-weight: 700; font-size: 18px; color: var(--vd-text); }

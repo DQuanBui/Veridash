@@ -36,8 +36,18 @@ def _summary(col: ColumnProfile) -> str:
     return ""
 
 
+def _completeness(missing_pct: float) -> str:
+    """A small bar showing how complete a column is, with the share as text (and for screen readers)."""
+    complete = max(0.0, 100.0 - missing_pct)
+    tone = "ok" if missing_pct == 0 else "warn" if missing_pct < 5 else "bad"
+    text = "100%" if missing_pct == 0 else f"{complete:.1f}%"
+    return (f"<div class='vd-complete {tone}' title='{missing_pct:.1f}% missing'>"
+            f"<span class='bar' aria-hidden='true'><span style='width:{complete:.1f}%'></span></span>"
+            f"<span class='pct'>{text}</span></div>")
+
+
 def profile_table_html(columns: list[ColumnProfile]) -> str:
-    """The column profile as an escaped HTML table with type badges."""
+    """The column profile as an escaped HTML table with type badges and completeness bars."""
     rows = []
     for c in columns:
         flags = []
@@ -49,12 +59,12 @@ def profile_table_html(columns: list[ColumnProfile]) -> str:
             flags.append(c.unit)
         rows.append(
             f"<tr><td><b>{esc(c.name)}</b></td><td>{type_badge_html(str(c.col_type))}</td>"
-            f"<td class='num'>{c.missing_pct:.1f}%</td><td class='num'>{c.n_unique:,}</td>"
+            f"<td>{_completeness(c.missing_pct)}</td><td class='num'>{c.n_unique:,}</td>"
             f"<td class='wrap'>{esc(_summary(c))}</td><td>{esc(', '.join(flags))}</td></tr>"
         )
     return (
         "<div class='vd-table-wrap'><table class='vd-table'><thead><tr><th>Column</th><th>Type</th>"
-        "<th style='text-align:right'>Missing</th><th style='text-align:right'>Distinct</th>"
+        "<th>Complete</th><th style='text-align:right'>Distinct</th>"
         f"<th>Summary</th><th>Notes</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div>"
     )
 
