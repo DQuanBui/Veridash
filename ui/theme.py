@@ -651,10 +651,10 @@ div[class*="st-key-card_tested"] { border-color: light-dark(#C9ECE3, rgba(94, 23
   .vd-kpi { min-height: 0; padding: 12px 14px; }
   .vd-kpi .value { font-size: 22px; }
   /* All six analysis tabs fit on one line: no icons, a little tighter */
-  .stTabs [role="tablist"] { gap: 8px; }
-  .stTabs [data-testid="stTab"] { padding: 10px 1px; }
+  .stTabs [role="tablist"] { flex-wrap: wrap; gap: 2px 14px; overflow: visible !important; }
+  .stTabs [data-testid="stTab"] { padding: 8px 1px; }
   .stTabs [data-testid="stTab"] p > span[role="img"] { display: none !important; }
-  .stTabs [data-testid="stTab"] p { font-size: 13px; }
+  .stTabs [data-testid="stTab"] p { font-size: 13.5px; }
   .block-container { padding-top: 4rem; }
   .vd-hero { padding: 32px 0 24px 0; }
   .vd-issue { grid-template-columns: 1fr; gap: 4px; }
