@@ -228,3 +228,11 @@ def test_headline_numbers_show_direction_and_a_trend():
     html = " ".join(m.value for m in at.markdown)
     assert 'class="value up"' in html and "(up)" in html  # direction is also read out
     assert 'class="vd-spark"' in html
+
+
+def test_examples_page_opens_a_comparison():
+    at = _app().run()
+    at.switch_page("views/examples.py").run()
+    at.button(key="cmpex_go_retail_years").click().run()
+    assert not at.exception, at.exception
+    assert at.session_state["vd_cmp_before"].name == "retail_sales_2023.csv"

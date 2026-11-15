@@ -6,10 +6,10 @@ import streamlit as st
 
 from core.formatting import pretty
 from core.loader import file_hash
-from core.samples import EXAMPLES
+from core.samples import COMPARE_EXAMPLES, EXAMPLES
 from ui.branding import icon
 from ui.components import SEVERITY_VARIANT, badge_html, esc, section_header, sparkline_svg
-from ui.state import cached_analysis, example_trend, load_example
+from ui.state import cached_analysis, example_trend, load_compare_example, load_example
 
 MIME = {
     "csv": "text/csv",
@@ -65,6 +65,27 @@ for col, ex in zip(cols, EXAMPLES.values(), strict=True):
                 on_click="ignore",
                 key=f"dl_example_{ex.key}",
             )
+
+section_header("Try a comparison", "Two slices of the same example side by side: what changed, and where.")
+COMPARE_BLURBS = {
+    "retail_years": ("store", "Total revenue in 2023 against 2024, and the regions that moved it."),
+    "portfolio_months": ("trend", "Holdings in November against December 2024, and the sectors that moved them."),
+}
+pair_cols = st.columns(len(COMPARE_EXAMPLES), gap="medium")
+for col, cx in zip(pair_cols, COMPARE_EXAMPLES.values(), strict=True):
+    icon_name, blurb = COMPARE_BLURBS.get(cx.key, ("trend", ""))
+    with col, st.container(key=f"card-eqb_cmpex_{cx.key}"):
+        st.markdown(
+            f"<div class='vd-exhead'><span class='vd-icon'>{icon(icon_name)}</span>"
+            f"<p class='vd-chart-title' style='font-size:18px'>{esc(cx.title)}</p></div>"
+            f"<p class='vd-chart-insight'>{esc(blurb)}</p>"
+            f"<div class='vd-badges' style='margin-top:10px'>{badge_html(cx.before_name, 'slate')}"
+            f"<span style='color:var(--vd-muted)'>→</span>{badge_html(cx.after_name, 'teal')}</div>",
+            unsafe_allow_html=True,
+        )
+        if st.button("Compare these", key=f"cmpex_go_{cx.key}", icon=":material/compare_arrows:", width="stretch"):
+            load_compare_example(cx.key)
+            st.switch_page("views/compare.py")
 
 st.write("")
 st.caption(
