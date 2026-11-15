@@ -49,5 +49,9 @@ pages = [
     st.Page("views/guide.py", title="Guide", icon=":material/menu_book:", url_path="guide"),
 ]
 
-st.navigation(pages, position="top").run()
+page = st.navigation(pages, position="top")
+# Each page gets its own browser tab title, so several open tabs stay easy to tell apart.
+st.set_page_config(page_title=f"{APP_NAME} · Verifiable data analysis" if page.title == "Home"
+                   else f"{page.title} · {APP_NAME}")
+page.run()
 footer()  # one footer, at the bottom of every page
