@@ -3,6 +3,23 @@
 Notable changes to Veridash. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.7.0] - 2026-11-14
+
+### Added
+- **A browser tab title for each page,** such as Analyze · Veridash.
+- **Headline numbers that show direction:** changes are green with an up arrow or red with a down arrow (and say
+  so to screen readers), and the main total on Analyze carries a small trend line.
+- **Completeness bars** in the column profile: teal when full, amber when a little is missing, red at 5% or more.
+- **Topic icons** beside each line of the Compare summary.
+- **Try a comparison** on the Examples page, with both compare examples as cards.
+- **Copy as plain text** on the Insights tab, ready to paste into an email or document.
+- **Ask your data:** an Answers heading with a count, a Clear answers button and a CSV download for each answer.
+
+### Fixed
+- On phones the analysis tabs wrap onto a second line instead of being hidden behind a scroll arrow (the
+  one-line fit broke at 360px and once the web font loaded).
+- On phones, headline cards no longer run into the row below.
+
 ## [1.6.0] - 2026-11-12
 
 ### Added
@@ -154,7 +171,8 @@ versions follow [Semantic Versioning](https://semver.org/).
 - Exports: an Excel report with native charts, a PDF summary and a Power BI Starter Kit.
 - Light and dark themes, a Home page with use cases and a comparison, a Guide and an Examples page.
 
-[1.6.0]: https://github.com/DQuanBui/Veridash/compare/9511c51...main
+[1.7.0]: https://github.com/DQuanBui/Veridash/compare/616c4b5...main
+[1.6.0]: https://github.com/DQuanBui/Veridash/compare/9511c51...616c4b5
 [1.5.0]: https://github.com/DQuanBui/Veridash/compare/12f3c7b...9511c51
 [1.4.0]: https://github.com/DQuanBui/Veridash/compare/5460983...12f3c7b
 [1.3.0]: https://github.com/DQuanBui/Veridash/compare/568aefc...5460983
