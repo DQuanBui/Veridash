@@ -529,6 +529,11 @@ table.vd-table.fit .cap { color: var(--vd-muted); }
 .vd-sumline { display: flex; align-items: flex-start; gap: 12px; }
 .vd-sumline .vd-icon { width: 30px; height: 30px; border-radius: 8px; flex: none; margin-top: 1px; }
 
+/* Ask: a count beside the Answers heading */
+.vd-count { display: inline-block; min-width: 24px; padding: 1px 8px; margin-left: 8px; border-radius: 999px;
+  background: var(--vd-chip); color: var(--vd-text); border: 1px solid var(--vd-border); text-align: center;
+  font-family: var(--vd-body); font-size: 13px; font-weight: 600; line-height: 20px; vertical-align: middle; }
+
 /* Author card */
 .vd-author { display: flex; gap: 16px; align-items: center; }
 .vd-author .n { font-weight: 700; font-size: 18px; color: var(--vd-text); }

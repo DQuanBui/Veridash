@@ -248,3 +248,16 @@ def test_insights_can_be_copied_as_plain_text():
     assert text.startswith("Summary\n- ") and "\nKey findings\n- " in text
     assert "<" not in text  # plain text, no markup
     assert text.rstrip().endswith("Every number was checked against the data.")
+
+
+def test_ask_answers_can_be_downloaded_and_cleared():
+    at = _app().run()
+    at.switch_page("views/analyze.py").run()
+    at.button(key="start_retail").click().run()
+    at.button_group(key="vd_starter_pick").set_value(at.button_group(key="vd_starter_pick").options[0]).run()
+    assert not at.exception, at.exception
+    ids = " ".join(el.proto.id for el in at.get("download_button"))
+    assert "dl_ask_1" in ids
+    clear = next(b for b in at.button if b.key and b.key.startswith("vd_ask_clear_"))
+    clear.click().run()
+    assert not any(b.key and b.key.startswith("vd_ask_clear_") for b in at.button)

@@ -40,6 +40,10 @@ def _render_result(res: AskResult, key: str) -> None:
             st.plotly_chart(fig, theme=None, config=PLOTLY_CONFIG, key=f"ask_fig_{key}")
         st.dataframe(res.data, hide_index=True, height=min(360, 36 * (len(res.data) + 1) + 2),
                      column_config=number_columns(res.data))
+        if not res.data.empty:
+            st.download_button("Download this answer", data=res.data.round(4).to_csv(index=False).encode("utf-8-sig"),
+                               file_name="veridash_answer.csv", mime="text/csv", icon=":material/download:",
+                               type="tertiary", on_click="ignore", key=f"dl_ask_{key}")
 
 
 def _locked(examples: list[str]) -> None:
@@ -116,6 +120,14 @@ def render(analysis: Analysis, file_key: str) -> None:
                 history.insert(0, run_validated(engine, sql, question="Your SQL"))
             del history[5:]
 
+    if history:
+        st.write("")
+        head, clear = st.columns([4, 1.2], vertical_alignment="center")
+        head.markdown(f"<p class='vd-chart-title'>Answers <span class='vd-count'>{len(history)}</span></p>"
+                      "<p class='vd-chart-insight'>Newest first. The last five for this file are kept for this "
+                      "session.</p>", unsafe_allow_html=True)
+        clear.button("Clear answers", key=f"vd_ask_clear_{file_key}", icon=":material/delete_sweep:",
+                     type="tertiary", on_click=history.clear, width="stretch")
     for i, res in enumerate(history):
         st.write("")
         _render_result(res, f"{len(history) - i}")
