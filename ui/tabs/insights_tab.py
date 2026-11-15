@@ -37,6 +37,21 @@ def _item(text: str, ids: list[str], pack: FactPack, report: FactCheckReport, sh
     return f"<div class='vd-insight'><div class='txt'>{_text(text, report)}</div>{meta}</div>"
 
 
+def insights_as_text(insights: Insights) -> str:
+    """The insights as plain text with simple headings and bullets, for pasting elsewhere."""
+    parts = ["Summary", *(f"- {s.text}" for s in insights.summary), "", "Key findings",
+             *(f"- {s.text}" for s in insights.findings)]
+    if insights.recommendations:
+        parts += ["", "Recommendations to test"]
+        for r in insights.recommendations:
+            parts += [f"- {r.hypothesis}", f"  Evidence: {r.evidence}", f"  How to check: {r.how_to_validate}"]
+    if insights.caveats:
+        parts += ["", "Caveats", *(f"- {c}" for c in insights.caveats)]
+    source = f"AI-written ({insights.model})" if insights.source == "ai" else "Rule-based"
+    parts += ["", f"{source} insights from Veridash. Every number was checked against the data."]
+    return "\n".join(parts)
+
+
 def render_insights(insights: Insights, pack: FactPack) -> FactCheckReport:
     """Render insights with highlighted, fact-checked numbers. Returns the report."""
     report = fact_check(insights.texts(), pack)
@@ -96,6 +111,10 @@ def render_insights(insights: Insights, pack: FactPack) -> FactCheckReport:
                     f"{cites}",
                     unsafe_allow_html=True,
                 )
+
+    with st.expander("Copy as plain text", icon=":material/content_copy:"):
+        st.caption("Ready to paste into an email or a document. Use the copy button in the corner.")
+        st.code(insights_as_text(insights), language=None, wrap_lines=True)
 
     with st.expander("Fact-check details"):
         st.caption(

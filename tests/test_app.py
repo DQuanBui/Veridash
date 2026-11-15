@@ -236,3 +236,15 @@ def test_examples_page_opens_a_comparison():
     at.button(key="cmpex_go_retail_years").click().run()
     assert not at.exception, at.exception
     assert at.session_state["vd_cmp_before"].name == "retail_sales_2023.csv"
+
+
+def test_insights_can_be_copied_as_plain_text():
+    from core.pipeline import analyze, prepare
+    from core.samples import EXAMPLES
+    from ui.tabs.insights_tab import insights_as_text
+
+    ex = EXAMPLES["retail"]
+    text = insights_as_text(analyze(prepare(ex.read_bytes(), ex.filename)).rule_insights)
+    assert text.startswith("Summary\n- ") and "\nKey findings\n- " in text
+    assert "<" not in text  # plain text, no markup
+    assert text.rstrip().endswith("Every number was checked against the data.")
