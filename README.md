@@ -70,6 +70,7 @@ exports for Excel, PDF and Power BI. A second file can be compared with the firs
 - **Smart parsing:** currency, percentages and accounting negatives such as (123) are read as numbers.
 - **Take the clean data with you:** the Data tab downloads the cleaned data (or just the rows matching a
   search) and a data dictionary describing every column.
+- **See gaps at a glance:** the column profile shows how complete each column is as a small bar.
 
 ### Smart charts and KPIs
 - **Chosen by data shape:** trends over time, what drove the latest change, top-N rankings, share of total, rates by group, distributions,
@@ -77,6 +78,8 @@ exports for Excel, PDF and Power BI. A second file can be compared with the firs
 - **One-sentence insights:** each chart states what it shows, using numbers from its own query.
 - **"How this was calculated":** every chart and KPI shows the exact SQL that ran and the table it returned.
 - **Adjustable:** the primary metric, date column and date grain can be changed at any time.
+- **Readable at a glance:** changes in the headline numbers are green with an up arrow or red with a down
+  arrow, and the main total carries a small trend line.
 - **Light and dark mode:** the app follows the visitor's system setting, with color-blind-safe chart palettes validated for both.
 
 ### AI insights with fact-checking
@@ -90,6 +93,7 @@ exports for Excel, PDF and Power BI. A second file can be compared with the firs
 - **Eight languages:** AI insights can be written in English, Spanish, French, German, Portuguese, Italian, Dutch
   or Vietnamese. Numbers keep one format in every language, so the fact-check works the same way.
 - **Works without a key:** rule-based insights with the same structure are always available.
+- **Copy as plain text:** the insights in tidy headings and bullets, ready to paste into an email.
 - **Check anyone's numbers:** paste a paragraph from a colleague's report or an AI chat, and every number in it
   is checked against the file, with the reason for any that fail.
 
@@ -107,7 +111,8 @@ exports for Excel, PDF and Power BI. A second file can be compared with the firs
   as a table, the largest records and missing values per column. They run plain SQL and need no key.
 - **Plain-English questions:** Gemini writes a single SQL query, which Veridash validates before running.
 - **Strict safety rules:** read-only queries only, no file access, a row limit and a timeout.
-- **Transparent results:** the SQL, the result table and an automatic chart are shown together.
+- **Transparent results:** the SQL, the result table and an automatic chart are shown together. Each answer
+  can be downloaded as a CSV, and the list of answers can be cleared.
 - **SQL mode:** without a key, users can write their own queries under the same safety rules.
 
 ### Exports: a web report, Excel, PDF, the Power BI Starter Kit and an audit trail
