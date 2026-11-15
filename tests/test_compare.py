@@ -233,3 +233,9 @@ def test_comparison_csv_lists_every_figure(pair):
     assert {"Rows", "Health", "Columns", "Metric", "By region"} <= set(df["section"])
     assert (df["item"] == "channel").any() and (df["item"] == "notes").any()
     assert df[df["section"] == "By region"]["sql"].str.contains('"_file"').all()
+
+
+def test_each_summary_sentence_has_a_topic(pair):
+    c = compare(*pair, "jan.csv", "feb.csv")
+    assert len(c.summary_kinds) == len(c.summary)
+    assert c.summary_kinds[:3] == ["rows", "columns", "metric"] and "health" in c.summary_kinds

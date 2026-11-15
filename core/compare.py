@@ -263,6 +263,7 @@ class Comparison:
     records: RecordChange | None
     facts: FactPack
     summary: list[str]
+    summary_kinds: list[str] = field(default_factory=list)  # topic of each sentence
 
     @property
     def rows_before(self) -> int:
@@ -316,16 +317,20 @@ def _facts_and_summary(c: Comparison) -> tuple[FactPack, list[str]]:
     names = c.columns.added + c.columns.removed + [n for n, _, _ in c.columns.retyped]
     facts += [Fact(f"columns.name_{i}", "Column name", n, "text", "compare") for i, n in enumerate(names)]
     summary: list[str] = []
+    kinds: list[str] = []  # the topic of each sentence, for icons
 
     diff = c.rows_after - c.rows_before
     if diff:
+        kinds.append("rows")
         summary.append(f"{c.after_name} has {c.rows_after:,} rows, {abs(diff):,} {'more' if diff > 0 else 'fewer'} "
                        f"than {c.before_name} ({c.rows_before:,}).")
     else:
+        kinds.append("rows")
         summary.append(f"Both files have {c.rows_after:,} rows.")
 
     cols = c.columns
     if cols.unchanged:
+        kinds.append("columns")
         summary.append(f"Both files have the same {len(cols.common)} columns.")
     else:
         parts = []
@@ -335,6 +340,7 @@ def _facts_and_summary(c: Comparison) -> tuple[FactPack, list[str]]:
             parts.append(f"{len(cols.removed)} removed ({_names(cols.removed)})")
         if cols.retyped:
             parts.append(f"{len(cols.retyped)} changed type ({_names([n for n, _, _ in cols.retyped])})")
+        kinds.append("columns")
         summary.append("Columns: " + "; ".join(parts) + ".")
 
     if m.before is not None and m.after is not None:
@@ -354,6 +360,7 @@ def _facts_and_summary(c: Comparison) -> tuple[FactPack, list[str]]:
             facts.append(Fact("metric.change_pct", f"Change in {sel.metric_label.lower()}, %", m.change_pct,
                               "percent", "compare"))
             text += f" ({fmt_signed_pct(m.change_pct)})"
+        kinds.append("metric")
         summary.append(text + ".")
 
     if not m.groups.empty and m.group_col:
@@ -374,6 +381,7 @@ def _facts_and_summary(c: Comparison) -> tuple[FactPack, list[str]]:
                 if len(against) and against.index[0] != top.name:
                     o = against.iloc[0]
                     text += f", while {o['label']} moved the other way ({_signed(float(o['change']), kind)})"
+            kinds.append("groups")
             summary.append(text + ".")
 
     h = c.health
@@ -386,6 +394,7 @@ def _facts_and_summary(c: Comparison) -> tuple[FactPack, list[str]]:
         details.append("better: " + ", ".join(x.lower() for x in h.better))
     if h.worse:
         details.append("worse: " + ", ".join(x.lower() for x in h.worse))
+    kinds.append("health")
     summary.append(text + (f" ({'; '.join(details)})" if details else "") + ".")
 
     r = c.records
@@ -401,9 +410,11 @@ def _facts_and_summary(c: Comparison) -> tuple[FactPack, list[str]]:
         if r.changed is not None and sel.metric:
             facts.append(Fact("records.changed", f"Kept records whose {sel.metric} changed", r.changed, "int", "compare"))
             text += f"; {r.changed:,} of those changed {pretty(sel.metric).lower()}"
+        kinds.append("records")
         summary.append(text + ".")
 
     dataset = {"before": c.before_name, "after": c.after_name, "metric": sel.metric, "aggregation": sel.agg}
+    c.summary_kinds = kinds
     return FactPack(dataset=dataset, schema=[], facts=facts), summary
 
 

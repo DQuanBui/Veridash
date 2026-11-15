@@ -525,6 +525,10 @@ table.vd-table.fit .cap { color: var(--vd-muted); }
 .vd-complete .pct { font-variant-numeric: tabular-nums; font-size: 13px; color: var(--vd-muted); min-width: 44px;
   text-align: right; }
 
+/* Compare summary: an icon for each sentence's topic */
+.vd-sumline { display: flex; align-items: flex-start; gap: 12px; }
+.vd-sumline .vd-icon { width: 30px; height: 30px; border-radius: 8px; flex: none; margin-top: 1px; }
+
 /* Author card */
 .vd-author { display: flex; gap: 16px; align-items: center; }
 .vd-author .n { font-weight: 700; font-size: 18px; color: var(--vd-text); }

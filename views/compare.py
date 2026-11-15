@@ -25,6 +25,9 @@ from ui.components import (
 from ui.state import COMPARE_KEYS, Source, cached_prepare, load_compare_example, notify
 
 SIDES = COMPARE_KEYS
+# An icon for the topic of each summary sentence
+SUMMARY_ICONS = {"rows": "table", "columns": "sql", "metric": "trend", "groups": "chart", "health": "check",
+                 "records": "users"}
 SEES = [
     ("table", "Columns that were added, removed or changed type"),
     ("trend", "How the totals moved, and which groups moved them"),
@@ -125,8 +128,12 @@ def _summary(c: Comparison) -> None:
             "<div style='display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap'>"
             "<p class='vd-chart-title' style='margin:0'>What changed</p>"
             f"{verified_badge_html(report.verified, report.total)}</div>"
-            + "".join(f"<div class='vd-insight'><div class='txt'>{highlight_html(t, report.by_text.get(t, []))}</div></div>"
-                      for t in c.summary),
+            + "".join(
+                f"<div class='vd-insight vd-sumline'><span class='vd-icon' aria-hidden='true'>"
+                f"{icon(SUMMARY_ICONS.get(kind, 'check'), 16)}</span>"
+                f"<div class='txt'>{highlight_html(t, report.by_text.get(t, []))}</div></div>"
+                for t, kind in zip(c.summary, c.summary_kinds or [""] * len(c.summary), strict=False)
+            ),
             unsafe_allow_html=True,
         )
 
